@@ -4,17 +4,50 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { BillSummary } from "./types";
 
-const STATUS_COLORS: Record<string, string> = {
-  Passed: "bg-emerald-500",
-  "In Progress": "bg-amber-500",
-  Introduced: "bg-sky-500",
-  Failed: "bg-rose-500",
-  Paused: "bg-slate-400",
-};
+type StageStyle = { dot: string; chipBg: string; chipText: string };
 
-function StatusDot({ status }: { status: BillSummary["status"] }) {
-  const color = STATUS_COLORS[status] ?? "bg-slate-400";
-  return <span className={`inline-block h-[10px] w-[10px] rounded-full ${color}`} />;
+function getStageStyle(bill: BillSummary): StageStyle {
+  const stage = (bill.stage ?? bill.status ?? "").toLowerCase();
+  // Stage keyword precedence
+  if (stage.includes("royal assent") || stage.includes("passed")) {
+    return { dot: "bg-emerald-500", chipBg: "bg-emerald-100", chipText: "text-emerald-700" };
+  }
+  if (stage.includes("failed") || stage.includes("defeat")) {
+    return { dot: "bg-rose-500", chipBg: "bg-rose-100", chipText: "text-rose-700" };
+  }
+  if (stage.includes("third reading")) {
+    return { dot: "bg-amber-500", chipBg: "bg-amber-100", chipText: "text-amber-700" };
+  }
+  if (stage.includes("report")) {
+    return { dot: "bg-indigo-500", chipBg: "bg-indigo-100", chipText: "text-indigo-700" };
+  }
+  if (stage.includes("committee")) {
+    return { dot: "bg-violet-500", chipBg: "bg-violet-100", chipText: "text-violet-700" };
+  }
+  if (stage.includes("second reading")) {
+    return { dot: "bg-sky-500", chipBg: "bg-sky-100", chipText: "text-sky-700" };
+  }
+  if (stage.includes("first reading") || stage.includes("introduced")) {
+    return { dot: "bg-sky-500", chipBg: "bg-sky-100", chipText: "text-sky-700" };
+  }
+  if (stage.includes("senate")) {
+    return { dot: "bg-fuchsia-500", chipBg: "bg-fuchsia-100", chipText: "text-fuchsia-700" };
+  }
+  if (stage.includes("paused")) {
+    return { dot: "bg-slate-400", chipBg: "bg-slate-200", chipText: "text-slate-700" };
+  }
+  // Fallback by status
+  if (bill.status === "Passed") return { dot: "bg-emerald-500", chipBg: "bg-emerald-100", chipText: "text-emerald-700" };
+  if (bill.status === "Failed") return { dot: "bg-rose-500", chipBg: "bg-rose-100", chipText: "text-rose-700" };
+  if (bill.status === "Introduced") return { dot: "bg-sky-500", chipBg: "bg-sky-100", chipText: "text-sky-700" };
+  if (bill.status === "In Progress") return { dot: "bg-amber-500", chipBg: "bg-amber-100", chipText: "text-amber-700" };
+  if (bill.status === "Paused") return { dot: "bg-slate-400", chipBg: "bg-slate-200", chipText: "text-slate-700" };
+  return { dot: "bg-slate-400", chipBg: "bg-slate-200", chipText: "text-slate-700" };
+}
+
+function StatusDot({ bill }: { bill: BillSummary }) {
+  const { dot } = getStageStyle(bill);
+  return <span className={`inline-block h-[10px] w-[10px] rounded-full ${dot}`} />;
 }
 
 interface BillExplorerProps {
@@ -94,13 +127,18 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
             >
               <Link href={`/bills/${bill.billID}`} className="block p-4 hover:bg-black/5">
                 <div className="flex items-start gap-3">
-                  <StatusDot status={bill.status} />
+                  <StatusDot bill={bill} />
                   <div className="flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <h2 className="text-base font-semibold">{bill.title}</h2>
-                      <span className="text-xs rounded-full bg-[var(--tag-bg)] text-[var(--tag-text)] px-2 py-0.5">
-                        {bill.status}
-                      </span>
+                      {(() => {
+                        const { chipBg, chipText } = getStageStyle(bill);
+                        return (
+                          <span className={`text-xs rounded-full px-2 py-0.5 ${chipBg} ${chipText}`}>
+                            {bill.status}
+                          </span>
+                        );
+                      })()}
                     </div>
                     <p className="mt-1 text-sm text-[var(--muted)]">{bill.description}</p>
                     <div className="mt-2 text-xs text-[var(--muted)]">

@@ -1,0 +1,168 @@
+import type { BillDocument } from "@/models/Bill";
+import type { ApiBillDetail } from "@/services/billApi";
+import { summarizeBillText, fetchBillMarkdown, onBillNotInDatabase, type BillAnalysis } from "@/services/billApi";
+
+// Unified bill data structure
+export interface UnifiedBill {
+  billId: string;
+  title: string;
+  summary: string;
+  status: string;
+  sponsorParty?: string;
+  chamber?: string;
+  supportedRegion?: string;
+  introducedOn?: Date;
+  lastUpdatedOn?: Date;
+  genres?: string[];
+  parliamentNumber?: number;
+  sessionNumber?: number;
+  votes?: Array<{ motion?: string; result: string }>;
+  fullTextMarkdown?: string | null;
+  // Analysis data from AI
+  tenet_evaluations?: Array<{
+    id: number;
+    title: string;
+    alignment: "aligns" | "conflicts" | "neutral";
+    explanation: string;
+  }>;
+  final_judgment?: "yes" | "no" | "neutral";
+  rationale?: string;
+  needs_more_info?: boolean;
+  missing_details?: string[];
+}
+
+// Convert DB bill to unified format
+export function fromDbBill(bill: BillDocument): UnifiedBill {
+  return {
+    billId: bill.billId,
+    title: bill.title,
+    summary: bill.summary,
+    status: bill.status,
+    sponsorParty: bill.sponsorParty,
+    chamber: bill.chamber,
+    supportedRegion: bill.supportedRegion,
+    introducedOn: bill.introducedOn,
+    lastUpdatedOn: bill.lastUpdatedOn,
+    genres: bill.genres,
+    parliamentNumber: bill.parliamentNumber,
+    sessionNumber: bill.sessionNumber,
+    votes: bill.votes?.map(v => ({ motion: v.motion, result: v.result })),
+    // Include analysis data
+    tenet_evaluations: bill.tenet_evaluations,
+    final_judgment: bill.final_judgment as "yes" | "no" | "neutral" | undefined,
+    rationale: bill.rationale,
+    needs_more_info: bill.needs_more_info,
+    missing_details: bill.missing_details,
+  };
+}
+
+// Convert API bill to unified format
+export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
+  const latestStageDate = bill.stages && bill.stages.length > 0
+    ? bill.stages[bill.stages.length - 1].date
+    : bill.updatedAt ?? bill.date;
+  const house = bill.stages && bill.stages.length > 0 ? bill.stages[bill.stages.length - 1].house : undefined;
+
+  let billMarkdown: string | null = null;
+  if (bill.source) {
+    billMarkdown = await fetchBillMarkdown(bill.source);
+  }
+
+  // Check if we need to regenerate summary based on bill texts count
+  const currentBillTextsCount = Array.isArray(bill.billTexts) ? bill.billTexts.length : 0;
+  let analysis: BillAnalysis = {
+    summary: bill.header || "",
+    tenet_evaluations: [
+      { id: 1, title: "Canada should aim to be the world's richest country", alignment: "neutral", explanation: "Not analyzed" },
+      { id: 2, title: "Promote economic freedom, ambition, and breaking from bureaucratic inertia", alignment: "neutral", explanation: "Not analyzed" },
+      { id: 3, title: "Drive national productivity and global competitiveness", alignment: "neutral", explanation: "Not analyzed" },
+      { id: 4, title: "Grow exports of Canadian products and resources", alignment: "neutral", explanation: "Not analyzed" },
+      { id: 5, title: "Encourage investment, innovation, and resource development", alignment: "neutral", explanation: "Not analyzed" },
+      { id: 6, title: "Deliver better public services at lower cost (government efficiency)", alignment: "neutral", explanation: "Not analyzed" },
+      { id: 7, title: "Reform taxes to incentivize work, risk-taking, and innovation", alignment: "neutral", explanation: "Not analyzed" },
+      { id: 8, title: "Focus on large-scale prosperity, not incrementalism", alignment: "neutral", explanation: "Not analyzed" },
+    ],
+    final_judgment: "no",
+    rationale: "Not analyzed",
+    needs_more_info: false,
+    missing_details: []
+  };
+  let shouldRegenerateSummary = true;
+
+  // Check existing bill in database to see if bill texts count changed
+  try {
+    const { connectToDatabase } = await import("@/lib/mongoose");
+    const { Bill } = await import("@/models/Bill");
+
+    const uri = process.env.MONGO_URI || "";
+    const hasValidMongoUri = uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
+
+    if (hasValidMongoUri) {
+      await connectToDatabase();
+      const existingBill = (await Bill.findOne({ billId: bill.billID }).lean().exec()) as BillDocument | null;
+
+      if (existingBill && existingBill.billTextsCount === currentBillTextsCount) {
+        // Bill texts count hasn't changed, use existing analysis
+        analysis = {
+          summary: existingBill.summary,
+          tenet_evaluations: existingBill.tenet_evaluations || analysis.tenet_evaluations,
+          final_judgment: (existingBill.final_judgment as "yes" | "no" | "neutral") || analysis.final_judgment,
+          rationale: existingBill.rationale || analysis.rationale,
+          needs_more_info: existingBill.needs_more_info || analysis.needs_more_info,
+          missing_details: existingBill.missing_details || analysis.missing_details,
+        };
+        shouldRegenerateSummary = false;
+        console.log(`Using existing analysis for ${bill.billID} (billTexts count unchanged: ${currentBillTextsCount})`);
+      }
+    }
+  } catch (error) {
+    console.error("Error checking existing bill:", error);
+    // Continue with regeneration if DB check fails
+  }
+
+  if (shouldRegenerateSummary) {
+    console.log(`Regenerating analysis for ${bill.billID} (billTexts count: ${currentBillTextsCount})`);
+    // analysis = await summarizeBillText(billMarkdown || bill.header || "");
+    // mock analysis for now
+    analysis = {
+      summary: "This is a summary",
+      tenet_evaluations: [],
+      final_judgment: "no",
+      rationale: "This is a rationale",
+      needs_more_info: false,
+      missing_details: [],
+    };
+  }
+
+  console.log({ analysis });
+  await onBillNotInDatabase({
+    billId: bill.billID,
+    source: bill.source,
+    markdown: billMarkdown,
+    bill,
+    analysis,
+    billTextsCount: currentBillTextsCount,
+  });
+
+  return {
+    billId: bill.billID,
+    title: bill.title,
+    summary: analysis.summary,
+    status: bill.status,
+    sponsorParty: bill.sponsorParty,
+    chamber: house,
+    supportedRegion: bill.supportedRegion,
+    introducedOn: new Date(bill.date),
+    lastUpdatedOn: new Date(latestStageDate),
+    genres: bill.genres,
+    parliamentNumber: bill.parliamentNumber,
+    sessionNumber: bill.sessionNumber,
+    fullTextMarkdown: billMarkdown,
+    // Include analysis data
+    tenet_evaluations: analysis.tenet_evaluations,
+    final_judgment: analysis.final_judgment,
+    rationale: analysis.rationale,
+    needs_more_info: analysis.needs_more_info,
+    missing_details: analysis.missing_details,
+  };
+}

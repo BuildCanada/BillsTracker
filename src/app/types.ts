@@ -6,6 +6,7 @@ export interface BillSummary {
   shortTitle?: string;
   description: string;
   status: BillStatus;
+  stage?: string; // Optional: latest legislative stage label if provided by API
   sponsor: string;
   ministry?: string;
   chamber: "House of Commons" | "Senate";
