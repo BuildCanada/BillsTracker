@@ -1,3 +1,15 @@
+export const TENETS = {
+  1: "Canada should aim to be the world's richest country.",
+  2: "Promote economic freedom, ambition, and breaking from bureaucratic inertia.",
+  3: "Drive national productivity and global competitiveness.",
+  4: "Grow exports of Canadian products and resources.",
+  5: "Encourage investment, innovation, and resource development.",
+  6: "Deliver better public services at lower cost (government efficiency).",
+  7: "Reform taxes to incentivize work, risk-taking, and innovation.",
+  8: "Focus on large-scale prosperity, not incrementalism.",
+}
+
+
 export const SUMMARY_AND_VOTE_PROMPT = `
 You are analyzing Canadian legislation. You must assess whether the bill aligns with Build Canada’s Core Tenets:
 	1.	Canada should aim to be the world’s richest country.
@@ -74,7 +86,7 @@ Output format (return valid JSON only):
       "explanation": "Short explanation of how this bill relates to this tenet"
     }
   ],
-  "final_judgment": "yes|no|neutral",
+  "final_judgment": "yes|no",
   "rationale": "Short rationale explaining the overall judgment",
   "needs_more_info": true|false,
   "missing_details": ["List any key information needed for better analysis", "Another missing detail if applicable"]

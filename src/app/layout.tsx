@@ -30,18 +30,62 @@ export default function RootLayout({
         <div className="border-b border-[var(--panel-border)]/80 bg-[var(--panel)]/60 backdrop-blur supports-[backdrop-filter]:bg-[var(--panel)]/60">
           <div className="mx-auto max-w-[1120px] px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded bg-[#c73f2b]" />
-              <span className="font-semibold">Build Canada Bills</span>
+              <img src="https://cdn.prod.website-files.com/679d23fc682f2bf860558c9a/679d23fc682f2bf860558cc6_build_canada-wordmark.svg" alt="Build Canada" className="bg-[#932f2f] h-12 w-auto p-3" />
+              <span className="font-semibold">Policy Tracker</span>
             </div>
             <nav className="hidden sm:flex items-center gap-3 text-sm">
-              <a className="hover:underline" href="#">Prime Minister</a>
-              <a className="hover:underline" href="#">Finance</a>
-              <a className="hover:underline" href="#">Housing</a>
-              <a className="hover:underline" href="#">Health</a>
+
             </nav>
           </div>
         </div>
         {children}
+        <footer className="mt-16 border-t border-[var(--panel-border)] bg-white">
+          <div className="mx-auto max-w-[1120px] px-6 py-12">
+            <div className="flex justify-between">
+              {/* Brand Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <img
+                    src="https://cdn.prod.website-files.com/679d23fc682f2bf860558c9a/679d23fc682f2bf860558cc6_build_canada-wordmark.svg"
+                    alt="Build Canada"
+                    className="bg-[#932f2f] h-10 w-auto p-2 rounded"
+                  />
+                  <span className="font-semibold text-lg">Policy Tracker</span>
+                </div>
+                <p className="text-sm text-[var(--muted)] leading-relaxed">
+                  A non-partisan platform for understanding Canadian Federal Bills and tracking legislative progress.
+                </p>
+              </div>
+
+              {/* Navigation Links */}
+
+
+              {/* Contact & Info */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-base">Connect</h3>
+                <div className="space-y-2">
+                  <p className="text-sm text-[var(--muted)]">
+                    Questions or feedback?
+                  </p>
+                  <a href="mailto:hello@buildcanada.ca"
+                    className="text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors">
+                    hello@buildcanada.ca
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Bar */}
+            <div className="mt-8 pt-8 border-t border-[var(--panel-border)] flex flex-col sm:flex-row justify-between items-center gap-4">
+              <p className="text-xs text-[var(--muted)]">
+                © {new Date().getFullYear()} Build Canada. All rights reserved.
+              </p>
+              <div className="flex items-center gap-4 text-xs text-[var(--muted)]">
+                <span>Made with ❤️ for Canadian democracy</span>
+              </div>
+            </div>
+          </div>
+        </footer>
       </body>
     </html>
   );

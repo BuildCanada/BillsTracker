@@ -53,7 +53,7 @@ export default async function BillDetail({ params }: Params) {
         <div className="space-y-6">
           <BillSummary bill={unifiedBill} />
           <BillAnalysis bill={unifiedBill} />
-          <BillFullText bill={unifiedBill} />
+          {/* <BillFullText bill={unifiedBill} /> */}
         </div>
         <div className="space-y-6">
           <BillMetadata bill={unifiedBill} />

@@ -134,7 +134,7 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
     };
   }
 
-  console.log({ analysis });
+
   await onBillNotInDatabase({
     billId: bill.billID,
     source: bill.source,

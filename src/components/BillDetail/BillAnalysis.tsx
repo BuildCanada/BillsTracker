@@ -1,4 +1,5 @@
 import type { UnifiedBill } from "@/utils/billConverters";
+import { TENETS } from "@/prompt/summary-and-vote-prompt";
 
 interface BillAnalysisProps {
   bill: UnifiedBill;
@@ -51,16 +52,17 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
   return (
     <div className="space-y-6">
       {/* Final Judgment */}
+      {/* Final Judgment */}
       {bill.final_judgment && (
         <article className="rounded-md border border-[var(--panel-border)] bg-[var(--panel)] p-5">
-          <h2 className="font-semibold mb-3">Build Canada Assessment</h2>
+          <h2 className="font-semibold mb-3">Our Assessment</h2>
           <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-md border text-sm font-medium ${getJudgmentColor(bill.final_judgment)}`}>
             <span className="text-lg">
               {bill.final_judgment === "yes" ? "✓" : bill.final_judgment === "no" ? "✗" : "—"}
             </span>
             <span className="capitalize">
-              {bill.final_judgment === "yes" ? "Aligns with Build Canada" :
-                bill.final_judgment === "no" ? "Conflicts with Build Canada" :
+              {bill.final_judgment === "yes" ? "We would vote for this" :
+                bill.final_judgment === "no" ? "We wouldn't vote for this" :
                   "Neutral Assessment"}
             </span>
           </div>
@@ -81,10 +83,10 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
                   {getAlignmentIcon(tenet.alignment)}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-medium text-[var(--foreground)] mb-1">
-                    {tenet.id}. {tenet.title}
+                  <h3 className="  font-medium text-[var(--foreground)] mb-1">
+                    {TENETS[tenet.id as keyof typeof TENETS]}
                   </h3>
-                  <p className="text-xs text-[var(--muted)] leading-5">{tenet.explanation}</p>
+                  <p className="text-sm text-[var(--muted)] leading-5">{tenet.explanation}</p>
                 </div>
               </div>
             </div>
@@ -92,21 +94,7 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
         </div>
       </article>
 
-      {/* Additional Info */}
-      {bill.needs_more_info && bill.missing_details && bill.missing_details.length > 0 && (
-        <article className="rounded-md border border-amber-200 bg-amber-50 p-4">
-          <h3 className="text-sm font-medium text-amber-800 mb-2">Analysis Limitations</h3>
-          <p className="text-xs text-amber-700 mb-2">This analysis may be incomplete due to missing information:</p>
-          <ul className="text-xs text-amber-700 space-y-1">
-            {bill.missing_details.map((detail, index) => (
-              <li key={index} className="flex items-start gap-2">
-                <span className="text-amber-500 mt-0.5">•</span>
-                <span>{detail}</span>
-              </li>
-            ))}
-          </ul>
-        </article>
-      )}
+
     </div>
   );
 }

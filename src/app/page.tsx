@@ -14,7 +14,6 @@ async function getBills(): Promise<BillSummary[]> {
     throw new Error("Failed to fetch bills");
   }
   const { data } = await response.json();
-  console.log({ data });
   // Accept either an array response or an object with a `bills` array
   return Array.isArray(data) ? (data as BillSummary[]) : (data?.bills ?? []);
 }
@@ -23,17 +22,16 @@ export default async function Home() {
   const bills = await getBills();
   return (
     <div className="min-h-screen">
-      <div className="mx-auto max-w-[1120px] px-6 py-8 grid grid-cols-[260px_1fr] gap-8">
-        <aside className="rounded-md bg-[var(--panel)] p-5 shadow-sm border border-[var(--panel-border)]">
+      <div className="mx-auto max-w-[1120px] px-6 py-8  gap-8">
+        {/* <aside className="rounded-md bg-[var(--panel)] p-5 shadow-sm border border-[var(--panel-border)]">
           <div className="text-[28px] leading-[1.1] font-semibold tracking-tight">Outcomes Tracker</div>
           <p className="mt-4 text-sm text-[var(--muted)]">
             A non-partisan platform tracking progress of key commitments during the 45th Parliament of Canada.
           </p>
           <FAQModalTrigger />
-        </aside>
+        </aside> */}
         <main>
           <header className="flex items-center gap-4 pb-4 border-b border-[var(--panel-border)]">
-            <div className="text-[14px] uppercase tracking-wide rounded bg-[var(--chip-bg)] text-[var(--chip-text)] px-2 py-1">Finance</div>
             <h1 className="text-[24px] font-semibold">Build Canada Bills</h1>
           </header>
 

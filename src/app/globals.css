@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f2e6dc;
+  --background: rgb(246 235 227);
   /* warm parchment */
   --foreground: #1e1b16;
   /* deep brown */
-  --panel: #f8f2ec;
+  --panel: white;
   /* light card */
   --panel-border: #e6d8cb;
   --muted: #5a5148;

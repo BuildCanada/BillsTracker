@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { BillSummary } from "./types";
-
+import { getPartyColor } from "@/utils/get-party-colors/get-party-colors.util";
 type StageStyle = { dot: string; chipBg: string; chipText: string };
 
 function getStageStyle(bill: BillSummary): StageStyle {
@@ -68,7 +68,7 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
           bill.title,
           bill.shortTitle ?? "",
           bill.description,
-          bill.sponsor,
+          bill.sponsorParty,
           bill.chamber,
         ]
           .join("\n")
@@ -81,6 +81,7 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
       return matchesQuery && matchesStatus && matchesImpact;
     });
   }, [bills, query, status, impact]);
+
 
   return (
     <>
@@ -126,10 +127,10 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
               className="rounded-md border border-[var(--panel-border)] bg-[var(--panel)] p-0 shadow-sm overflow-hidden"
             >
               <Link href={`/bills/${bill.billID}`} className="block p-4 hover:bg-black/5">
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-3 pt-1">
                   <StatusDot bill={bill} />
                   <div className="flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2 -mt-1.5">
                       <h2 className="text-base font-semibold">{bill.title}</h2>
                       {(() => {
                         const { chipBg, chipText } = getStageStyle(bill);
@@ -142,7 +143,7 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
                     </div>
                     <p className="mt-1 text-sm text-[var(--muted)]">{bill.description}</p>
                     <div className="mt-2 text-xs text-[var(--muted)]">
-                      <span>Sponsored by {bill.sponsor}</span>
+                      <span style={{ backgroundColor: getPartyColor(bill.sponsorParty).backgroundColor, color: getPartyColor(bill.sponsorParty).color }} className={`rounded-full px-2 py-0.5 `}>{bill.sponsorParty}</span>
                       <span className="mx-2">•</span>
                       <span>{bill.chamber}</span>
                       <span className="mx-2">•</span>
