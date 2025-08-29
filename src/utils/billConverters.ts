@@ -6,6 +6,7 @@ import { summarizeBillText, fetchBillMarkdown, onBillNotInDatabase, type BillAna
 export interface UnifiedBill {
   billId: string;
   title: string;
+  short_title?: string;
   summary: string;
   status: string;
   sponsorParty?: string;
@@ -36,6 +37,7 @@ export function fromDbBill(bill: BillDocument): UnifiedBill {
   return {
     billId: bill.billId,
     title: bill.title,
+    short_title: bill.short_title,
     summary: bill.summary,
     status: bill.status,
     sponsorParty: bill.sponsorParty,
@@ -122,16 +124,16 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
 
   if (shouldRegenerateSummary) {
     console.log(`Regenerating analysis for ${bill.billID} (billTexts count: ${currentBillTextsCount})`);
-    // analysis = await summarizeBillText(billMarkdown || bill.header || "");
+    analysis = await summarizeBillText(billMarkdown || bill.header || "");
     // mock analysis for now
-    analysis = {
-      summary: "This is a summary",
-      tenet_evaluations: [],
-      final_judgment: "no",
-      rationale: "This is a rationale",
-      needs_more_info: false,
-      missing_details: [],
-    };
+    // analysis = {
+    //   summary: "This is a summary",
+    //   tenet_evaluations: [],
+    //   final_judgment: "no",
+    //   rationale: "This is a rationale",
+    //   needs_more_info: false,
+    //   missing_details: [],
+    // };
   }
 
 
@@ -147,6 +149,7 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
   return {
     billId: bill.billID,
     title: bill.title,
+    short_title: bill.short_title,
     summary: analysis.summary,
     status: bill.status,
     sponsorParty: bill.sponsorParty,

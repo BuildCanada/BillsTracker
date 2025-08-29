@@ -33,7 +33,7 @@ export interface BillDocument extends mongoose.Document {
   parliamentNumber?: number; // e.g., 45
   sessionNumber?: number; // e.g., 1
   title: string;
-  shortTitle?: string;
+  short_title?: string;
   summary: string; // human-friendly summary
 
   // Replaced the old 'analysis' object with new, top-level fields
@@ -91,7 +91,7 @@ const BillSchema = new Schema<BillDocument>(
     parliamentNumber: { type: Number },
     sessionNumber: { type: Number },
     title: { type: String, required: true },
-    shortTitle: { type: String },
+    short_title: { type: String },
     summary: { type: String, required: true },
 
     // Replaced the old 'analysis' sub-schema with new fields
@@ -118,6 +118,6 @@ const BillSchema = new Schema<BillDocument>(
 );
 
 BillSchema.index({ billId: 1, parliamentNumber: 1 }, { unique: true, sparse: true });
-BillSchema.index({ title: "text", shortTitle: "text", summary: "text" });
+BillSchema.index({ title: "text", short_title: "text", summary: "text" });
 
 export const Bill = models.Bill || model<BillDocument>("Bill", BillSchema);

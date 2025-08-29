@@ -11,7 +11,7 @@ export type ApiBillDetail = {
   internalID?: string;
   billID: string;
   title: string;
-  shortTitle?: string;
+  short_title?: string;
   header: string;
   summary?: string;
   genres?: string[];
@@ -242,7 +242,7 @@ export async function onBillNotInDatabase(params: {
       parliamentNumber: params.bill.parliamentNumber,
       sessionNumber: params.bill.sessionNumber,
       title: params.bill.title,
-      shortTitle: params.bill.shortTitle,
+      short_title: params.bill.short_title,
       summary: params.analysis.summary,
       tenet_evaluations: params.analysis.tenet_evaluations,
       final_judgment: params.analysis.final_judgment,

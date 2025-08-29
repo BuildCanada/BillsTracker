@@ -63,7 +63,7 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
             <span className="capitalize">
               {bill.final_judgment === "yes" ? "We would vote for this" :
                 bill.final_judgment === "no" ? "We wouldn't vote for this" :
-                  "Neutral Assessment"}
+                  "Neutral"}
             </span>
           </div>
           {bill.rationale && (
@@ -84,7 +84,7 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
                 </span>
                 <div className="flex-1 min-w-0">
                   <h3 className="  font-medium text-[var(--foreground)] mb-1">
-                    {TENETS[tenet.id as keyof typeof TENETS]}
+                    {TENETS?.[tenet.id as keyof typeof TENETS] || "Unknown"}
                   </h3>
                   <p className="text-sm text-[var(--muted)] leading-5">{tenet.explanation}</p>
                 </div>
