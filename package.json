@@ -12,6 +12,7 @@
   "dependencies": {
     "@google/genai": "^1.15.0",
     "@google/generative-ai": "^0.24.1",
+    "clsx": "^2.1.1",
     "fast-xml-parser": "^5.2.5",
     "mongodb": "^6.18.0",
     "mongoose": "^8.18.0",

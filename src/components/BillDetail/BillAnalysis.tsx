@@ -4,6 +4,7 @@ import { TENETS } from "@/prompt/summary-and-vote-prompt";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Markdown } from '../Markdown/markdown';
+import { VoteBadge } from '../VoteBadge/VoteBadge.component';
 
 interface BillAnalysisProps {
   bill: UnifiedBill;
@@ -60,15 +61,13 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
       {bill.final_judgment && (
         <article className="rounded-md border border-[var(--panel-border)] bg-[var(--panel)] p-5">
           <h2 className="font-semibold mb-3">Our Assessment</h2>
-          <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-md border text-sm font-medium ${getJudgmentColor(bill.final_judgment)}`}>
-            <span className="text-lg">
-              {bill.final_judgment === "yes" ? "✓" : bill.final_judgment === "no" ? "✗" : "—"}
-            </span>
-            <span className="capitalize">
-              {bill.final_judgment === "yes" ? "We would vote for this" :
-                bill.final_judgment === "no" ? "We wouldn't vote for this" :
-                  "Neutral"}
-            </span>
+          <div className="flex items-center gap-4">
+            {/* <VoteBadge vote={bill.final_judgment} size="lg" /> */}
+            <div className="text-sm text-[var(--muted)]">
+              {bill.final_judgment === "yes" ? "Build Canada would support this bill" :
+                bill.final_judgment === "no" ? "Build Canada would oppose this bill" :
+                  "Build Canada is neutral on this bill"}
+            </div>
           </div>
           {bill.rationale && (
             <div className="mt-3 text-sm text-[var(--muted)] leading-6 prose prose-sm max-w-none prose-headings:text-[var(--foreground)] prose-p:text-[var(--muted)] prose-strong:text-[var(--foreground)] prose-ul:text-[var(--muted)] prose-ol:text-[var(--muted)] prose-li:text-[var(--muted)]">

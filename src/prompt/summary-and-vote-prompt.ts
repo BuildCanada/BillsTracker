@@ -36,6 +36,7 @@ Output format (return valid JSON only):
 
 {
   "summary": "Your 3–5 sentence summary here in plain language. Use bullet points to summarize the highlights of the bill. Do not include any other text in the summary. Use markdown formatting.",
+  "short_title": "A short title for the bill. Use 1-2 words to describe the bill.",
   "tenet_evaluations": [
     {
       "id": 1,

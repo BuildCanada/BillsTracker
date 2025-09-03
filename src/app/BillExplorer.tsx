@@ -23,7 +23,7 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
         ? true
         : [
           bill.title,
-          bill.short_title ?? "",
+          bill.shortTitle ?? "",
           bill.description,
           bill.sponsorParty,
           bill.chamber,

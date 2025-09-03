@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BillSummary } from "@/app/types";
 import { getPartyColor } from "@/utils/get-party-colors/get-party-colors.util";
+import { VoteBadge } from "@/components/VoteBadge/VoteBadge.component";
 
 type StageStyle = { dot: string; chipBg: string; chipText: string };
 
@@ -53,28 +54,25 @@ interface BillCardProps {
 }
 
 export default function BillCard({ bill }: BillCardProps) {
-  const { chipBg, chipText } = getStageStyle(bill);
 
+  const updatedAt = bill.lastUpdatedOn;
   console.log({ bill });
   return (
-    <li className="rounded-md border border-[var(--panel-border)] bg-[var(--panel)] p-0 shadow-sm overflow-hidden">
+    <li className="rounded-md border border-[var(--panel-border)] bg-[var(--panel)] p-0 shadow-sm overflow-hidden relative">
       <Link href={`/bills/${bill.billID}`} className="block p-4 hover:bg-black/5">
         <div className="flex items-start gap-3 pt-1">
           <div className="flex-1">
             <div className="flex flex-wrap items-start justify-between gap-2 -mt-1.5">
               <h2 className="text-xl font-semibold max-w-[70%]">{bill.shortTitle ?? bill.title}</h2>
-              {bill.final_judgment && (
-                <span className={`text-sm rounded-full px-2 mt-1 pt-0.5 ${bill.final_judgment === 'yes' ? 'bg-green-100 text-green-700' :
-                  bill.final_judgment === 'no' ? 'bg-red-100 text-red-700' :
-                    'bg-gray-100 text-gray-700'
-                  }`}>
-                  Build Canada: {bill.final_judgment === 'yes' ? 'Supports' : bill.final_judgment === 'no' ? 'Opposes' : 'Neutral'}
-                </span>
-              )}
+              {/* {bill.final_judgment && (
+                <div className="flex-shrink-0 mt-1">
+                  <VoteBadge vote={bill.final_judgment} size="sm" />
+                </div>
+              )} */}
             </div>
 
             {bill.genres && bill.genres.length > 0 && (
-              <div className="mt-2 mb-2 flex flex-wrap gap-1 ">
+              <div className="mt-2  flex flex-wrap gap-1   left-4">
                 {bill.genres.map((genre, index) => (
                   <div key={index} className="text-xs bg-gray-100 text-gray-700 rounded px-2 py-0.5">
                     {genre}
@@ -83,22 +81,23 @@ export default function BillCard({ bill }: BillCardProps) {
                 {bill.genres.length > 3 && (
                   <div className="text-xs text-[var(--muted)]\">+{bill.genres.length - 3} more</div>
                 )}
+                <span
+                  style={{
+                    backgroundColor: getPartyColor(bill.sponsorParty).backgroundColor,
+                    color: getPartyColor(bill.sponsorParty).color
+                  }}
+                  className="rounded-full px-2 py-0.5 text-xs"
+                >
+                  {bill.sponsorParty}
+                </span>
               </div>
             )}
             <div className="flex items-center gap-2 text-xs text-[var(--muted)]">
               {/* <span className={`text-xs rounded-full px-2 py-0.5 ${chipBg} ${chipText}`}>
                 {bill.status}
               </span> */}
-              <span
-                style={{
-                  backgroundColor: getPartyColor(bill.sponsorParty).backgroundColor,
-                  color: getPartyColor(bill.sponsorParty).color
-                }}
-                className="rounded-full px-2 py-0.5"
-              >
-                {bill.sponsorParty}
-              </span>
-              <span>Updated {new Date(bill.lastUpdatedOn).toLocaleDateString()}</span>
+
+              <span className="text-[var(--muted)] absolute right-4">Updated {new Date(updatedAt).toLocaleDateString()}</span>
             </div>
           </div>
         </div>
