@@ -35,8 +35,7 @@ Task:
 Output format (return valid JSON only):
 
 {
-  "summary": "Your 3–5 sentence summary here in plain language. Use bullet points to summarize the highlights of the bill. Do not include any other text in the summary.",
-  "short_title": "A short title for the bill. Use 1-2 words to describe the bill.",
+  "summary": "Your 3–5 sentence summary here in plain language. Use bullet points to summarize the highlights of the bill. Do not include any other text in the summary. Use markdown formatting.",
   "tenet_evaluations": [
     {
       "id": 1,
@@ -88,8 +87,7 @@ Output format (return valid JSON only):
     }
   ],
   "final_judgment": "yes|no",
-  "rationale": "Short rationale explaining the overall judgment",
-  "needs_more_info": true|false,
-  "missing_details": ["List any key information needed for better analysis", "Another missing detail if applicable"]
+  "rationale": "2 sentences explaining the overall judgment and then bullet points explaining the rationale for the judgment and suggestions for what we might change. Use markdown formatting.",
+  "steel_man": "Present the strongest possible version of this bill's argument that would align with Build Canada's tenets. What aspects of the bill could be seen as most beneficial for Canadian prosperity? Use markdown formatting."
 }
 `

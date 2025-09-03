@@ -3,7 +3,7 @@ export type BillStatus = "Introduced" | "In Progress" | "Passed" | "Failed" | "P
 export interface BillSummary {
   billID: string;
   title: string;
-  short_title?: string;
+  shortTitle?: string;
   description: string;
   status: BillStatus;
   stage?: string; // Optional: latest legislative stage label if provided by API

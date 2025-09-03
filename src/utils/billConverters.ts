@@ -30,6 +30,7 @@ export interface UnifiedBill {
   rationale?: string;
   needs_more_info?: boolean;
   missing_details?: string[];
+  steel_man?: string;
 }
 
 // Convert DB bill to unified format
@@ -55,6 +56,7 @@ export function fromDbBill(bill: BillDocument): UnifiedBill {
     rationale: bill.rationale,
     needs_more_info: bill.needs_more_info,
     missing_details: bill.missing_details,
+    steel_man: bill.steel_man,
   };
 }
 
@@ -87,7 +89,8 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
     final_judgment: "no",
     rationale: "Not analyzed",
     needs_more_info: false,
-    missing_details: []
+    missing_details: [],
+    steel_man: "Not analyzed"
   };
   let shouldRegenerateSummary = true;
 
@@ -112,6 +115,7 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
           rationale: existingBill.rationale || analysis.rationale,
           needs_more_info: existingBill.needs_more_info || analysis.needs_more_info,
           missing_details: existingBill.missing_details || analysis.missing_details,
+          steel_man: existingBill.steel_man || analysis.steel_man,
         };
         shouldRegenerateSummary = false;
         console.log(`Using existing analysis for ${bill.billID} (billTexts count unchanged: ${currentBillTextsCount})`);
@@ -167,5 +171,6 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
     rationale: analysis.rationale,
     needs_more_info: analysis.needs_more_info,
     missing_details: analysis.missing_details,
+    steel_man: analysis.steel_man,
   };
 }

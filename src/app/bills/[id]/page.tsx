@@ -42,6 +42,7 @@ export default async function BillDetail({ params }: Params) {
     );
   }
 
+  console.log({ unifiedBill });
   return (
     <div className="mx-auto max-w-[900px] px-6 py-8">
       <Link href="/" className="text-sm underline text-[var(--muted)]">

@@ -67,11 +67,12 @@ export interface BillAnalysis {
   rationale: string;
   needs_more_info: boolean;
   missing_details: string[];
+  steel_man: string;
 }
 
 export async function summarizeBillText(input: string): Promise<BillAnalysis> {
   if (!process.env.OPENAI_API_KEY) {
-    console.log('No Google API key, using fallback analysis');
+    console.log('No OPENAI API key, using fallback analysis');
     // Fallback analysis
     const text = input?.trim() || "";
     const truncatedSummary = text.length <= 500 ? text : text.slice(0, 500) + "…";
@@ -91,7 +92,8 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
       final_judgment: "no",
       rationale: "Analysis requires AI capabilities",
       needs_more_info: true,
-      missing_details: ["AI analysis capabilities required"]
+      missing_details: ["AI analysis capabilities required"],
+      steel_man: "The steel man for this bill is the bill that aligns with the tenets of Build Canada."
     };
   }
 
@@ -103,7 +105,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
 
     const prompt = `${SUMMARY_AND_VOTE_PROMPT}\n\nBill Text:\n${input}`;
     const response = await client.responses.create({
-      model: "gpt-5",
+      model: "gpt-5-mini",
       input: prompt
     });
     const responseText = response.output_text
@@ -135,7 +137,8 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
         final_judgment: "no",
         rationale: "Analysis parsing failed",
         needs_more_info: true,
-        missing_details: ["Valid AI response format"]
+        missing_details: ["Valid AI response format"],
+        steel_man: "Analysis parsing failed"
       };
     }
   } catch (error) {
@@ -159,7 +162,8 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
       final_judgment: "no",
       rationale: "Technical error during analysis",
       needs_more_info: true,
-      missing_details: ["Technical issue resolution"]
+      missing_details: ["Technical issue resolution"],
+      steel_man: "Technical error during analysis"
     };
   }
 }
@@ -218,6 +222,7 @@ export async function onBillNotInDatabase(params: {
             rationale: params.analysis.rationale,
             needs_more_info: params.analysis.needs_more_info,
             missing_details: params.analysis.missing_details,
+            steel_man: params.analysis.steel_man,
             billTextsCount: params.billTextsCount,
             lastUpdatedOn: new Date(),
           }
@@ -249,6 +254,7 @@ export async function onBillNotInDatabase(params: {
       rationale: params.analysis.rationale,
       needs_more_info: params.analysis.needs_more_info,
       missing_details: params.analysis.missing_details,
+      steel_man: params.analysis.steel_man,
       status: params.bill.status,
       sponsorParty: params.bill.sponsorParty,
       chamber: house as "House of Commons" | "Senate" | undefined,

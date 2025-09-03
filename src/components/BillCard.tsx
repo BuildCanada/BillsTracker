@@ -55,14 +55,14 @@ interface BillCardProps {
 export default function BillCard({ bill }: BillCardProps) {
   const { chipBg, chipText } = getStageStyle(bill);
 
+  console.log({ bill });
   return (
     <li className="rounded-md border border-[var(--panel-border)] bg-[var(--panel)] p-0 shadow-sm overflow-hidden">
       <Link href={`/bills/${bill.billID}`} className="block p-4 hover:bg-black/5">
         <div className="flex items-start gap-3 pt-1">
-          <StatusDot bill={bill} />
           <div className="flex-1">
             <div className="flex flex-wrap items-start justify-between gap-2 -mt-1.5">
-              <h2 className="text-lg font-semibold max-w-[80%]">{bill.short_title ?? bill.title}</h2>
+              <h2 className="text-xl font-semibold max-w-[70%]">{bill.shortTitle ?? bill.title}</h2>
               {bill.final_judgment && (
                 <span className={`text-sm rounded-full px-2 mt-1 pt-0.5 ${bill.final_judgment === 'yes' ? 'bg-green-100 text-green-700' :
                   bill.final_judgment === 'no' ? 'bg-red-100 text-red-700' :
@@ -74,21 +74,21 @@ export default function BillCard({ bill }: BillCardProps) {
             </div>
 
             {bill.genres && bill.genres.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1">
-                {bill.genres.slice(0, 3).map((genre, index) => (
-                  <span key={index} className="text-xs bg-[var(--tag-bg)] text-[var(--tag-text)] rounded px-2 py-0.5">
+              <div className="mt-2 mb-2 flex flex-wrap gap-1 ">
+                {bill.genres.map((genre, index) => (
+                  <div key={index} className="text-xs bg-gray-100 text-gray-700 rounded px-2 py-0.5">
                     {genre}
-                  </span>
+                  </div>
                 ))}
                 {bill.genres.length > 3 && (
-                  <span className="text-xs text-[var(--muted)]\">+{bill.genres.length - 3} more</span>
+                  <div className="text-xs text-[var(--muted)]\">+{bill.genres.length - 3} more</div>
                 )}
               </div>
             )}
             <div className="flex items-center gap-2 text-xs text-[var(--muted)]">
-              <span className={`text-xs rounded-full px-2 py-0.5 ${chipBg} ${chipText}`}>
+              {/* <span className={`text-xs rounded-full px-2 py-0.5 ${chipBg} ${chipText}`}>
                 {bill.status}
-              </span>
+              </span> */}
               <span
                 style={{
                   backgroundColor: getPartyColor(bill.sponsorParty).backgroundColor,

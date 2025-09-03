@@ -47,7 +47,7 @@ async function getMergedBills(): Promise<BillSummary[]> {
       return {
         ...dbBill,
         ...apiBill,
-        short_title: dbBill.short_title || apiBill.short_title,
+        short_title: dbBill.short_title || apiBill.shortTitle,
         summary: dbBill.summary,
         final_judgment: dbBill.final_judgment,
         rationale: dbBill.rationale,
@@ -70,7 +70,7 @@ async function getMergedBills(): Promise<BillSummary[]> {
       const billSummary: BillSummary = {
         billID: dbBill.billId,
         title: dbBill.title,
-        short_title: dbBill.short_title,
+        shortTitle: dbBill.short_title,
         description: dbBill.summary || "",
         status: (dbBill.status as BillSummary["status"]) || "Introduced",
         sponsorParty: dbBill.sponsorParty || "Unknown",

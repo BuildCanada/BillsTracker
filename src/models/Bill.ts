@@ -42,6 +42,7 @@ export interface BillDocument extends mongoose.Document {
   rationale: string;
   needs_more_info: boolean;
   missing_details: string[];
+  steel_man: string;
 
   status: string;
   sponsorName?: string;
@@ -100,6 +101,7 @@ const BillSchema = new Schema<BillDocument>(
     rationale: { type: String },
     needs_more_info: { type: Boolean, default: false },
     missing_details: { type: [String], default: [] },
+    steel_man: { type: String },
 
     status: { type: String, required: true },
     sponsorName: { type: String },

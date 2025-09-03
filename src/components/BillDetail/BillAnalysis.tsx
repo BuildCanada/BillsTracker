@@ -1,5 +1,9 @@
+import React from 'react';
 import type { UnifiedBill } from "@/utils/billConverters";
 import { TENETS } from "@/prompt/summary-and-vote-prompt";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Markdown } from '../Markdown/markdown';
 
 interface BillAnalysisProps {
   bill: UnifiedBill;
@@ -67,7 +71,9 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
             </span>
           </div>
           {bill.rationale && (
-            <p className="mt-3 text-sm text-[var(--muted)] leading-6">{bill.rationale}</p>
+            <div className="mt-3 text-sm text-[var(--muted)] leading-6 prose prose-sm max-w-none prose-headings:text-[var(--foreground)] prose-p:text-[var(--muted)] prose-strong:text-[var(--foreground)] prose-ul:text-[var(--muted)] prose-ol:text-[var(--muted)] prose-li:text-[var(--muted)]">
+              <Markdown>{bill.rationale}</Markdown>
+            </div>
           )}
         </article>
       )}
@@ -87,6 +93,7 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
                     {TENETS?.[tenet.id as keyof typeof TENETS] || "Unknown"}
                   </h3>
                   <p className="text-sm text-[var(--muted)] leading-5">{tenet.explanation}</p>
+
                 </div>
               </div>
             </div>
@@ -94,6 +101,16 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
         </div>
       </article>
 
+      {/* Steel Man Argument */}
+      {bill.steel_man && (
+        <article className="rounded-md border border-[var(--panel-border)] bg-[var(--panel)] p-5">
+          <h2 className="font-semibold mb-3">Steel Man Argument</h2>
+          <p className="text-xs text-[var(--muted)] mb-3 italic">
+            The strongest possible case for how this bill could benefit Canada's prosperity:
+          </p>
+          <Markdown>{bill.steel_man}</Markdown>
+        </article>
+      )}
 
     </div>
   );
