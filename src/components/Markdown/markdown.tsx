@@ -8,7 +8,7 @@ export const Markdown = ({ children }: { children: React.ReactNode }) => {
     components={{
       h1: ({ children }: { children: React.ReactNode }) => <h1 className="text-lg font-bold text-[var(--foreground)] mb-3 mt-4 first:mt-0">{children}</h1>,
       h2: ({ children }: { children: React.ReactNode }) => <h2 className="text-base font-semibold text-[var(--foreground)] mb-2 mt-3 first:mt-0">{children}</h2>,
-      h3: ({ children }: { children: React.ReactNode }) => <h3 className="text-sm font-medium text-[var(--foreground)] mb-2 mt-3 first:mt-0">{children}</h3>,
+      h3: ({ children }: { children: React.ReactNode }) => <h3 className="text-sm font-medium leading-14 text-[var(--foreground)] mb-2 mt-3 first:mt-0">{children}</h3>,
       p: ({ children }: { children: React.ReactNode }) => <p className="mb-3 text-sm last:mb-0">{children}</p>,
       strong: ({ children }: { children: React.ReactNode }) => <strong className="font-semibold text-[var(--foreground)]">{children}</strong>,
       em: ({ children }: { children: React.ReactNode }) => <em className="italic">{children}</em>,

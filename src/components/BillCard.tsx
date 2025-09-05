@@ -41,7 +41,7 @@ export default function BillCard({ bill }: BillCardProps) {
   console.log({ bill });
 
   return (
-    <li className="group rounded-lg border border-[var(--panel-border)] bg-[var(--panel)] shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+    <li className="group rounded-lg border border-[var(--panel-border)] bg-[var(--panel)] shadow-sm   duration-200 overflow-hidden">
       <Link href={`/bills/${bill.billID}`} className="block">
         <div className="p-5">
           {/* Header Section */}
@@ -63,7 +63,7 @@ export default function BillCard({ bill }: BillCardProps) {
                 </span> */}
 
               </div>
-              <h2 className="text-lg mb-4 font-semibold text-[var(--foreground)] group-hover:text-blue-600 transition-colors leading-tight">
+              <h2 className="text-lg mb-4 font-semibold text-[var(--foreground)]  transition-colors leading-tight">
                 {bill.shortTitle ?? bill.title}
               </h2>
             </div>

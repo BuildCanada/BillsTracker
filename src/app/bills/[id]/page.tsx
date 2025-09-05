@@ -1,13 +1,11 @@
 import Link from "next/link";
 import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
-import { getAllBillsFromDB } from "@/server/get-all-bills-from-db";
 import { getBillFromApi } from "@/services/billApi";
 import { fromDbBill, fromApiBill, type UnifiedBill } from "@/utils/billConverters";
 import {
   BillHeader,
   BillSummary,
   BillMetadata,
-  BillFullText,
   BillAnalysis,
 } from "@/components/BillDetail";
 
@@ -55,15 +53,16 @@ export default async function BillDetail({ params }: Params) {
       </div>
       <BillHeader bill={unifiedBill} />
 
-      <section className="mt-6 grid gap-6 md:grid-cols-[1fr_280px]">
+      <section className="mt-6 grid gap-6 md:grid-cols-[1fr_280px] relative">
         <div className="space-y-6">
           <BillSummary bill={unifiedBill} />
           <BillAnalysis bill={unifiedBill} />
-          {/* <BillFullText bill={unifiedBill} /> */}
+          {/* <BillTimeline bill={unifiedBill} /> */}
         </div>
         <div className="space-y-6">
           <BillMetadata bill={unifiedBill} />
         </div>
+
       </section>
     </div>
   );

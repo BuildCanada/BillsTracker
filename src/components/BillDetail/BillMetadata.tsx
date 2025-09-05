@@ -4,36 +4,31 @@ interface BillMetadataProps {
   bill: UnifiedBill;
 }
 
+const DataPoint = ({ label, value }: { label: string, value: string }) => {
+  return (
+    <div className="flex items-start justify-between py-1">
+      <span className="text-[var(--muted)]">{label}</span>
+      <span className="font-medium text-right">{value}</span>
+    </div>
+  );
+};
+
 export function BillMetadata({ bill }: BillMetadataProps) {
   return (
     <aside className="rounded-md border border-[var(--panel-border)] bg-[var(--panel)] p-5 text-sm">
-      <div className="flex items-start justify-between py-1">
-        <span className="text-[var(--muted)]">Status</span>
-        <span className="font-medium text-right">{bill.status}</span>
-      </div>
+      <DataPoint label="Party" value={bill.chamber === 'Senate' ? 'Senate' : bill.sponsorParty || 'Unknown'} />
+      <DataPoint label="Status" value={bill.status} />
       {bill.introducedOn && (
-        <div className="flex items-start justify-between py-1">
-          <span className="text-[var(--muted)] text-right">Introduced</span>
-          <span className="font-medium text-right">{bill.introducedOn.toLocaleDateString()}</span>
-        </div>
+        <DataPoint label="Introduced" value={bill.introducedOn.toLocaleDateString()} />
       )}
       {bill.lastUpdatedOn && (
-        <div className="flex items-start justify-between py-1">
-          <span className="text-[var(--muted)] text-right">Last updated</span>
-          <span className="font-medium text-right">{bill.lastUpdatedOn.toLocaleDateString()}</span>
-        </div>
+        <DataPoint label="Last updated" value={bill.lastUpdatedOn.toLocaleDateString()} />
       )}
       {bill.genres && bill.genres.length > 0 && (
-        <div className="flex items-start justify-between py-1">
-          <span className="text-[var(--muted)] text-right">Topics</span>
-          <span className="font-medium text-right">{bill.genres.join(", ")}</span>
-        </div>
+        <DataPoint label="Topics" value={bill.genres.join(", ")} />
       )}
       {bill.parliamentNumber && bill.sessionNumber && (
-        <div className="flex items-start justify-between py-1">
-          <span className="text-[var(--muted)] text-right">Parliament</span>
-          <span className="font-medium text-right">{bill.parliamentNumber}-{bill.sessionNumber}</span>
-        </div>
+        <DataPoint label="Parliament" value={`${bill.parliamentNumber}-${bill.sessionNumber}`} />
       )}
       <div className="flex items-start justify-between py-1">
         <span className="text-[var(--muted)] text-right">Bill ID</span>

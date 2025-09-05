@@ -145,10 +145,7 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
           <option value="lastUpdated-asc">Oldest Updated</option>
           <option value="introduced-desc">Recently Introduced</option>
           <option value="introduced-asc">Oldest Introduced</option>
-          <option value="title-asc">Title A-Z</option>
-          <option value="title-desc">Title Z-A</option>
-          <option value="status-asc">Status A-Z</option>
-          <option value="status-desc">Status Z-A</option>
+
           <option value="party-asc">Party A-Z</option>
           <option value="party-desc">Party Z-A</option>
         </select>

@@ -84,7 +84,7 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
         </div>
       </article>
 
-      {/* Steel Man Argument */}
+      {/* Steel Man Argument
       {bill.steel_man && (
         <article className="rounded-md border border-[var(--panel-border)] bg-[var(--panel)] p-5">
           <h2 className="font-semibold mb-3">Steel Man Argument</h2>
@@ -93,7 +93,7 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
           </p>
           <Markdown>{bill.steel_man}</Markdown>
         </article>
-      )}
+      )} */}
 
     </div>
   );
