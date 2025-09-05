@@ -15,10 +15,26 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
   const [impact, setImpact] = useState<string>("");
   const [judgment, setJudgment] = useState<string>("");
   const [chamber, setChamber] = useState<string>("");
+  const [sponsorParty, setSponsorParty] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("lastUpdated-desc");
+
+  // Collect unique sponsor parties from bills data
+  const uniqueSponsorParties = useMemo(() => {
+    const parties = new Set<string>();
+    bills.forEach(bill => {
+      if (bill.sponsorParty && bill.sponsorParty.trim()) {
+        parties.add(bill.sponsorParty.trim());
+      } else {
+        // If no sponsorParty, it's from the Senate
+        parties.add("Senate");
+      }
+    });
+    return Array.from(parties).sort();
+  }, [bills]);
 
   const filteredBills = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    return bills.filter((bill) => {
+    const filtered = bills.filter((bill) => {
       const matchesQuery = !normalizedQuery
         ? true
         : [
@@ -39,9 +55,43 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
       const matchesJudgment = judgment ? bill.final_judgment === judgment : true;
       const matchesChamber = chamber ? bill.chamber === chamber : true;
 
-      return matchesQuery && matchesStatus && matchesImpact && matchesJudgment && matchesChamber;
+      // Handle sponsor party filter - if no sponsorParty, treat as "Senate"
+      const billSponsorParty = bill.sponsorParty && bill.sponsorParty.trim() ? bill.sponsorParty.trim() : "Senate";
+      const matchesSponsorParty = sponsorParty ? billSponsorParty === sponsorParty : true;
+
+      return matchesQuery && matchesStatus && matchesImpact && matchesJudgment && matchesChamber && matchesSponsorParty;
     });
-  }, [bills, query, status, impact, judgment, chamber]);
+
+    // Apply sorting
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case "title-asc":
+          return (a.shortTitle || a.title).localeCompare(b.shortTitle || b.title);
+        case "title-desc":
+          return (b.shortTitle || b.title).localeCompare(a.shortTitle || a.title);
+        case "introduced-asc":
+          return new Date(a.introducedOn).getTime() - new Date(b.introducedOn).getTime();
+        case "introduced-desc":
+          return new Date(b.introducedOn).getTime() - new Date(a.introducedOn).getTime();
+        case "lastUpdated-asc":
+          return new Date(a.lastUpdatedOn).getTime() - new Date(b.lastUpdatedOn).getTime();
+        case "lastUpdated-desc":
+          return new Date(b.lastUpdatedOn).getTime() - new Date(a.lastUpdatedOn).getTime();
+        case "status-asc":
+          return a.status.localeCompare(b.status);
+        case "status-desc":
+          return b.status.localeCompare(a.status);
+        case "party-asc":
+          return a.sponsorParty.localeCompare(b.sponsorParty);
+        case "party-desc":
+          return b.sponsorParty.localeCompare(a.sponsorParty);
+        default:
+          return new Date(b.lastUpdatedOn).getTime() - new Date(a.lastUpdatedOn).getTime();
+      }
+    });
+
+    return sorted;
+  }, [bills, query, status, impact, judgment, chamber, sponsorParty, sortBy]);
 
 
   return (
@@ -54,28 +104,7 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <select
-          className="rounded border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-2 text-sm"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-        >
-          <option value="">All Status</option>
-          <option>Introduced</option>
-          <option>In Progress</option>
-          <option>Passed</option>
-          <option>Failed</option>
-          <option>Paused</option>
-        </select>
-        <select
-          className="rounded border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-2 text-sm"
-          value={impact}
-          onChange={(e) => setImpact(e.target.value)}
-        >
-          <option value="">All Impact</option>
-          <option>High</option>
-          <option>Medium</option>
-          <option>Low</option>
-        </select>
+
         <select
           className="rounded border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-2 text-sm"
           value={chamber}
@@ -87,6 +116,18 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
         </select>
         <select
           className="rounded border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-2 text-sm"
+          value={sponsorParty}
+          onChange={(e) => setSponsorParty(e.target.value)}
+        >
+          <option value="">All Parties</option>
+          {uniqueSponsorParties.map((party) => (
+            <option key={party} value={party}>
+              {party}
+            </option>
+          ))}
+        </select>
+        <select
+          className="rounded border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-2 text-sm"
           value={judgment}
           onChange={(e) => setJudgment(e.target.value)}
         >
@@ -94,6 +135,22 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
           <option value="yes">Build Canada Supports</option>
           <option value="no">Build Canada Opposes</option>
           <option value="neutral">Build Canada Neutral</option>
+        </select>
+        <select
+          className="rounded border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-2 text-sm"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+        >
+          <option value="lastUpdated-desc">Latest Updated</option>
+          <option value="lastUpdated-asc">Oldest Updated</option>
+          <option value="introduced-desc">Recently Introduced</option>
+          <option value="introduced-asc">Oldest Introduced</option>
+          <option value="title-asc">Title A-Z</option>
+          <option value="title-desc">Title Z-A</option>
+          <option value="status-asc">Status A-Z</option>
+          <option value="status-desc">Status Z-A</option>
+          <option value="party-asc">Party A-Z</option>
+          <option value="party-desc">Party Z-A</option>
         </select>
       </div>
 

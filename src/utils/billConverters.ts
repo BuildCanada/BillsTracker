@@ -153,7 +153,7 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
   return {
     billId: bill.billID,
     title: bill.title,
-    short_title: bill.short_title,
+    short_title: bill.shortTitle,
     summary: analysis.summary,
     status: bill.status,
     sponsorParty: bill.sponsorParty,

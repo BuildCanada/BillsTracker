@@ -1,10 +1,8 @@
-import React from 'react';
+
 import type { UnifiedBill } from "@/utils/billConverters";
 import { TENETS } from "@/prompt/summary-and-vote-prompt";
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { Markdown } from '../Markdown/markdown';
-import { VoteBadge } from '../VoteBadge/VoteBadge.component';
+import { Judgement } from "../Judgement/judgement.component";
 
 interface BillAnalysisProps {
   bill: UnifiedBill;
@@ -36,38 +34,24 @@ function getAlignmentIcon(alignment: "aligns" | "conflicts" | "neutral"): string
   }
 }
 
-function getJudgmentColor(judgment: "yes" | "no" | "neutral"): string {
-  switch (judgment) {
-    case "yes":
-      return "text-emerald-700 bg-emerald-100 border-emerald-300";
-    case "no":
-      return "text-rose-700 bg-rose-100 border-rose-300";
-    case "neutral":
-      return "text-slate-700 bg-slate-100 border-slate-300";
-    default:
-      return "text-slate-700 bg-slate-100 border-slate-300";
-  }
-}
+
 
 export function BillAnalysis({ bill }: BillAnalysisProps) {
   if (!bill.tenet_evaluations || bill.tenet_evaluations.length === 0) {
     return null;
   }
 
+
+
   return (
-    <div className="space-y-6">
-      {/* Final Judgment */}
+    <div className="space-y-6 relative w-full h-full">
       {/* Final Judgment */}
       {bill.final_judgment && (
-        <article className="rounded-md border border-[var(--panel-border)] bg-[var(--panel)] p-5">
-          <h2 className="font-semibold mb-3">Our Assessment</h2>
-          <div className="flex items-center gap-4">
+        <article className="rounded-md border border-[var(--panel-border)] bg-[var(--panel)] p-5   top-0 right-0">
+          <div className="flex items-start  justify-between  mb-6 gap-4">
+            <h2 className="font-semibold mb-0">Our Assessment</h2>
             {/* <VoteBadge vote={bill.final_judgment} size="lg" /> */}
-            <div className="text-sm text-[var(--muted)]">
-              {bill.final_judgment === "yes" ? "Build Canada would support this bill" :
-                bill.final_judgment === "no" ? "Build Canada would oppose this bill" :
-                  "Build Canada is neutral on this bill"}
-            </div>
+            <Judgement judgement={bill.final_judgment} />
           </div>
           {bill.rationale && (
             <div className="mt-3 text-sm text-[var(--muted)] leading-6 prose prose-sm max-w-none prose-headings:text-[var(--foreground)] prose-p:text-[var(--muted)] prose-strong:text-[var(--foreground)] prose-ul:text-[var(--muted)] prose-ol:text-[var(--muted)] prose-li:text-[var(--muted)]">

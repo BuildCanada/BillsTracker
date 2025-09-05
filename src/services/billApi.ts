@@ -11,7 +11,7 @@ export type ApiBillDetail = {
   internalID?: string;
   billID: string;
   title: string;
-  short_title?: string;
+  shortTitle?: string;
   header: string;
   summary?: string;
   genres?: string[];
@@ -105,7 +105,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
 
     const prompt = `${SUMMARY_AND_VOTE_PROMPT}\n\nBill Text:\n${input}`;
     const response = await client.responses.create({
-      model: "gpt-5-mini",
+      model: "gpt-5",
       input: prompt
     });
     const responseText = response.output_text
@@ -216,6 +216,8 @@ export async function onBillNotInDatabase(params: {
         await Bill.updateOne(
           { billId: params.billId },
           {
+            title: params.bill.title,
+            short_title: params.bill.shortTitle,
             summary: params.analysis.summary,
             tenet_evaluations: params.analysis.tenet_evaluations,
             final_judgment: params.analysis.final_judgment,
@@ -223,6 +225,9 @@ export async function onBillNotInDatabase(params: {
             needs_more_info: params.analysis.needs_more_info,
             missing_details: params.analysis.missing_details,
             steel_man: params.analysis.steel_man,
+            status: params.bill.status,
+            sponsorParty: params.bill.sponsorParty,
+            genres: params.bill.genres,
             billTextsCount: params.billTextsCount,
             lastUpdatedOn: new Date(),
           }
@@ -247,7 +252,7 @@ export async function onBillNotInDatabase(params: {
       parliamentNumber: params.bill.parliamentNumber,
       sessionNumber: params.bill.sessionNumber,
       title: params.bill.title,
-      short_title: params.bill.short_title,
+      short_title: params.bill.shortTitle,
       summary: params.analysis.summary,
       tenet_evaluations: params.analysis.tenet_evaluations,
       final_judgment: params.analysis.final_judgment,

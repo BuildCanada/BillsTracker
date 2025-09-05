@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
+import { getAllBillsFromDB } from "@/server/get-all-bills-from-db";
 import { getBillFromApi } from "@/services/billApi";
 import { fromDbBill, fromApiBill, type UnifiedBill } from "@/utils/billConverters";
 import {
@@ -13,6 +14,8 @@ import {
 interface Params {
   params: { id: string };
 }
+
+
 
 export default async function BillDetail({ params }: Params) {
   // Try database first, then fallback to API
@@ -42,12 +45,14 @@ export default async function BillDetail({ params }: Params) {
     );
   }
 
-  console.log({ unifiedBill });
   return (
-    <div className="mx-auto max-w-[900px] px-6 py-8">
-      <Link href="/" className="text-sm underline text-[var(--muted)]">
-        ← Back to bills
-      </Link>
+    <div className="mx-auto max-w-[1100px] px-6 py-8">
+      <div className="mb-6">
+
+        <Link href="/" className="text-sm underline text-[var(--muted)] mb-6">
+          ← Back to bills
+        </Link>
+      </div>
       <BillHeader bill={unifiedBill} />
 
       <section className="mt-6 grid gap-6 md:grid-cols-[1fr_280px]">

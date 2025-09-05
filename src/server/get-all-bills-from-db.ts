@@ -23,3 +23,5 @@ export async function getAllBillsFromDB(): Promise<BillDocument[]> {
     return [];
   }
 }
+
+

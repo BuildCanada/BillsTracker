@@ -1,52 +1,30 @@
 import Link from "next/link";
 import { BillSummary } from "@/app/types";
 import { getPartyColor } from "@/utils/get-party-colors/get-party-colors.util";
-import { VoteBadge } from "@/components/VoteBadge/VoteBadge.component";
+import { stageSummarizer, getStageCategory } from "@/utils/stage-summarizer/stage-summarizer.util";
+import { Judgement } from "./Judgement/judgement.component";
 
 type StageStyle = { dot: string; chipBg: string; chipText: string };
 
 function getStageStyle(bill: BillSummary): StageStyle {
-  const stage = (bill.stage ?? bill.status ?? "").toLowerCase();
-  // Stage keyword precedence
-  if (stage.includes("royal assent") || stage.includes("passed")) {
-    return { dot: "bg-emerald-500", chipBg: "bg-emerald-100", chipText: "text-emerald-700" };
-  }
-  if (stage.includes("failed") || stage.includes("defeat")) {
-    return { dot: "bg-rose-500", chipBg: "bg-rose-100", chipText: "text-rose-700" };
-  }
-  if (stage.includes("third reading")) {
-    return { dot: "bg-amber-500", chipBg: "bg-amber-100", chipText: "text-amber-700" };
-  }
-  if (stage.includes("report")) {
-    return { dot: "bg-indigo-500", chipBg: "bg-indigo-100", chipText: "text-indigo-700" };
-  }
-  if (stage.includes("committee")) {
-    return { dot: "bg-violet-500", chipBg: "bg-violet-100", chipText: "text-violet-700" };
-  }
-  if (stage.includes("second reading")) {
-    return { dot: "bg-sky-500", chipBg: "bg-sky-100", chipText: "text-sky-700" };
-  }
-  if (stage.includes("first reading") || stage.includes("introduced")) {
-    return { dot: "bg-sky-500", chipBg: "bg-sky-100", chipText: "text-sky-700" };
-  }
-  if (stage.includes("senate")) {
-    return { dot: "bg-fuchsia-500", chipBg: "bg-fuchsia-100", chipText: "text-fuchsia-700" };
-  }
-  if (stage.includes("paused")) {
-    return { dot: "bg-slate-400", chipBg: "bg-slate-200", chipText: "text-slate-700" };
-  }
-  // Fallback by status
-  if (bill.status === "Passed") return { dot: "bg-emerald-500", chipBg: "bg-emerald-100", chipText: "text-emerald-700" };
-  if (bill.status === "Failed") return { dot: "bg-rose-500", chipBg: "bg-rose-100", chipText: "text-rose-700" };
-  if (bill.status === "Introduced") return { dot: "bg-sky-500", chipBg: "bg-sky-100", chipText: "text-sky-700" };
-  if (bill.status === "In Progress") return { dot: "bg-amber-500", chipBg: "bg-amber-100", chipText: "text-amber-700" };
-  if (bill.status === "Paused") return { dot: "bg-slate-400", chipBg: "bg-slate-200", chipText: "text-slate-700" };
-  return { dot: "bg-slate-400", chipBg: "bg-slate-200", chipText: "text-slate-700" };
-}
+  const category = getStageCategory(bill.stage || "", bill.status);
 
-function StatusDot({ bill }: { bill: BillSummary }) {
-  const { dot } = getStageStyle(bill);
-  return <span className={`inline-block h-[10px] w-[10px] rounded-full ${dot}`} />;
+  switch (category) {
+    case "complete":
+      return { dot: "bg-emerald-500", chipBg: "bg-emerald-100", chipText: "text-emerald-700" };
+    case "failed":
+      return { dot: "bg-rose-500", chipBg: "bg-rose-100", chipText: "text-rose-700" };
+    case "active":
+      return { dot: "bg-amber-500", chipBg: "bg-amber-100", chipText: "text-amber-700" };
+    case "introduced":
+      return { dot: "bg-sky-500", chipBg: "bg-sky-100", chipText: "text-sky-700" };
+    case "paused":
+      return { dot: "bg-slate-400", chipBg: "bg-slate-200", chipText: "text-slate-700" };
+    case "pre-introduction":
+      return { dot: "bg-gray-400", chipBg: "bg-gray-100", chipText: "text-gray-700" };
+    default:
+      return { dot: "bg-slate-400", chipBg: "bg-slate-200", chipText: "text-slate-700" };
+  }
 }
 
 interface BillCardProps {
@@ -54,51 +32,113 @@ interface BillCardProps {
 }
 
 export default function BillCard({ bill }: BillCardProps) {
+  const { chipBg, chipText } = getStageStyle(bill);
+  const humanReadableStage = stageSummarizer(bill.stage || "", bill.status);
+  const billOrigin = bill.chamber === 'House of Commons' ? (bill.sponsorParty || 'Unknown') : 'Senate';
+  const updatedAt = new Date(bill.lastUpdatedOn);
 
-  const updatedAt = bill.lastUpdatedOn;
+
   console.log({ bill });
-  return (
-    <li className="rounded-md border border-[var(--panel-border)] bg-[var(--panel)] p-0 shadow-sm overflow-hidden relative">
-      <Link href={`/bills/${bill.billID}`} className="block p-4 hover:bg-black/5">
-        <div className="flex items-start gap-3 pt-1">
-          <div className="flex-1">
-            <div className="flex flex-wrap items-start justify-between gap-2 -mt-1.5">
-              <h2 className="text-xl font-semibold max-w-[70%]">{bill.shortTitle ?? bill.title}</h2>
-              {/* {bill.final_judgment && (
-                <div className="flex-shrink-0 mt-1">
-                  <VoteBadge vote={bill.final_judgment} size="sm" />
-                </div>
-              )} */}
-            </div>
 
-            {bill.genres && bill.genres.length > 0 && (
-              <div className="mt-2  flex flex-wrap gap-1   left-4">
-                {bill.genres.map((genre, index) => (
-                  <div key={index} className="text-xs bg-gray-100 text-gray-700 rounded px-2 py-0.5">
-                    {genre}
-                  </div>
-                ))}
-                {bill.genres.length > 3 && (
-                  <div className="text-xs text-[var(--muted)]\">+{bill.genres.length - 3} more</div>
-                )}
+  return (
+    <li className="group rounded-lg border border-[var(--panel-border)] bg-[var(--panel)] shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+      <Link href={`/bills/${bill.billID}`} className="block">
+        <div className="p-5">
+          {/* Header Section */}
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-2">
+
                 <span
                   style={{
-                    backgroundColor: getPartyColor(bill.sponsorParty).backgroundColor,
-                    color: getPartyColor(bill.sponsorParty).color
+                    backgroundColor: getPartyColor(billOrigin).backgroundColor,
+                    color: getPartyColor(billOrigin).color
                   }}
-                  className="rounded-full px-2 py-0.5 text-xs"
+                  className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
                 >
-                  {bill.sponsorParty}
+                  {billOrigin}
                 </span>
+                {/* <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${chipBg} ${chipText}`}>
+                  {humanReadableStage}
+                </span> */}
+
+              </div>
+              <h2 className="text-lg mb-4 font-semibold text-[var(--foreground)] group-hover:text-blue-600 transition-colors leading-tight">
+                {bill.shortTitle ?? bill.title}
+              </h2>
+            </div>
+
+            {bill.final_judgment && (
+              <div className="flex-shrink-0">
               </div>
             )}
-            <div className="flex items-center gap-2 text-xs text-[var(--muted)]">
-              {/* <span className={`text-xs rounded-full px-2 py-0.5 ${chipBg} ${chipText}`}>
-                {bill.status}
-              </span> */}
+            {bill.final_judgment && (
+              <Judgement judgement={bill?.final_judgment} />
+            )}
+          </div>
 
-              <span className="text-[var(--muted)] absolute right-4">Updated {new Date(updatedAt).toLocaleDateString()}</span>
+
+          {/* Description */}
+          {bill.description && (
+            <p className="text-sm text-[var(--muted)] mb-3 leading-relaxed overflow-hidden"
+              style={{
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical' as const
+              }}>
+              {bill.description}
+            </p>
+          )}
+
+          {/* Tags Section */}
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {/* Chamber/Party Badge */}
+
+            {/* Chamber Badge */}
+            {
+              bill.chamber && (
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                  {bill.chamber}
+                </span>
+              )
+            }
+
+            {/* Impact Badge */}
+            {bill.impact && (
+              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${bill.impact === 'High' ? 'bg-red-100 text-red-700' :
+                bill.impact === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                  'bg-green-100 text-green-700'
+                }`}>
+                {bill.impact} Impact
+              </span>
+            )}
+            {
+              (bill.billID === 'C-1' || bill.billID === 'S-1') && (
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                  Pro Forma Bill
+                </span>
+              )
+            }
+
+            {/* Genre Tags (limit to 3 visible) */}
+            {bill.genres && bill.genres.length > 0 && bill.genres.map((genre, index) => (
+              <span key={index} className="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 text-gray-700">
+                {genre}
+              </span>
+            ))}
+
+          </div>
+
+          {/* Footer Section */}
+          <div className="flex items-center justify-between text-xs text-[var(--muted)] pt-2 border-t border-[var(--panel-border)]">
+            <div className="flex items-center gap-4">
+              <span className="text-xs text-[var(--muted)] font-semibold">
+                Bill {bill.billID}
+              </span>              {bill.sponsorName && (
+                <span>by {bill.sponsorName}</span>
+              )}
             </div>
+            <span>Updated {updatedAt.toLocaleDateString()}</span>
           </div>
         </div>
       </Link>
