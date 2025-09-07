@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { BillSummary } from "./types";
-import BillCard from "@/components/BillCard";
+import { BillCard, Bill } from "@/components/BillExploreCard/BillExploreCard.component";
+import { useRouter } from "next/navigation";
 
 
 interface BillExplorerProps {
@@ -10,6 +11,7 @@ interface BillExplorerProps {
 }
 
 export default function BillExplorer({ bills }: BillExplorerProps) {
+  const router = useRouter();
   const [query, setQuery] = useState<string>("");
   const [status, setStatus] = useState<string>("");
   const [impact, setImpact] = useState<string>("");
@@ -17,6 +19,62 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
   const [chamber, setChamber] = useState<string>("");
   const [sponsorParty, setSponsorParty] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("lastUpdated-desc");
+
+  // Transform BillSummary to Bill interface
+  const transformBillSummaryToBill = (billSummary: BillSummary): Bill => {
+    // Map BillStatus to the expected status format
+    const statusMap: Record<string, Bill['status']> = {
+      "Introduced": "introduced",
+      "In Progress": "committee",
+      "Passed": "enacted",
+      "Failed": "failed",
+      "Paused": "committee"
+    };
+
+    // Map party names to expected format
+    const partyMap: Record<string, Bill['sponsor']['party']> = {
+      "Liberal": "Democrat",
+      "Conservative": "Republican",
+      "NDP": "Independent",
+      "Bloc Québécois": "Independent",
+      "Green": "Independent",
+      "Senate": "Independent"
+    };
+
+    // Calculate progress based on status
+    const progressMap: Record<string, number> = {
+      "introduced": 20,
+      "committee": 50,
+      "passed-house": 75,
+      "passed-senate": 90,
+      "enacted": 100,
+      "failed": 0
+    };
+
+    const mappedStatus = statusMap[billSummary.status] || "introduced";
+    const billOrigin = billSummary.chamber === 'House of Commons' ? (billSummary.sponsorParty || 'Unknown') : 'Senate';
+    const mappedParty = partyMap[billOrigin] || "Independent";
+
+    return {
+      id: billSummary.billID,
+      number: billSummary.billID,
+      title: billSummary.shortTitle || billSummary.title,
+      summary: billSummary.summary || billSummary.description,
+      status: mappedStatus,
+      sponsor: {
+        name: billSummary.sponsorName || "Unknown",
+        party: mappedParty,
+        chamber: billSummary.chamber === "House of Commons" ? "House" : "Senate"
+      },
+      dateIntroduced: billSummary.introducedOn,
+      category: billSummary.genres?.[0] || billSummary.alignment || "Other",
+      progress: progressMap[mappedStatus] || 20
+    };
+  };
+
+  const handleViewDetails = (billId: string) => {
+    router.push(`/bills/${billId}`);
+  };
 
   // Collect unique sponsor parties from bills data
   const uniqueSponsorParties = useMemo(() => {
@@ -154,11 +212,15 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
       {filteredBills.length === 0 ? (
         <div className="text-sm text-[var(--muted)]">No bills match your filters.</div>
       ) : (
-        <ul className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4">
           {filteredBills.map((bill) => (
-            <BillCard key={bill.billID} bill={bill} />
+            <BillCard
+              key={bill.billID}
+              bill={transformBillSummaryToBill(bill)}
+              onViewDetails={handleViewDetails}
+            />
           ))}
-        </ul>
+        </div>
       )}
     </>
   );

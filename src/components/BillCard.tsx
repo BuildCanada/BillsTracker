@@ -41,11 +41,11 @@ export default function BillCard({ bill }: BillCardProps) {
   console.log({ bill });
 
   return (
-    <li className="group rounded-lg border border-[var(--panel-border)] bg-[var(--panel)] shadow-sm   duration-200 overflow-hidden">
+    <div className="group rounded-lg border border-[var(--panel-border)] bg-[var(--panel)] shadow-sm   duration-200 overflow-hidden">
       <Link href={`/bills/${bill.billID}`} className="block">
         <div className="p-5">
           {/* Header Section */}
-          <div className="flex items-start justify-between gap-4 mb-3">
+          <div className="flex items-start justify-between flex-col gap-4 mb-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
 
@@ -142,6 +142,6 @@ export default function BillCard({ bill }: BillCardProps) {
           </div>
         </div>
       </Link>
-    </li>
+    </div>
   );
 }
