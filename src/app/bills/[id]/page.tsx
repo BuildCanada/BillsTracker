@@ -8,9 +8,69 @@ import {
   BillMetadata,
   BillAnalysis,
 } from "@/components/BillDetail";
+import type { Metadata } from "next";
 
 interface Params {
   params: { id: string };
+}
+
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  // Try database first, then fallback to API
+  const dbBill = await getBillByIdFromDB(params.id);
+  let unifiedBill: UnifiedBill | null = null;
+
+  if (dbBill) {
+    unifiedBill = fromDbBill(dbBill);
+  } else {
+    const apiBill = await getBillFromApi(params.id);
+    if (apiBill) {
+      unifiedBill = await fromApiBill(apiBill);
+    }
+  }
+
+  if (!unifiedBill) {
+    return {
+      title: "Bill not found | Build Canada Bills",
+      description: "The requested bill could not be found.",
+    };
+  }
+
+  const title = `${unifiedBill.billId}: ${unifiedBill.short_title || unifiedBill.title}`;
+  const description = unifiedBill.summary || `Canadian federal bill ${unifiedBill.billId} in the ${unifiedBill.chamber || 'Parliament'}. Status: ${unifiedBill.status}`;
+  const url = `https://buildcanada.ca/bills/${params.id}`;
+
+  // Generate a judgment badge description for the image
+  const judgmentText = unifiedBill.final_judgment === 'yes'
+    ? 'Build Canada SUPPORTS this bill'
+    : unifiedBill.final_judgment === 'no'
+      ? 'Build Canada OPPOSES this bill'
+      : 'Build Canada is NEUTRAL on this bill';
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: "Build Canada Bills",
+      type: "article",
+      images: [
+        {
+          url: `https://buildcanada.ca/api/og/bill?id=${params.id}&title=${encodeURIComponent(unifiedBill.short_title || unifiedBill.title)}&status=${encodeURIComponent(unifiedBill.status)}&judgment=${unifiedBill.final_judgment || 'neutral'}&chamber=${encodeURIComponent(unifiedBill.chamber || '')}`,
+          width: 1200,
+          height: 630,
+          alt: `${unifiedBill.billId} - ${judgmentText}`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [`https://buildcanada.ca/api/og/bill?id=${params.id}&title=${encodeURIComponent(unifiedBill.short_title || unifiedBill.title)}&status=${encodeURIComponent(unifiedBill.status)}&judgment=${unifiedBill.final_judgment || 'neutral'}&chamber=${encodeURIComponent(unifiedBill.chamber || '')}`],
+    },
+  };
 }
 
 

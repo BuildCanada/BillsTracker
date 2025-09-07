@@ -15,6 +15,29 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Build Canada Bills",
   description: "Understand Canadian Federal Bills",
+  metadataBase: new URL('https://buildcanada.ca'),
+  openGraph: {
+    title: "Build Canada Bills",
+    description: "Understand Canadian Federal Bills",
+    url: "https://buildcanada.ca",
+    siteName: "Build Canada Bills",
+    type: "website",
+    images: [
+      {
+        url: "/og-default.png",
+        width: 1200,
+        height: 630,
+        alt: "Build Canada Bills - Understand Canadian Federal Bills",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Build Canada Bills",
+    description: "Understand Canadian Federal Bills",
+    creator: "@buildcanada",
+    site: "@buildcanada",
+  },
 };
 
 export default function RootLayout({
@@ -53,7 +76,7 @@ export default function RootLayout({
                   <span className="font-semibold text-lg">Policy Tracker</span>
                 </div>
                 <p className="text-sm text-[var(--muted)] leading-relaxed">
-                  A non-partisan platform for understanding Canadian Federal Bills and tracking legislative progress.
+                  XXXX XXX XXX XXX
                 </p>
               </div>
 
