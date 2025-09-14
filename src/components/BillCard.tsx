@@ -32,13 +32,7 @@ interface BillCardProps {
 }
 
 export default function BillCard({ bill }: BillCardProps) {
-  const { chipBg, chipText } = getStageStyle(bill);
-  const humanReadableStage = stageSummarizer(bill.stage || "", bill.status);
-  const billOrigin = bill.chamber === 'House of Commons' ? (bill.sponsorParty || 'Unknown') : 'Senate';
   const updatedAt = new Date(bill.lastUpdatedOn);
-
-
-  console.log({ bill });
 
   return (
     <li className="group rounded-lg border   bg-[var(--panel)] shadow-sm   duration-200 overflow-hidden">
