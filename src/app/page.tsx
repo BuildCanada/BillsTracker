@@ -4,13 +4,16 @@ import FAQModalTrigger from "./FAQModalTrigger";
 import { getAllBillsFromDB } from "@/server/get-all-bills-from-db";
 import { fromDbBill } from "@/utils/billConverters";
 
+const CANADIAN_PARLIAMENT_NUMBER = 45;
+
+
 async function getApiBills(): Promise<BillSummary[]> {
   try {
-    const response = await fetch("https://api.civicsproject.org/bills/region/canada/45", {
-      cache: "no-store",
+    const response = await fetch(`https://api.civicsproject.org/bills/region/canada/${CANADIAN_PARLIAMENT_NUMBER}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${process.env.CIVICS_PROJECT_API_KEY}`,
+
       },
     });
     if (!response.ok) {
