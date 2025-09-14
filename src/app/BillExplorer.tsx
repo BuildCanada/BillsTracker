@@ -141,7 +141,7 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
   }, [bills]);
 
   return (
-    <div className="mx-auto max-w-7xl p-4 md:p-6">
+    <div className="mx-auto max-w-7xl py-4 md:py-6">
       {/* Layout wrapper: stacked on mobile, two-column on desktop */}
       <div className="flex flex-col gap-4 md:flex-row md:gap-6">
         {/* FILTERS */}
@@ -167,7 +167,7 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
 
 
           {filteredBills.length === 0 ? (
-            <div className="text-sm text-[var(--muted)]">No bills match your filters.</div>
+            <div className="text-sm">No bills match your filters.</div>
           ) : (
             <ul className="flex flex-col gap-3">
               {filteredBills.map((bill) => (

@@ -103,7 +103,7 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
 
   return (
     <Card className="h-fit sticky top-6">
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-0 pt-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4" />

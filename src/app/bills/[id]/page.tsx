@@ -8,6 +8,7 @@ import {
   BillMetadata,
   BillAnalysis,
 } from "@/components/BillDetail";
+import { Separator } from "@/components/ui/separator";
 
 interface Params {
   params: { id: string };
@@ -33,7 +34,7 @@ export default async function BillDetail({ params }: Params) {
     return (
       <div className="mx-auto max-w-[800px] px-6 py-10">
         <h1 className="text-xl font-semibold">Bill not found</h1>
-        <p className="mt-2 text-sm text-[var(--muted)]">
+        <p className="mt-2 text-sm">
           The bill you are looking for does not exist.
         </p>
         <Link className="mt-4 inline-block underline" href="/">
@@ -47,12 +48,13 @@ export default async function BillDetail({ params }: Params) {
     <div className="mx-auto max-w-[1100px] px-6 py-8">
       <div className="mb-6">
 
-        <Link href="/" className="text-sm underline text-[var(--muted)] mb-6">
+        <Link href="/" className="text-sm underline  mb-6">
           ← Back to bills
         </Link>
       </div>
       <BillHeader bill={unifiedBill} />
 
+      <Separator />
       <section className="mt-6 grid gap-6 md:grid-cols-[1fr_280px] relative">
         <div className="space-y-6">
           <BillSummary bill={unifiedBill} />

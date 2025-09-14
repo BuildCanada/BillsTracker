@@ -12,7 +12,7 @@ export function BillFullText({ bill }: BillFullTextProps) {
   return (
     <article className="rounded-md border border-[var(--panel-border)] bg-[var(--panel)] p-5">
       <h2 className="font-semibold mb-2">Full Text</h2>
-      <div className="text-sm leading-6 text-[var(--muted)]">
+      <div className="text-sm leading-6 text-[">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {bill.fullTextMarkdown}
         </ReactMarkdown>

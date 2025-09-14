@@ -41,7 +41,7 @@ export default function BillCard({ bill }: BillCardProps) {
   console.log({ bill });
 
   return (
-    <li className="group rounded-lg border border-[var(--panel-border)] bg-[var(--panel)] shadow-sm   duration-200 overflow-hidden">
+    <li className="group rounded-lg border   bg-[var(--panel)] shadow-sm   duration-200 overflow-hidden">
       <Link href={`/bills/${bill.billID}`} className="block">
         <div className="p-5">
           {/* Header Section */}
@@ -49,18 +49,7 @@ export default function BillCard({ bill }: BillCardProps) {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
 
-                <span
-                  style={{
-                    backgroundColor: getPartyColor(billOrigin).backgroundColor,
-                    color: getPartyColor(billOrigin).color
-                  }}
-                  className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
-                >
-                  {billOrigin}
-                </span>
-                {/* <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${chipBg} ${chipText}`}>
-                  {humanReadableStage}
-                </span> */}
+
 
               </div>
               <h2 className="text-lg mb-4 font-semibold text-[var(--foreground)]  transition-colors leading-tight">
@@ -68,10 +57,7 @@ export default function BillCard({ bill }: BillCardProps) {
               </h2>
             </div>
 
-            {bill.final_judgment && (
-              <div className="flex-shrink-0">
-              </div>
-            )}
+
             {bill.final_judgment && (
               <Judgement judgement={bill?.final_judgment} />
             )}
@@ -80,7 +66,7 @@ export default function BillCard({ bill }: BillCardProps) {
 
           {/* Description */}
           {bill.description && (
-            <p className="text-sm text-[var(--muted)] mb-3 leading-relaxed overflow-hidden"
+            <p className="text-sm text-[ mb-3 leading-relaxed overflow-hidden"
               style={{
                 display: '-webkit-box',
                 WebkitLineClamp: 2,
@@ -92,16 +78,6 @@ export default function BillCard({ bill }: BillCardProps) {
 
           {/* Tags Section */}
           <div className="flex flex-wrap gap-1.5 mb-4">
-            {/* Chamber/Party Badge */}
-
-            {/* Chamber Badge */}
-            {
-              bill.chamber && (
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-                  {bill.chamber}
-                </span>
-              )
-            }
 
             {/* Impact Badge */}
             {bill.impact && (
@@ -130,15 +106,15 @@ export default function BillCard({ bill }: BillCardProps) {
           </div>
 
           {/* Footer Section */}
-          <div className="flex items-center justify-between text-xs text-[var(--muted)] pt-2 border-t border-[var(--panel-border)]">
+          <div className="flex items-center justify-between text-xs text-[ pt-2 border-t  ">
             <div className="flex items-center gap-4">
-              <span className="text-xs text-[var(--muted)] font-semibold">
+              <span className="text-xs text-gray-800">
                 Bill {bill.billID}
               </span>              {bill.sponsorName && (
                 <span>by {bill.sponsorName}</span>
               )}
             </div>
-            <span>Updated {updatedAt.toLocaleDateString()}</span>
+            <span className="text-gray-500">Updated {updatedAt.toLocaleDateString()}</span>
           </div>
         </div>
       </Link>

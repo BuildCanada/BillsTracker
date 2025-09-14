@@ -44,17 +44,25 @@ export default function RootLayout({
             <div className="flex justify-between">
               {/* Brand Section */}
               <div className="space-y-4">
-                <div className="flex items-center gap-3">
+                <div className="flex items-start gap-3">
                   <img
                     src="https://cdn.prod.website-files.com/679d23fc682f2bf860558c9a/679d23fc682f2bf860558cc6_build_canada-wordmark.svg"
                     alt="Build Canada"
                     className="bg-[#932f2f] h-10 w-auto p-2 rounded"
                   />
-                  <span className="font-semibold text-lg">Policy Tracker</span>
+                  <div className="flex flex-col items-start -mt-1 ">
+
+                    <span className="font-semibold text-lg mb-0">Policy Tracker</span>
+                    <div className="text-xs">
+
+                      Powered by {' '}
+                      <a href="https://thecivicsproject.org" target="_blank" rel="noopener noreferrer" className="text-xs text-[ underline">
+                        The Civics Project
+                      </a>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-sm text-[var(--muted)] leading-relaxed">
-                  A non-partisan platform for understanding Canadian Federal Bills and tracking legislative progress.
-                </p>
+
               </div>
 
               {/* Navigation Links */}
@@ -64,11 +72,11 @@ export default function RootLayout({
               <div className="space-y-4">
                 <h3 className="font-semibold text-base">Connect</h3>
                 <div className="space-y-2">
-                  <p className="text-sm text-[var(--muted)]">
+                  <p className="text-sm text-[">
                     Questions or feedback?
                   </p>
                   <a href="mailto:hello@buildcanada.ca"
-                    className="text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors">
+                    className="text-sm text-[ hover:text-[var(--foreground)] transition-colors">
                     hello@buildcanada.ca
                   </a>
                 </div>
@@ -77,12 +85,15 @@ export default function RootLayout({
 
             {/* Bottom Bar */}
             <div className="mt-8 pt-8 border-t border-[var(--panel-border)] flex flex-col sm:flex-row justify-between items-center gap-4">
-              <p className="text-xs text-[var(--muted)]">
-                © {new Date().getFullYear()} Build Canada. All rights reserved.
+              <p className="text-xs text-[">
+                © {new Date().getFullYear()} Build Canada Bills. All rights reserved.
+                A Project of {' '}
+                <a href="https://buildcanada.ca" target="_blank" rel="noopener noreferrer" className="text-xs text-[ underline">
+                  Build Canada
+                </a>
+
               </p>
-              <div className="flex items-center gap-4 text-xs text-[var(--muted)]">
-                <span>Made with ❤️ for Canadian democracy</span>
-              </div>
+
             </div>
           </div>
         </footer>

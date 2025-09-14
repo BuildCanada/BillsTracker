@@ -1,6 +1,7 @@
 import React from 'react';
 import type { UnifiedBill } from "@/utils/billConverters";
 import { Markdown } from '../Markdown/markdown';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 interface BillSummaryProps {
   bill: UnifiedBill;
@@ -8,11 +9,15 @@ interface BillSummaryProps {
 
 export function BillSummary({ bill }: BillSummaryProps) {
   return (
-    <article className="rounded-md border border-[var(--panel-border)] bg-[var(--panel)] p-5">
-      <h2 className="font-semibold mb-2">Summary</h2>
-      <Markdown>
-        {bill.summary}
-      </Markdown>
-    </article>
+    <Card  >
+      <CardHeader>
+        <CardTitle>Summary</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Markdown>
+          {bill.summary}
+        </Markdown>
+      </CardContent>
+    </Card>
   );
 }

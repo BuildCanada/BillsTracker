@@ -2,7 +2,8 @@
 import type { UnifiedBill } from "@/utils/billConverters";
 import { TENETS } from "@/prompt/summary-and-vote-prompt";
 import { Markdown } from '../Markdown/markdown';
-import { Judgement } from "../Judgement/judgement.component";
+import { Judgement, JudgementValue } from "../Judgement/judgement.component";
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 interface BillAnalysisProps {
   bill: UnifiedBill;
@@ -45,26 +46,31 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
 
   return (
     <div className="space-y-6 relative w-full h-full">
-      {/* Final Judgment */}
-      {bill.final_judgment && (
-        <article className="rounded-md border border-[var(--panel-border)] bg-[var(--panel)] p-5   top-0 right-0">
-          <div className="flex items-start  justify-between  mb-6 gap-4">
-            <h2 className="font-semibold mb-0">Our Assessment</h2>
-            {/* <VoteBadge vote={bill.final_judgment} size="lg" /> */}
-            <Judgement judgement={bill.final_judgment} />
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+
+            <CardTitle>Our Assessment</CardTitle>
+            <div>
+              <Judgement judgement={bill.final_judgment as JudgementValue} />
+            </div>
           </div>
+        </CardHeader>
+        <CardContent>
           {bill.rationale && (
-            <div className="mt-3 text-sm text-[var(--muted)] leading-6 prose prose-sm max-w-none prose-headings:text-[var(--foreground)] prose-p:text-[var(--muted)] prose-strong:text-[var(--foreground)] prose-ul:text-[var(--muted)] prose-ol:text-[var(--muted)] prose-li:text-[var(--muted)]">
+            <div className="mt-3 text-sm  leading-6 prose prose-sm max-w-none ">
               <Markdown>{bill.rationale}</Markdown>
             </div>
           )}
-        </article>
-      )}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Tenet Analysis</CardTitle>
 
-      {/* Tenet Evaluations */}
-      <article className="rounded-md border border-[var(--panel-border)] bg-[var(--panel)] p-5">
-        <h2 className="font-semibold mb-4">Tenet Analysis</h2>
-        <div className="space-y-4">
+        </CardHeader>
+        <CardContent className="space-y-4">
           {bill.tenet_evaluations.map((tenet) => (
             <div key={tenet.id} className="border-l-4 border-slate-200 pl-4">
               <div className="flex items-start gap-3">
@@ -75,25 +81,14 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
                   <h3 className="  font-medium text-[var(--foreground)] mb-1">
                     {TENETS?.[tenet.id as keyof typeof TENETS] || "Unknown"}
                   </h3>
-                  <p className="text-sm text-[var(--muted)] leading-5">{tenet.explanation}</p>
+                  <p className="text-sm text-[ leading-5">{tenet.explanation}</p>
 
                 </div>
               </div>
             </div>
           ))}
-        </div>
-      </article>
-
-      {/* Steel Man Argument
-      {bill.steel_man && (
-        <article className="rounded-md border border-[var(--panel-border)] bg-[var(--panel)] p-5">
-          <h2 className="font-semibold mb-3">Steel Man Argument</h2>
-          <p className="text-xs text-[var(--muted)] mb-3 italic">
-            The strongest possible case for how this bill could benefit Canada's prosperity:
-          </p>
-          <Markdown>{bill.steel_man}</Markdown>
-        </article>
-      )} */}
+        </CardContent>
+      </Card>
 
     </div>
   );

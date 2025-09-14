@@ -6,14 +6,12 @@ interface BillHeaderProps {
 
 export function BillHeader({ bill }: BillHeaderProps) {
   return (
-    <header className="  pb-4 border-b border-[var(--panel-border)]">
-
+    <header className="pb-4">
       <h1 className="  mb-6 text-[48px] leading-14 font-bold">
         {bill.short_title}
       </h1>
-      <p className="mt-2 text-sm text-[var(--muted)] w-1/2">
+      <p className="mt-2 text-sm text-[ w-1/2">
         {bill.title}
-
       </p>
     </header>
   );

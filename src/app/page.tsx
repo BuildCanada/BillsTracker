@@ -100,13 +100,6 @@ export default async function Home() {
   return (
     <div className="min-h-screen">
       <div className="mx-auto max-w-[1120px] px-6 py-8  gap-8">
-        {/* <aside className="rounded-md bg-[var(--panel)] p-5 shadow-sm border border-[var(--panel-border)]">
-          <div className="text-[28px] leading-[1.1] font-semibold tracking-tight">Outcomes Tracker</div>
-          <p className="mt-4 text-sm text-[var(--muted)]">
-            A non-partisan platform tracking progress of key commitments during the 45th Parliament of Canada.
-          </p>
-          <FAQModalTrigger />
-        </aside> */}
         <main>
           <header className="flex items-center gap-4 pb-4 border-b border-[var(--panel-border)]">
             <h1 className="text-[24px] font-semibold">Build Canada Bills</h1>
