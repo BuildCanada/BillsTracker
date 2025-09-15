@@ -1,167 +1,243 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BillSummary } from "./types";
 import BillCard from "@/components/BillCard";
-
+import { FilterSidebar, FilterState, FilterOptions } from "@/components/FilterSection/filter-section.component";
+import { useIsMobile } from "@/components/ui/use-mobile";
 
 interface BillExplorerProps {
   bills: BillSummary[];
 }
 
 export default function BillExplorer({ bills }: BillExplorerProps) {
-  const [query, setQuery] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
-  const [impact, setImpact] = useState<string>("");
-  const [judgment, setJudgment] = useState<string>("");
-  const [chamber, setChamber] = useState<string>("");
-  const [sponsorParty, setSponsorParty] = useState<string>("");
-  const [sortBy, setSortBy] = useState<string>("lastUpdated-desc");
+  const isMobile = useIsMobile();
+  const [isFilterCollapsed, setIsFilterCollapsed] = useState(false);
+  const [filters, setFilters] = useState<FilterState>({
+    search: "",
+    status: [],
+    category: [],
+    party: [],
+    chamber: [],
+    dateRange: "all",
+  });
 
-  // Collect unique sponsor parties from bills data
-  const uniqueSponsorParties = useMemo(() => {
-    const parties = new Set<string>();
-    bills.forEach(bill => {
+  // Filter bills based on current filter state
+  const filteredBills = useMemo(() => {
+    const filtered = bills.filter((bill) => {
+      // Search filter - search in title, description, and summary
+      if (filters.search) {
+        const searchTerm = filters.search.toLowerCase();
+        const searchableText = [
+          bill.title,
+          bill.description,
+          bill.summary || "",
+          bill.shortTitle || ""
+        ].join(" ").toLowerCase();
+
+        if (!searchableText.includes(searchTerm)) {
+          return false;
+        }
+      }
+
+      // Status filter
+      if (filters.status.length > 0 && !filters.status.includes(bill.status.toLowerCase())) {
+        return false;
+      }
+
+      // Category filter (check both alignment and genres)
+      if (filters.category.length > 0) {
+        let hasMatchingCategory = false;
+
+        // Check alignment
+        if (bill.alignment && filters.category.includes(bill.alignment)) {
+          hasMatchingCategory = true;
+        }
+
+        // Check genres
+        if (bill.genres && bill.genres.some(genre => filters.category.includes(genre))) {
+          hasMatchingCategory = true;
+        }
+
+        if (!hasMatchingCategory) {
+          return false;
+        }
+      }
+
+      // Party filter (using sponsorParty field)
+      if (filters.party.length > 0 && bill.sponsorParty && !filters.party.includes(bill.sponsorParty)) {
+        return false;
+      }
+
+      // Chamber filter
+      if (filters.chamber.length > 0) {
+        const chamber = bill.chamber === "House of Commons" ? "House" : "Senate";
+        if (!filters.chamber.includes(chamber)) {
+          return false;
+        }
+      }
+
+      // Date range filter based on introducedOn
+      if (filters.dateRange && filters.dateRange !== 'all') {
+        const now = new Date();
+        const billDate = new Date(bill.introducedOn);
+        let cutoffDate: Date;
+
+        switch (filters.dateRange) {
+          case 'last-month':
+            cutoffDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+            break;
+          case 'last-3-months':
+            cutoffDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+            break;
+          case 'last-6-months':
+            cutoffDate = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+            break;
+          case 'last-year':
+            cutoffDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+            break;
+          default:
+            cutoffDate = new Date(0); // No filter
+        }
+
+        if (billDate < cutoffDate) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    // Debug logging
+    console.log('Filtering results:', {
+      totalBills: bills.length,
+      filteredBills: filtered.length,
+      activeFilters: filters
+    });
+
+    return filtered;
+  }, [bills, filters]);
+
+
+  useEffect(() => {
+    setIsFilterCollapsed(isMobile);
+  }, [isMobile]);
+
+  // Function to force collapse the filter section
+  const forceCollapseFilters = () => {
+    setIsFilterCollapsed(true);
+  };
+
+  // Function to force expand the filter section
+  const forceExpandFilters = () => {
+    setIsFilterCollapsed(false);
+  };
+
+  // Function to toggle the filter section
+  const toggleFilterCollapse = () => {
+    setIsFilterCollapsed(!isFilterCollapsed);
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      search: "",
+      status: [],
+      category: [],
+      party: [],
+      chamber: [],
+      dateRange: "all",
+    });
+  };
+
+  // Generate dynamic filter options from bills data
+  const filterOptions = useMemo(() => {
+    const statusSet = new Set<string>();
+    const partySet = new Set<string>();
+    const chamberSet = new Set<string>();
+    const categorySet = new Set<string>();
+
+    bills.forEach((bill) => {
+      // Collect statuses
+      if (bill.status) {
+        statusSet.add(bill.status);
+      }
+
+      // Collect sponsor parties
       if (bill.sponsorParty && bill.sponsorParty.trim()) {
-        parties.add(bill.sponsorParty.trim());
-      } else {
-        // If no sponsorParty, it's from the Senate
-        parties.add("Senate");
+        partySet.add(bill.sponsorParty.trim());
+      }
+
+      // Collect chambers
+      if (bill.chamber) {
+        const chamber = bill.chamber === "House of Commons" ? "House" : "Senate";
+        chamberSet.add(chamber);
+      }
+
+      // Collect categories from genres and alignment
+      if (bill.genres) {
+        bill.genres.forEach(genre => {
+          if (genre && genre.trim()) {
+            categorySet.add(genre.trim());
+          }
+        });
+      }
+      if (bill.alignment) {
+        categorySet.add(bill.alignment);
       }
     });
-    return Array.from(parties).sort();
+
+    const options = {
+      statuses: Array.from(statusSet).sort(),
+      parties: Array.from(partySet).sort(),
+      chambers: Array.from(chamberSet).sort(),
+      categories: Array.from(categorySet).sort(),
+    };
+
+    // Debug logging to see what filter options are available
+    console.log('Filter options generated:', options);
+    console.log('Total bills:', bills.length);
+
+    return options;
   }, [bills]);
 
-  const filteredBills = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    const filtered = bills.filter((bill) => {
-      const matchesQuery = !normalizedQuery
-        ? true
-        : [
-          bill.title,
-          bill.shortTitle ?? "",
-          bill.description,
-          bill.sponsorParty,
-          bill.chamber,
-          bill.summary ?? "",
-          bill.genres?.join(" ") ?? "",
-        ]
-          .join("\n")
-          .toLowerCase()
-          .includes(normalizedQuery);
-
-      const matchesStatus = status ? bill.status === status : true;
-      const matchesImpact = impact ? (bill.impact ?? "") === impact : true;
-      const matchesJudgment = judgment ? bill.final_judgment === judgment : true;
-      const matchesChamber = chamber ? bill.chamber === chamber : true;
-
-      // Handle sponsor party filter - if no sponsorParty, treat as "Senate"
-      const billSponsorParty = bill.sponsorParty && bill.sponsorParty.trim() ? bill.sponsorParty.trim() : "Senate";
-      const matchesSponsorParty = sponsorParty ? billSponsorParty === sponsorParty : true;
-
-      return matchesQuery && matchesStatus && matchesImpact && matchesJudgment && matchesChamber && matchesSponsorParty;
-    });
-
-    // Apply sorting
-    const sorted = [...filtered].sort((a, b) => {
-      switch (sortBy) {
-        case "title-asc":
-          return (a.shortTitle || a.title).localeCompare(b.shortTitle || b.title);
-        case "title-desc":
-          return (b.shortTitle || b.title).localeCompare(a.shortTitle || a.title);
-        case "introduced-asc":
-          return new Date(a.introducedOn).getTime() - new Date(b.introducedOn).getTime();
-        case "introduced-desc":
-          return new Date(b.introducedOn).getTime() - new Date(a.introducedOn).getTime();
-        case "lastUpdated-asc":
-          return new Date(a.lastUpdatedOn).getTime() - new Date(b.lastUpdatedOn).getTime();
-        case "lastUpdated-desc":
-          return new Date(b.lastUpdatedOn).getTime() - new Date(a.lastUpdatedOn).getTime();
-        case "status-asc":
-          return a.status.localeCompare(b.status);
-        case "status-desc":
-          return b.status.localeCompare(a.status);
-        case "party-asc":
-          return a.sponsorParty.localeCompare(b.sponsorParty);
-        case "party-desc":
-          return b.sponsorParty.localeCompare(a.sponsorParty);
-        default:
-          return new Date(b.lastUpdatedOn).getTime() - new Date(a.lastUpdatedOn).getTime();
-      }
-    });
-
-    return sorted;
-  }, [bills, query, status, impact, judgment, chamber, sponsorParty, sortBy]);
-
-
   return (
-    <>
-      <div className="flex flex-wrap gap-2 items-center mb-4">
-        <input
-          type="text"
-          placeholder="Search bills..."
-          className="w-full sm:w-[320px] rounded border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--ring)]"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
+    <div className="mx-auto max-w-7xl py-4 md:py-6">
+      {/* Layout wrapper: stacked on mobile, two-column on desktop */}
+      <div className="flex flex-col gap-4 md:flex-row md:gap-6">
+        {/* FILTERS */}
+        <aside
+          className="
+            w-full md:w-auto
+            md:min-w-[260px] md:max-w-xs md:shrink-0
+          "
+        >
+          {/* Provide your sidebar full-width on mobile, fixed-ish width on desktop */}
 
-        <select
-          className="rounded border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-2 text-sm"
-          value={chamber}
-          onChange={(e) => setChamber(e.target.value)}
-        >
-          <option value="">All Chambers</option>
-          <option>House of Commons</option>
-          <option>Senate</option>
-        </select>
-        <select
-          className="rounded border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-2 text-sm"
-          value={sponsorParty}
-          onChange={(e) => setSponsorParty(e.target.value)}
-        >
-          <option value="">All Parties</option>
-          {uniqueSponsorParties.map((party) => (
-            <option key={party} value={party}>
-              {party}
-            </option>
-          ))}
-        </select>
-        <select
-          className="rounded border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-2 text-sm"
-          value={judgment}
-          onChange={(e) => setJudgment(e.target.value)}
-        >
-          <option value="">All Judgments</option>
-          <option value="yes">Build Canada Supports</option>
-          <option value="no">Build Canada Opposes</option>
-          <option value="neutral">Build Canada Neutral</option>
-        </select>
-        <select
-          className="rounded border border-[var(--panel-border)] bg-[var(--panel)] px-3 py-2 text-sm"
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-        >
-          <option value="lastUpdated-desc">Latest Updated</option>
-          <option value="lastUpdated-asc">Oldest Updated</option>
-          <option value="introduced-desc">Recently Introduced</option>
-          <option value="introduced-asc">Oldest Introduced</option>
+          <FilterSidebar
+            filters={filters}
+            onFiltersChange={setFilters}
+            onClearFilters={clearFilters}
+            forceCollapsed={isFilterCollapsed}
+            onCollapsedChange={setIsFilterCollapsed}
+            filterOptions={filterOptions}
+          />
+        </aside>
 
-          <option value="party-asc">Party A-Z</option>
-          <option value="party-desc">Party Z-A</option>
-        </select>
+        {/* BILL LIST */}
+        <main className="flex-1">
+
+
+          {filteredBills.length === 0 ? (
+            <div className="text-sm">No bills match your filters.</div>
+          ) : (
+            <ul className="flex flex-col gap-3">
+              {filteredBills.map((bill) => (
+                <BillCard key={bill.billID} bill={bill} />
+              ))}
+            </ul>
+          )}
+        </main>
       </div>
-
-      {filteredBills.length === 0 ? (
-        <div className="text-sm text-[var(--muted)]">No bills match your filters.</div>
-      ) : (
-        <ul className="flex flex-col gap-3">
-          {filteredBills.map((bill) => (
-            <BillCard key={bill.billID} bill={bill} />
-          ))}
-        </ul>
-      )}
-    </>
+    </div>
   );
 }
-
-

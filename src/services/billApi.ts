@@ -1,4 +1,3 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { xmlToMarkdown } from "@/utils/xml-to-md/xml-to-md.util";
 import { SUMMARY_AND_VOTE_PROMPT } from "@/prompt/summary-and-vote-prompt";
 import OpenAI from "openai";

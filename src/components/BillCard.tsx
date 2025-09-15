@@ -3,75 +3,38 @@ import { BillSummary } from "@/app/types";
 import { getPartyColor } from "@/utils/get-party-colors/get-party-colors.util";
 import { stageSummarizer, getStageCategory } from "@/utils/stage-summarizer/stage-summarizer.util";
 import { Judgement } from "./Judgement/judgement.component";
+import { DynamicIcon } from 'lucide-react/dynamic';
+
+import { getCategoryIcon } from "@/utils/bill-category-to-icon/bill-category-to-icon.util";
 
 type StageStyle = { dot: string; chipBg: string; chipText: string };
 
-function getStageStyle(bill: BillSummary): StageStyle {
-  const category = getStageCategory(bill.stage || "", bill.status);
-
-  switch (category) {
-    case "complete":
-      return { dot: "bg-emerald-500", chipBg: "bg-emerald-100", chipText: "text-emerald-700" };
-    case "failed":
-      return { dot: "bg-rose-500", chipBg: "bg-rose-100", chipText: "text-rose-700" };
-    case "active":
-      return { dot: "bg-amber-500", chipBg: "bg-amber-100", chipText: "text-amber-700" };
-    case "introduced":
-      return { dot: "bg-sky-500", chipBg: "bg-sky-100", chipText: "text-sky-700" };
-    case "paused":
-      return { dot: "bg-slate-400", chipBg: "bg-slate-200", chipText: "text-slate-700" };
-    case "pre-introduction":
-      return { dot: "bg-gray-400", chipBg: "bg-gray-100", chipText: "text-gray-700" };
-    default:
-      return { dot: "bg-slate-400", chipBg: "bg-slate-200", chipText: "text-slate-700" };
-  }
-}
 
 interface BillCardProps {
   bill: BillSummary;
 }
 
 export default function BillCard({ bill }: BillCardProps) {
-  const { chipBg, chipText } = getStageStyle(bill);
-  const humanReadableStage = stageSummarizer(bill.stage || "", bill.status);
-  const billOrigin = bill.chamber === 'House of Commons' ? (bill.sponsorParty || 'Unknown') : 'Senate';
   const updatedAt = new Date(bill.lastUpdatedOn);
 
-
-  console.log({ bill });
-
   return (
-    <li className="group rounded-lg border border-[var(--panel-border)] bg-[var(--panel)] shadow-sm   duration-200 overflow-hidden">
+    <li className="group rounded-lg border   bg-[var(--panel)] shadow-sm   duration-200 overflow-hidden">
       <Link href={`/bills/${bill.billID}`} className="block">
         <div className="p-5">
           {/* Header Section */}
-          <div className="flex items-start justify-between gap-4 mb-3">
+          <div className="flex items-start md:flex-row flex-col-reverse  justify-between gap-4 mb-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
 
-                <span
-                  style={{
-                    backgroundColor: getPartyColor(billOrigin).backgroundColor,
-                    color: getPartyColor(billOrigin).color
-                  }}
-                  className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
-                >
-                  {billOrigin}
-                </span>
-                {/* <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${chipBg} ${chipText}`}>
-                  {humanReadableStage}
-                </span> */}
+
 
               </div>
-              <h2 className="text-lg mb-4 font-semibold text-[var(--foreground)]  transition-colors leading-tight">
+              <h2 className="text-xl mb-4 font-semibold    max-w-[70%] transition-colors leading-tight">
                 {bill.shortTitle ?? bill.title}
               </h2>
             </div>
 
-            {bill.final_judgment && (
-              <div className="flex-shrink-0">
-              </div>
-            )}
+
             {bill.final_judgment && (
               <Judgement judgement={bill?.final_judgment} />
             )}
@@ -80,7 +43,7 @@ export default function BillCard({ bill }: BillCardProps) {
 
           {/* Description */}
           {bill.description && (
-            <p className="text-sm text-[var(--muted)] mb-3 leading-relaxed overflow-hidden"
+            <p className="text-sm text-[var(--muted-foreground)] mb-3 leading-relaxed overflow-hidden"
               style={{
                 display: '-webkit-box',
                 WebkitLineClamp: 2,
@@ -92,16 +55,6 @@ export default function BillCard({ bill }: BillCardProps) {
 
           {/* Tags Section */}
           <div className="flex flex-wrap gap-1.5 mb-4">
-            {/* Chamber/Party Badge */}
-
-            {/* Chamber Badge */}
-            {
-              bill.chamber && (
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-                  {bill.chamber}
-                </span>
-              )
-            }
 
             {/* Impact Badge */}
             {bill.impact && (
@@ -121,24 +74,28 @@ export default function BillCard({ bill }: BillCardProps) {
             }
 
             {/* Genre Tags (limit to 3 visible) */}
-            {bill.genres && bill.genres.length > 0 && bill.genres.map((genre, index) => (
-              <span key={index} className="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 text-gray-700">
-                {genre}
-              </span>
-            ))}
+            {bill.genres && bill.genres.length > 0 && bill.genres.map((genre, index) => {
+              const icon = getCategoryIcon(genre);
+              return icon && (
+                <span key={index} className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-gray-100 text-gray-700">
+                  <DynamicIcon className="w-4 h-4 mr-1" name={icon as any} /> {genre}
+                </span>
+              )
+            }
+            )}
 
           </div>
 
           {/* Footer Section */}
-          <div className="flex items-center justify-between text-xs text-[var(--muted)] pt-2 border-t border-[var(--panel-border)]">
+          <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)] pt-2 border-t border-[var(--border)]">
             <div className="flex items-center gap-4">
-              <span className="text-xs text-[var(--muted)] font-semibold">
+              <span className="text-xs text-[var(--foreground)]">
                 Bill {bill.billID}
               </span>              {bill.sponsorName && (
                 <span>by {bill.sponsorName}</span>
               )}
             </div>
-            <span>Updated {updatedAt.toLocaleDateString()}</span>
+            <span className="text-[var(--muted-foreground)]">Updated {updatedAt.toLocaleDateString()}</span>
           </div>
         </div>
       </Link>
