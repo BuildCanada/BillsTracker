@@ -87,8 +87,9 @@ export function Judgement({
       role="status"
       aria-live="polite"
       className={[
-        "w-fit rounded-xl border-2 ring-1 transition-all duration-200 hover:shadow-lg",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+        'border-1',
+        // "w-fit rounded-xl border-2 ring-1 transition-all duration-200 hover:shadow-lg",
+        // "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
         // s.wrap[variant],
         sz.pad,
         className,
@@ -107,16 +108,16 @@ export function Judgement({
           <Icon className={sz.icon + " " + s.icon} />
         </span>
 
-        <div className="flex flex-col">
+        <span className={`font-medium leading-none ${sz.text}`}>
+          {verdictCopy(judgement)}
+        </span>
+        {/* <div className="flex flex-col">
           {showLabel && (
-            <span className={`font-medium leading-none ${sz.text}`}>
-              Verdict
-            </span>
           )}
           <span className={`${sz.text}`}>
             {verdictCopy(judgement)}
           </span>
-        </div>
+        </div> */}
       </div>
     </article>
   );
