@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { BillSummary } from "./types";
 import BillCard from "@/components/BillCard";
-import { FilterSidebar, FilterState } from "@/components/FilterSection/filter-section.component";
+import { FilterSidebar, FilterState, FilterOptions } from "@/components/FilterSection/filter-section.component";
 import { useIsMobile } from "@/components/ui/use-mobile";
 
 interface BillExplorerProps {
@@ -24,7 +24,7 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
 
   // Filter bills based on current filter state
   const filteredBills = useMemo(() => {
-    return bills.filter((bill) => {
+    const filtered = bills.filter((bill) => {
       // Search filter - search in title, description, and summary
       if (filters.search) {
         const searchTerm = filters.search.toLowerCase();
@@ -45,13 +45,27 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
         return false;
       }
 
-      // Category filter (using alignment field as category)
-      if (filters.category.length > 0 && bill.alignment && !filters.category.includes(bill.alignment)) {
-        return false;
+      // Category filter (check both alignment and genres)
+      if (filters.category.length > 0) {
+        let hasMatchingCategory = false;
+
+        // Check alignment
+        if (bill.alignment && filters.category.includes(bill.alignment)) {
+          hasMatchingCategory = true;
+        }
+
+        // Check genres
+        if (bill.genres && bill.genres.some(genre => filters.category.includes(genre))) {
+          hasMatchingCategory = true;
+        }
+
+        if (!hasMatchingCategory) {
+          return false;
+        }
       }
 
       // Party filter (using sponsorParty field)
-      if (filters.party.length > 0 && !filters.party.includes(bill.sponsorParty)) {
+      if (filters.party.length > 0 && bill.sponsorParty && !filters.party.includes(bill.sponsorParty)) {
         return false;
       }
 
@@ -93,6 +107,15 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
 
       return true;
     });
+
+    // Debug logging
+    console.log('Filtering results:', {
+      totalBills: bills.length,
+      filteredBills: filtered.length,
+      activeFilters: filters
+    });
+
+    return filtered;
   }, [bills, filters]);
 
 
@@ -126,18 +149,55 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
     });
   };
 
-  // Collect unique sponsor parties from bills data
-  const uniqueSponsorParties = useMemo(() => {
-    const parties = new Set<string>();
+  // Generate dynamic filter options from bills data
+  const filterOptions = useMemo(() => {
+    const statusSet = new Set<string>();
+    const partySet = new Set<string>();
+    const chamberSet = new Set<string>();
+    const categorySet = new Set<string>();
+
     bills.forEach((bill) => {
+      // Collect statuses
+      if (bill.status) {
+        statusSet.add(bill.status);
+      }
+
+      // Collect sponsor parties
       if (bill.sponsorParty && bill.sponsorParty.trim()) {
-        parties.add(bill.sponsorParty.trim());
-      } else {
-        // If no sponsorParty, it's from the Senate
-        parties.add("Senate");
+        partySet.add(bill.sponsorParty.trim());
+      }
+
+      // Collect chambers
+      if (bill.chamber) {
+        const chamber = bill.chamber === "House of Commons" ? "House" : "Senate";
+        chamberSet.add(chamber);
+      }
+
+      // Collect categories from genres and alignment
+      if (bill.genres) {
+        bill.genres.forEach(genre => {
+          if (genre && genre.trim()) {
+            categorySet.add(genre.trim());
+          }
+        });
+      }
+      if (bill.alignment) {
+        categorySet.add(bill.alignment);
       }
     });
-    return Array.from(parties).sort();
+
+    const options = {
+      statuses: Array.from(statusSet).sort(),
+      parties: Array.from(partySet).sort(),
+      chambers: Array.from(chamberSet).sort(),
+      categories: Array.from(categorySet).sort(),
+    };
+
+    // Debug logging to see what filter options are available
+    console.log('Filter options generated:', options);
+    console.log('Total bills:', bills.length);
+
+    return options;
   }, [bills]);
 
   return (
@@ -159,6 +219,7 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
             onClearFilters={clearFilters}
             forceCollapsed={isFilterCollapsed}
             onCollapsedChange={setIsFilterCollapsed}
+            filterOptions={filterOptions}
           />
         </aside>
 

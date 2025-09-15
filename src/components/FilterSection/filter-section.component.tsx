@@ -18,48 +18,23 @@ export interface FilterState {
   dateRange: string;
 }
 
+export interface FilterOptions {
+  statuses: string[];
+  parties: string[];
+  chambers: string[];
+  categories: string[];
+}
+
 interface FilterSidebarProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
   onClearFilters: () => void;
   forceCollapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
+  filterOptions?: FilterOptions;
 }
 
-const statusOptions = [
-  { value: 'introduced', label: 'Introduced' },
-  { value: 'committee', label: 'In Committee' },
-  { value: 'passed-house', label: 'Passed House' },
-  { value: 'passed-senate', label: 'Passed Senate' },
-  { value: 'enacted', label: 'Enacted' },
-  { value: 'failed', label: 'Failed' }
-];
-
-const categoryOptions = [
-  'Healthcare',
-  'Education',
-  'Environment',
-  'Economy',
-  'Defense',
-  'Immigration',
-  'Technology',
-  'Transportation',
-  'Agriculture',
-  'Energy'
-];
-
-const partyOptions = [
-  { value: 'Democrat', label: 'Democrat' },
-  { value: 'Republican', label: 'Republican' },
-  { value: 'Independent', label: 'Independent' }
-];
-
-const chamberOptions = [
-  { value: 'House', label: 'House' },
-  { value: 'Senate', label: 'Senate' }
-];
-
-export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceCollapsed, onCollapsedChange }: FilterSidebarProps) {
+export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceCollapsed, onCollapsedChange, filterOptions }: FilterSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(forceCollapsed ?? false);
 
   // Update collapsed state when forceCollapsed prop changes
@@ -167,15 +142,15 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
           <div className="space-y-3">
             <Label>Status</Label>
             <div className="space-y-2">
-              {statusOptions.map((status) => (
-                <div key={status.value} className="flex items-center space-x-2">
+              {(filterOptions?.statuses || []).map((status) => (
+                <div key={status} className="flex items-center space-x-2">
                   <Checkbox
-                    id={status.value}
-                    checked={filters.status.includes(status.value)}
-                    onCheckedChange={() => toggleArrayFilter('status', status.value)}
+                    id={status}
+                    checked={filters.status.includes(status.toLowerCase())}
+                    onCheckedChange={() => toggleArrayFilter('status', status.toLowerCase())}
                   />
-                  <Label htmlFor={status.value} className="text-sm font-normal">
-                    {status.label}
+                  <Label htmlFor={status} className="text-sm font-normal">
+                    {status}
                   </Label>
                 </div>
               ))}
@@ -186,7 +161,7 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
           <div className="space-y-3">
             <Label>Category</Label>
             <div className="space-y-2 max-h-40 overflow-y-auto">
-              {categoryOptions.map((category) => (
+              {(filterOptions?.categories || []).map((category) => (
                 <div key={category} className="flex items-center space-x-2">
                   <Checkbox
                     id={category}
@@ -205,15 +180,15 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
           <div className="space-y-3">
             <Label>Sponsor Party</Label>
             <div className="space-y-2">
-              {partyOptions.map((party) => (
-                <div key={party.value} className="flex items-center space-x-2">
+              {(filterOptions?.parties || []).map((party) => (
+                <div key={party} className="flex items-center space-x-2">
                   <Checkbox
-                    id={party.value}
-                    checked={filters.party.includes(party.value)}
-                    onCheckedChange={() => toggleArrayFilter('party', party.value)}
+                    id={party}
+                    checked={filters.party.includes(party)}
+                    onCheckedChange={() => toggleArrayFilter('party', party)}
                   />
-                  <Label htmlFor={party.value} className="text-sm font-normal">
-                    {party.label}
+                  <Label htmlFor={party} className="text-sm font-normal">
+                    {party}
                   </Label>
                 </div>
               ))}
@@ -224,15 +199,15 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
           <div className="space-y-3">
             <Label>Chamber</Label>
             <div className="space-y-2">
-              {chamberOptions.map((chamber) => (
-                <div key={chamber.value} className="flex items-center space-x-2">
+              {(filterOptions?.chambers || []).map((chamber) => (
+                <div key={chamber} className="flex items-center space-x-2">
                   <Checkbox
-                    id={chamber.value}
-                    checked={filters.chamber.includes(chamber.value)}
-                    onCheckedChange={() => toggleArrayFilter('chamber', chamber.value)}
+                    id={chamber}
+                    checked={filters.chamber.includes(chamber)}
+                    onCheckedChange={() => toggleArrayFilter('chamber', chamber)}
                   />
-                  <Label htmlFor={chamber.value} className="text-sm font-normal">
-                    {chamber.label}
+                  <Label htmlFor={chamber} className="text-sm font-normal">
+                    {chamber}
                   </Label>
                 </div>
               ))}

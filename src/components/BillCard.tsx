@@ -42,7 +42,7 @@ export default function BillCard({ bill }: BillCardProps) {
       <Link href={`/bills/${bill.billID}`} className="block">
         <div className="p-5">
           {/* Header Section */}
-          <div className="flex items-start justify-between gap-4 mb-3">
+          <div className="flex items-start md:flex-row flex-col-reverse  justify-between gap-4 mb-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
 
@@ -96,7 +96,6 @@ export default function BillCard({ bill }: BillCardProps) {
             {/* Genre Tags (limit to 3 visible) */}
             {bill.genres && bill.genres.length > 0 && bill.genres.map((genre, index) => {
               const icon = getCategoryIcon(genre);
-              console.log({ icon });
               return icon && (
                 <span key={index} className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-gray-100 text-gray-700">
                   <DynamicIcon className="w-4 h-4 mr-1" name={icon as any} /> {genre}
