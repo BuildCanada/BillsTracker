@@ -3,6 +3,9 @@ import { BillSummary } from "@/app/types";
 import { getPartyColor } from "@/utils/get-party-colors/get-party-colors.util";
 import { stageSummarizer, getStageCategory } from "@/utils/stage-summarizer/stage-summarizer.util";
 import { Judgement } from "./Judgement/judgement.component";
+import { DynamicIcon } from 'lucide-react/dynamic';
+
+import { getCategoryIcon } from "@/utils/bill-category-to-icon/bill-category-to-icon.util";
 
 type StageStyle = { dot: string; chipBg: string; chipText: string };
 
@@ -91,11 +94,16 @@ export default function BillCard({ bill }: BillCardProps) {
             }
 
             {/* Genre Tags (limit to 3 visible) */}
-            {bill.genres && bill.genres.length > 0 && bill.genres.map((genre, index) => (
-              <span key={index} className="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 text-gray-700">
-                {genre}
-              </span>
-            ))}
+            {bill.genres && bill.genres.length > 0 && bill.genres.map((genre, index) => {
+              const icon = getCategoryIcon(genre);
+              console.log({ icon });
+              return icon && (
+                <span key={index} className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-gray-100 text-gray-700">
+                  <DynamicIcon className="w-4 h-4 mr-1" name={icon as any} /> {genre}
+                </span>
+              )
+            }
+            )}
 
           </div>
 

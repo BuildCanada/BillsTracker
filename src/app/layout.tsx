@@ -56,7 +56,7 @@ export default function RootLayout({
                     <div className="text-xs">
 
                       Powered by {' '}
-                      <a href="https://thecivicsproject.org" target="_blank" rel="noopener noreferrer" className="text-xs text-[ underline">
+                      <a href="https://civicsproject.org" target="_blank" rel="noopener noreferrer" className="text-xs text-[ underline">
                         The Civics Project
                       </a>
                     </div>
