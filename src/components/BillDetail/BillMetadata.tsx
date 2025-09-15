@@ -22,14 +22,15 @@ export function BillMetadata({ bill }: BillMetadataProps) {
           <a
             href={`https://www.parl.ca/LegisInfo/en/bill/45-1/${bill.billId}`}
             target="_blank"
+
             rel="noopener noreferrer"
-            className="text-sm underline text-["
+            className="text-md font-bold underline text-["
           >
             {bill.billId}
           </a>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-1">
         <DataPoint label="Party" value={bill.chamber === 'Senate' ? 'Senate' : bill.sponsorParty || 'Unknown'} />
         <DataPoint label="Status" value={bill.status} />
         {bill.introducedOn && (

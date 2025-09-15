@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="light">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -56,7 +56,7 @@ export default function RootLayout({
                     <div className="text-xs">
 
                       Powered by {' '}
-                      <a href="https://civicsproject.org" target="_blank" rel="noopener noreferrer" className="text-xs text-[ underline">
+                      <a href="https://civicsproject.org" target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--muted-foreground)] underline">
                         The Civics Project
                       </a>
                     </div>
@@ -72,11 +72,11 @@ export default function RootLayout({
               <div className="space-y-4">
                 <h3 className="font-semibold text-base">Connect</h3>
                 <div className="space-y-2">
-                  <p className="text-sm text-[">
+                  <p className="text-sm text-[var(--muted-foreground)]">
                     Questions or feedback?
                   </p>
                   <a href="mailto:hello@buildcanada.ca"
-                    className="text-sm text-[ hover:text-[var(--foreground)] transition-colors">
+                    className="text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors">
                     hello@buildcanada.ca
                   </a>
                 </div>
@@ -85,10 +85,10 @@ export default function RootLayout({
 
             {/* Bottom Bar */}
             <div className="mt-8 pt-8 border-t border-[var(--panel-border)] flex flex-col sm:flex-row justify-between items-center gap-4">
-              <p className="text-xs text-[">
+              <p className="text-xs text-[var(--muted-foreground)]">
                 © {new Date().getFullYear()} Build Canada Bills. All rights reserved.
                 A Project of {' '}
-                <a href="https://buildcanada.ca" target="_blank" rel="noopener noreferrer" className="text-xs text-[ underline">
+                <a href="https://buildcanada.ca" target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--muted-foreground)] underline">
                   Build Canada
                 </a>
 

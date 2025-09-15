@@ -3,6 +3,9 @@ import BillExplorer from "./BillExplorer";
 import FAQModalTrigger from "./FAQModalTrigger";
 import { getAllBillsFromDB } from "@/server/get-all-bills-from-db";
 import { fromDbBill } from "@/utils/billConverters";
+import { getParliament45Header } from "@/components/BillDetail/BillHeader";
+import Markdown from "react-markdown";
+
 
 const CANADIAN_PARLIAMENT_NUMBER = 45;
 
@@ -104,9 +107,12 @@ export default async function Home() {
     <div className="min-h-screen">
       <div className="mx-auto max-w-[1120px] px-6 py-8  gap-8">
         <main>
-          <header className="flex items-center gap-4 pb-4 border-b border-[var(--panel-border)]">
-            <h1 className="text-[24px] font-semibold">Build Canada Bills</h1>
+          <header className="flex items-center gap-4 pb-4 border-b border-[var(--panel-border)] mb-4">
+            <h1 className="text-[24px] font-semibold">45th Canadian Federal Parliament</h1>
           </header>
+
+          <Markdown>{getParliament45Header()}</Markdown>
+
 
           <section className="mt-6">
             <BillExplorer bills={bills} />

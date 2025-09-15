@@ -139,13 +139,14 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
           </div>
 
           {/* Status */}
-          <div className="space-y-3">
+          <div className="space-y-3 ">
             <Label>Status</Label>
             <div className="space-y-2">
               {(filterOptions?.statuses || []).map((status) => (
-                <div key={status} className="flex items-center space-x-2">
+                <div key={status} className="flex items-start space-x-2">
                   <Checkbox
                     id={status}
+                    className="mt-0.5"
                     checked={filters.status.includes(status.toLowerCase())}
                     onCheckedChange={() => toggleArrayFilter('status', status.toLowerCase())}
                   />
@@ -177,7 +178,7 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
           </div>
 
           {/* Sponsor Party */}
-          <div className="space-y-3">
+          <div className="space-y-3 align-start *:text-sm">
             <Label>Sponsor Party</Label>
             <div className="space-y-2">
               {(filterOptions?.parties || []).map((party) => (

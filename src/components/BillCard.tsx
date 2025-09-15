@@ -49,7 +49,7 @@ export default function BillCard({ bill }: BillCardProps) {
 
 
               </div>
-              <h2 className="text-lg mb-4 font-semibold text-[var(--foreground)]  transition-colors leading-tight">
+              <h2 className="text-lg mb-4 font-semibold text-[var(--foreground)]  max-w-[70%] transition-colors leading-tight">
                 {bill.shortTitle ?? bill.title}
               </h2>
             </div>
@@ -63,7 +63,7 @@ export default function BillCard({ bill }: BillCardProps) {
 
           {/* Description */}
           {bill.description && (
-            <p className="text-sm text-[ mb-3 leading-relaxed overflow-hidden"
+            <p className="text-sm text-[var(--muted-foreground)] mb-3 leading-relaxed overflow-hidden"
               style={{
                 display: '-webkit-box',
                 WebkitLineClamp: 2,
@@ -107,15 +107,15 @@ export default function BillCard({ bill }: BillCardProps) {
           </div>
 
           {/* Footer Section */}
-          <div className="flex items-center justify-between text-xs text-[ pt-2 border-t  ">
+          <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)] pt-2 border-t border-[var(--border)]">
             <div className="flex items-center gap-4">
-              <span className="text-xs text-gray-800">
+              <span className="text-xs text-[var(--foreground)]">
                 Bill {bill.billID}
               </span>              {bill.sponsorName && (
                 <span>by {bill.sponsorName}</span>
               )}
             </div>
-            <span className="text-gray-500">Updated {updatedAt.toLocaleDateString()}</span>
+            <span className="text-[var(--muted-foreground)]">Updated {updatedAt.toLocaleDateString()}</span>
           </div>
         </div>
       </Link>

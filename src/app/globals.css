@@ -87,8 +87,9 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* Only apply dark theme when explicitly requested or when system prefers dark AND no explicit theme class is set */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.light):not(.dark) {
     --panel: #151311;
     --panel-border: #2a2622;
     --muted: #bdb5ab;
@@ -97,7 +98,31 @@
     --tag-bg: #0f2b17;
     --tag-text: #9ad1a5;
     --ring: #af7e4a;
+    --background: oklch(0.129 0.042 264.695);
+    --foreground: oklch(0.984 0.003 247.858);
+    --card: oklch(0.208 0.042 265.755);
+    --card-foreground: oklch(0.984 0.003 247.858);
+    --muted-foreground: oklch(0.704 0.04 256.788);
+    --border: oklch(1 0 0 / 10%);
   }
+}
+
+/* Force light mode variables when .light class is present */
+.light {
+  --panel: white;
+  --panel-border: #e6d8cb;
+  --muted: oklch(0.968 0.007 247.896);
+  --chip-bg: #efe2d6;
+  --chip-text: #6b5b4d;
+  --tag-bg: #e8f5e9;
+  --tag-text: #1b5e20;
+  --ring: oklch(0.704 0.04 256.788);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.129 0.042 264.695);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.129 0.042 264.695);
+  --muted-foreground: oklch(0.554 0.046 257.417);
+  --border: oklch(0.929 0.013 255.508);
 }
 
 body {
