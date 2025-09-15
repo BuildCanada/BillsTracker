@@ -49,9 +49,9 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex md:items-center md:justify-between md:flex-row flex-col gap-4 ">
 
-            <CardTitle>Our Assessment</CardTitle>
+            <CardTitle className="mb-2">Our Assessment</CardTitle>
             <div>
               <Judgement judgement={bill.final_judgment as JudgementValue} />
             </div>
@@ -59,7 +59,7 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
         </CardHeader>
         <CardContent>
           {bill.rationale && (
-            <div className="mt-3 text-sm  leading-6 prose prose-sm max-w-none ">
+            <div className="text-sm  leading-6 prose prose-sm max-w-none ">
               <Markdown>{bill.rationale}</Markdown>
             </div>
           )}

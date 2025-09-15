@@ -9,26 +9,6 @@ import { getCategoryIcon } from "@/utils/bill-category-to-icon/bill-category-to-
 
 type StageStyle = { dot: string; chipBg: string; chipText: string };
 
-function getStageStyle(bill: BillSummary): StageStyle {
-  const category = getStageCategory(bill.stage || "", bill.status);
-
-  switch (category) {
-    case "complete":
-      return { dot: "bg-emerald-500", chipBg: "bg-emerald-100", chipText: "text-emerald-700" };
-    case "failed":
-      return { dot: "bg-rose-500", chipBg: "bg-rose-100", chipText: "text-rose-700" };
-    case "active":
-      return { dot: "bg-amber-500", chipBg: "bg-amber-100", chipText: "text-amber-700" };
-    case "introduced":
-      return { dot: "bg-sky-500", chipBg: "bg-sky-100", chipText: "text-sky-700" };
-    case "paused":
-      return { dot: "bg-slate-400", chipBg: "bg-slate-200", chipText: "text-slate-700" };
-    case "pre-introduction":
-      return { dot: "bg-gray-400", chipBg: "bg-gray-100", chipText: "text-gray-700" };
-    default:
-      return { dot: "bg-slate-400", chipBg: "bg-slate-200", chipText: "text-slate-700" };
-  }
-}
 
 interface BillCardProps {
   bill: BillSummary;
@@ -49,7 +29,7 @@ export default function BillCard({ bill }: BillCardProps) {
 
 
               </div>
-              <h2 className="text-lg mb-4 font-semibold text-[var(--foreground)]  max-w-[70%] transition-colors leading-tight">
+              <h2 className="text-xl mb-4 font-semibold    max-w-[70%] transition-colors leading-tight">
                 {bill.shortTitle ?? bill.title}
               </h2>
             </div>

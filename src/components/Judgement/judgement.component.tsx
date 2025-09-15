@@ -44,7 +44,7 @@ const stylesByJudgement: Record<
 };
 
 const sizes: Record<Size, { pad: string; text: string; icon: string; gap: string }> = {
-  sm: { pad: "p-2", text: "text-sm", icon: "h-4 w-4", gap: "gap-2" },
+  sm: { pad: "p-1", text: "text-xs", icon: "h-4 w-4", gap: "gap-2" },
   md: { pad: "p-3", text: "text-base", icon: "h-5 w-5", gap: "gap-3" },
 };
 
@@ -87,7 +87,7 @@ export function Judgement({
       role="status"
       aria-live="polite"
       className={[
-        'border-1 rounded-full',
+        'border-1 rounded-full w-fit',
         // "w-fit rounded-xl border-2 ring-1 transition-all duration-200 hover:shadow-lg",
         // "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
         // s.wrap[variant],
