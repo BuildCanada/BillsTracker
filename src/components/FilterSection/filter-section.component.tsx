@@ -81,8 +81,8 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
       <CardHeader className="pb-0 pt-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4" />
-            <CardTitle className="text-lg">Filters</CardTitle>
+            <Filter className="h-3 w-3" />
+            <CardTitle className="text-sm">Filters</CardTitle>
             {activeCount > 0 && (
               <Badge variant="secondary" className="text-xs">
                 {activeCount}
