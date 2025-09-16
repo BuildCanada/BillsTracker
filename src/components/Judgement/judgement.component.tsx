@@ -48,7 +48,10 @@ const sizes: Record<Size, { pad: string; text: string; icon: string; gap: string
   md: { pad: "p-3", text: "text-base", icon: "h-5 w-5", gap: "gap-3" },
 };
 
-function verdictCopy(j: JudgementValue) {
+function verdictCopy(j: JudgementValue, isSocialIssue?: boolean) {
+  if (isSocialIssue) {
+    return "We are neutral on this bill.";
+  }
   switch (j) {
     case "yes":
       return "We would vote for this.";
@@ -65,22 +68,25 @@ export function Judgement({
   size = "sm",
   className,
   showLabel = false,
+  isSocialIssue,
 }: {
   judgement: JudgementValue;
   variant?: Variant;
   size?: Size;
   className?: string;
   showLabel?: boolean;
+  isSocialIssue?: boolean;
 }) {
-  const s = stylesByJudgement[judgement];
+  const s = isSocialIssue ? stylesByJudgement.neutral : stylesByJudgement[judgement];
   const sz = sizes[size];
 
   const Icon =
-    judgement === "yes"
-      ? CheckCircle2
-      : judgement === "no"
-        ? XCircle
-        : CircleHelp;
+    isSocialIssue ? CircleHelp :
+      judgement === "yes"
+        ? CheckCircle2
+        : judgement === "no"
+          ? XCircle
+          : CircleHelp;
 
   return (
     <article
@@ -105,11 +111,11 @@ export function Judgement({
           ].join(" ")}
           aria-hidden="true"
         >
-          <Icon className={sz.icon + " " + s.icon} />
+          <Icon className={sz.icon + " " + s.icon + " " + (isSocialIssue ? "text-slate-700" : "")} />
         </span>
 
         <span className={`font-medium leading-none ${sz.text}`}>
-          {verdictCopy(judgement)}
+          {verdictCopy(judgement, isSocialIssue)}
         </span>
         {/* <div className="flex flex-col">
           {showLabel && (
