@@ -36,7 +36,7 @@ export default function BillCard({ bill }: BillCardProps) {
 
 
             {bill.final_judgment && (
-              <Judgement judgement={bill?.final_judgment} />
+              <Judgement judgement={bill?.final_judgment} isSocialIssue={bill.isSocialIssue} />
             )}
           </div>
 
