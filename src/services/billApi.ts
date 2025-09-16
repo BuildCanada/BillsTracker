@@ -105,7 +105,10 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
     const prompt = `${SUMMARY_AND_VOTE_PROMPT}\n\nBill Text:\n${input}`;
     const response = await client.responses.create({
       model: "gpt-5",
-      input: prompt
+      input: prompt,
+      reasoning: {
+        effort: "high"
+      }
     });
     const responseText = response.output_text
 
