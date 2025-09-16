@@ -1,12 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 import { connectToDatabase } from "@/lib/mongoose";
 import { User } from "@/models/User";
 
 export async function POST(
-  request: Request,
-  { params }: { params: { email: string } }
+  request: NextRequest,
+  context: { params: Promise<{ email: string }> }
 ) {
   const session = await getServerSession(authOptions);
   // Simple gate: only signed-in users can allow others (adjust as needed)
@@ -14,7 +14,8 @@ export async function POST(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   await connectToDatabase();
-  const emailLower = decodeURIComponent(params.email).trim().toLowerCase();
+  const { email } = await context.params;
+  const emailLower = decodeURIComponent(email).trim().toLowerCase();
   const updated = await User.findOneAndUpdate(
     { emailLower },
     { $set: { allowed: true } },
