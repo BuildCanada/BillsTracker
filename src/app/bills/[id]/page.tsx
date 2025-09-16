@@ -9,6 +9,8 @@ import {
   BillAnalysis,
 } from "@/components/BillDetail";
 import { Separator } from "@/components/ui/separator";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/auth";
 
 interface Params {
   params: { id: string };
@@ -44,6 +46,8 @@ export default async function BillDetail({ params }: Params) {
     );
   }
 
+  const session = await getServerSession(authOptions);
+
   return (
     <div className="mx-auto max-w-[1100px] px-6 py-8">
       <div className="mb-6">
@@ -51,6 +55,11 @@ export default async function BillDetail({ params }: Params) {
         <Link href="/" className="text-sm underline  mb-6">
           ← Back to bills
         </Link>
+        {session?.user && (
+          <Link href={`/bills/${params.id}/edit`} className="ml-4 text-sm underline">
+            Edit
+          </Link>
+        )}
       </div>
       <BillHeader bill={unifiedBill} />
 
