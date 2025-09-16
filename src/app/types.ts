@@ -24,6 +24,7 @@ export interface BillSummary {
   genres?: string[];
   parliamentNumber?: number;
   sessionNumber?: number;
+  isSocialIssue?: boolean;
 }
 
 

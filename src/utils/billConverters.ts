@@ -1,6 +1,7 @@
 import type { BillDocument } from "@/models/Bill";
 import type { ApiBillDetail } from "@/services/billApi";
 import { summarizeBillText, fetchBillMarkdown, onBillNotInDatabase, type BillAnalysis } from "@/services/billApi";
+import { socialIssueGrader } from "@/services/social-issue-grader";
 
 // Unified bill data structure
 export interface UnifiedBill {
@@ -19,6 +20,7 @@ export interface UnifiedBill {
   sessionNumber?: number;
   votes?: Array<{ motion?: string; result: string }>;
   fullTextMarkdown?: string | null;
+  isSocialIssue?: boolean;
   // Analysis data from AI
   tenet_evaluations?: Array<{
     id: number;
@@ -50,6 +52,7 @@ export function fromDbBill(bill: BillDocument): UnifiedBill {
     parliamentNumber: bill.parliamentNumber,
     sessionNumber: bill.sessionNumber,
     votes: bill.votes?.map(v => ({ motion: v.motion, result: v.result })),
+    isSocialIssue: bill.isSocialIssue,
     // Include analysis data
     tenet_evaluations: bill.tenet_evaluations,
     final_judgment: bill.final_judgment as "yes" | "no" | "neutral" | undefined,
@@ -62,6 +65,9 @@ export function fromDbBill(bill: BillDocument): UnifiedBill {
 
 // Convert API bill to unified format
 export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
+  const uri = process.env.MONGO_URI || "";
+  const hasValidMongoUri = uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
+  let existingBill: BillDocument | null = null;
   const latestStageDate = bill.stages && bill.stages.length > 0
     ? bill.stages[bill.stages.length - 1].date
     : bill.updatedAt ?? bill.date;
@@ -99,12 +105,9 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
     const { connectToDatabase } = await import("@/lib/mongoose");
     const { Bill } = await import("@/models/Bill");
 
-    const uri = process.env.MONGO_URI || "";
-    const hasValidMongoUri = uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
-
     if (hasValidMongoUri) {
       await connectToDatabase();
-      const existingBill = (await Bill.findOne({ billId: bill.billID }).lean().exec()) as BillDocument | null;
+      existingBill = (await Bill.findOne({ billId: bill.billID }).lean().exec()) as BillDocument | null;
 
       if (existingBill && existingBill.billTextsCount === currentBillTextsCount) {
         // Bill texts count hasn't changed, use existing analysis
@@ -126,20 +129,18 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
     // Continue with regeneration if DB check fails
   }
 
+
   if (shouldRegenerateSummary) {
     console.log(`Regenerating analysis for ${bill.billID} (billTexts count: ${currentBillTextsCount})`);
     analysis = await summarizeBillText(billMarkdown || bill.header || "");
-    // mock analysis for now
-    // analysis = {
-    //   summary: "This is a summary",
-    //   tenet_evaluations: [],
-    //   final_judgment: "no",
-    //   rationale: "This is a rationale",
-    //   needs_more_info: false,
-    //   missing_details: [],
-    // };
   }
 
+
+  // Only classify if missing (new bill or classification absent). Avoid calling otherwise.
+  let isSocialIssueFinal: boolean = typeof existingBill?.isSocialIssue === "boolean" ? (existingBill as BillDocument).isSocialIssue as boolean : false;
+  if (hasValidMongoUri && (existingBill === null || typeof existingBill.isSocialIssue !== "boolean")) {
+    isSocialIssueFinal = await socialIssueGrader(billMarkdown || analysis.summary || bill.header || bill.title);
+  }
 
   await onBillNotInDatabase({
     billId: bill.billID,
@@ -148,7 +149,9 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
     bill,
     analysis,
     billTextsCount: currentBillTextsCount,
+    isSocialIssue: isSocialIssueFinal,
   });
+
 
   return {
     billId: bill.billID,
