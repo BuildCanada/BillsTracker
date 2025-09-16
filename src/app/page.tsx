@@ -5,6 +5,7 @@ import { getAllBillsFromDB } from "@/server/get-all-bills-from-db";
 import { fromDbBill } from "@/utils/billConverters";
 import { getParliament45Header } from "@/components/BillDetail/BillHeader";
 import Markdown from "react-markdown";
+import { env } from "@/env";
 
 
 const CANADIAN_PARLIAMENT_NUMBER = 45;
@@ -15,7 +16,7 @@ async function getApiBills(): Promise<BillSummary[]> {
     const response = await fetch(`https://api.civicsproject.org/bills/region/canada/${CANADIAN_PARLIAMENT_NUMBER}`, {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.CIVICS_PROJECT_API_KEY}`,
+        Authorization: env.CIVICS_PROJECT_API_KEY ? `Bearer ${env.CIVICS_PROJECT_API_KEY}` : "",
 
       },
     });

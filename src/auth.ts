@@ -1,24 +1,18 @@
 import NextAuth, { type NextAuthOptions } from "next-auth";
 import Google from "next-auth/providers/google";
 import { isEmailAllowed } from "@/lib/auth/allowed-users";
+import { env, assertServerEnv } from "@/env";
 
-if (process.env.NODE_ENV !== "production") {
-  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
-    console.warn("[auth] Missing GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET.");
-  }
-  if (!process.env.NEXTAUTH_SECRET && !process.env.AUTH_SECRET) {
-    console.warn("[auth] Missing NEXTAUTH_SECRET/AUTH_SECRET.");
-  }
-  if (!process.env.NEXTAUTH_URL) {
-    console.warn("[auth] Missing NEXTAUTH_URL (e.g. http://localhost:3000 in dev).");
-  }
+if (env.NODE_ENV !== "production") {
+  try { assertServerEnv(); } catch (e) { console.warn("[auth] env check:", e); }
+  if (!env.NEXTAUTH_URL) console.warn("[auth] Missing NEXTAUTH_URL (e.g. http://localhost:3000 in dev).");
 }
 
 export const authOptions: NextAuthOptions = {
   providers: [
     Google({
-      clientId: process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || process.env.GOOGLE_SECRET || "",
+      clientId: env.GOOGLE_CLIENT_ID || "",
+      clientSecret: env.GOOGLE_CLIENT_SECRET || "",
       authorization: {
         params: { scope: "openid email profile", prompt: "consent" },
       },
@@ -50,7 +44,7 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/sign-in",
   },
-  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
+  secret: env.NEXTAUTH_SECRET || env.AUTH_SECRET,
 };
 
 const handler = NextAuth(authOptions);

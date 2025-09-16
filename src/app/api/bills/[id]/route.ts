@@ -6,7 +6,7 @@ import { Bill } from "@/models/Bill";
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
@@ -111,10 +111,11 @@ export async function POST(
   if (tenet_evaluations.length) {
     update.tenet_evaluations = tenet_evaluations;
   }
+  const id = (await params).id;
 
-  await Bill.updateOne({ billId: params.id }, { $set: update }, { upsert: false });
+  await Bill.updateOne({ billId: id }, { $set: update }, { upsert: false });
 
-  return NextResponse.redirect(new URL(`/bills/${params.id}`, request.url));
+  return NextResponse.redirect(new URL(`/bills/${id}`, request.url));
 }
 
 
