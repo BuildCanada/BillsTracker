@@ -56,6 +56,7 @@ export interface BillDocument extends mongoose.Document {
   stages?: StageRecord[];
   votes?: VoteRecord[];
   billTextsCount?: number; // track number of bill texts to detect changes
+  isSocialIssue?: boolean;
 }
 
 // Schema for the Tenet Evaluation sub-document
@@ -115,6 +116,7 @@ const BillSchema = new Schema<BillDocument>(
     stages: { type: [StageSchema], default: [] },
     votes: { type: [VoteSchema], default: [] },
     billTextsCount: { type: Number },
+    isSocialIssue: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

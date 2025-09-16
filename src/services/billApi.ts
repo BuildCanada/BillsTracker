@@ -1,6 +1,7 @@
 import { xmlToMarkdown } from "@/utils/xml-to-md/xml-to-md.util";
 import { SUMMARY_AND_VOTE_PROMPT } from "@/prompt/summary-and-vote-prompt";
 import OpenAI from "openai";
+import { socialIssueGrader } from "@/services/social-issue-grader";
 
 
 export type ApiStage = { stage: string; state: string; house: string; date: string };
@@ -98,12 +99,12 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
 
   try {
     console.log('Analyzing bill text with AI');
-    const client = new OpenAI();
+    const OpenAIClient = new OpenAI();
 
 
 
     const prompt = `${SUMMARY_AND_VOTE_PROMPT}\n\nBill Text:\n${input}`;
-    const response = await client.responses.create({
+    const response = await OpenAIClient.responses.create({
       model: "gpt-5",
       input: prompt,
       reasoning: {
@@ -190,6 +191,7 @@ export async function onBillNotInDatabase(params: {
   bill: ApiBillDetail;
   analysis: BillAnalysis;
   billTextsCount: number;
+  isSocialIssue: boolean;
 }): Promise<void> {
   console.log("Saving bill to database:", params.billId);
 
@@ -211,6 +213,7 @@ export async function onBillNotInDatabase(params: {
     // Check if bill already exists and if we need to update it
     const existing = (await Bill.findOne({ billId: params.billId }).lean().exec()) as any;
     if (existing) {
+
       // Check if bill texts count has changed
       if (existing.billTextsCount !== params.billTextsCount) {
         console.log(`Updating bill ${params.billId} - billTexts count changed from ${existing.billTextsCount} to ${params.billTextsCount}`);
@@ -232,10 +235,9 @@ export async function onBillNotInDatabase(params: {
             genres: params.bill.genres,
             billTextsCount: params.billTextsCount,
             lastUpdatedOn: new Date(),
+            isSocialIssue: params.isSocialIssue,
           }
         );
-      } else {
-        console.log("Bill already exists with same billTexts count:", params.billId);
       }
       return;
     }
@@ -248,6 +250,8 @@ export async function onBillNotInDatabase(params: {
     const house = params.bill.stages && params.bill.stages.length > 0
       ? params.bill.stages[params.bill.stages.length - 1].house
       : undefined;
+
+    const classifiedIsSocialIssue = params.isSocialIssue
 
     const billData = {
       billId: params.bill.billID,
@@ -278,6 +282,7 @@ export async function onBillNotInDatabase(params: {
       })),
       votes: [], // API doesn't provide detailed vote records
       billTextsCount: params.billTextsCount,
+      isSocialIssue: classifiedIsSocialIssue,
     };
 
     await Bill.create(billData);

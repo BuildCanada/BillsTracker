@@ -53,7 +53,7 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
 
             <CardTitle className="mb-2">Our Assessment</CardTitle>
             <div>
-              <Judgement judgement={bill.final_judgment as JudgementValue} />
+              <Judgement isSocialIssue={bill.isSocialIssue} judgement={bill.final_judgment as JudgementValue} />
             </div>
           </div>
         </CardHeader>
