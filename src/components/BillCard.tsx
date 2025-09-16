@@ -15,7 +15,12 @@ interface BillCardProps {
 }
 
 export default function BillCard({ bill }: BillCardProps) {
-  const updatedAt = new Date(bill.lastUpdatedOn);
+
+  const updatedAt = bill.lastUpdatedOn ? new Date(bill.lastUpdatedOn) : null;
+  const formattedDate = updatedAt && !isNaN(updatedAt.getTime())
+    ? updatedAt.toISOString().split('T')[0]
+    : null;
+  const dateDisplay = formattedDate ? `Updated ${formattedDate}` : 'Bill not processed';
 
   return (
     <li className="group rounded-lg border   bg-[var(--panel)] shadow-sm   duration-200 overflow-hidden">
@@ -95,7 +100,7 @@ export default function BillCard({ bill }: BillCardProps) {
                 <span>by {bill.sponsorName}</span>
               )}
             </div>
-            <span className="text-[var(--muted-foreground)]">Updated {updatedAt.toLocaleDateString()}</span>
+            <span className="text-[var(--muted-foreground)]">{dateDisplay}</span>
           </div>
         </div>
       </Link>

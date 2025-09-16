@@ -13,20 +13,22 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 
 interface Params {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 
 
 export default async function BillDetail({ params }: Params) {
+  const { id } = await params;
+
   // Try database first, then fallback to API
-  const dbBill = await getBillByIdFromDB(params.id);
+  const dbBill = await getBillByIdFromDB(id);
   let unifiedBill: UnifiedBill | null = null;
 
   if (dbBill) {
     unifiedBill = fromDbBill(dbBill);
   } else {
-    const apiBill = await getBillFromApi(params.id);
+    const apiBill = await getBillFromApi(id);
     if (apiBill) {
       unifiedBill = await fromApiBill(apiBill);
     }
