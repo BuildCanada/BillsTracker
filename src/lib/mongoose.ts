@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
+import { env } from "@/env";
 
-const MONGODB_URI = process.env.MONGO_URI || "";
+const MONGODB_URI = env.MONGO_URI || "";
 
 const DATABASE_NAME = 'bills'
 
 if (!MONGODB_URI) {
   // In dev we don't throw to avoid crashing builds without env; callers can decide
-  console.warn("MONGODB_URI is not set. Mongoose connections will fail at runtime.");
+  console.warn("MONGO_URI is not set. Mongoose connections will fail at runtime.");
 }
 
 type MongooseCache = { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null };
