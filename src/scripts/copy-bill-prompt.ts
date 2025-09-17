@@ -1,20 +1,24 @@
 #!/usr/bin/env tsx
 
-import { execSync } from 'child_process';
-import { getBillFromApi } from '@/services/billApi';
-import { fetchBillMarkdown } from '@/services/billApi';
+import { execSync } from 'node:child_process';
+import { getBillFromApi, fetchBillMarkdown } from '@/services/billApi';
 import { SUMMARY_AND_VOTE_PROMPT } from '@/prompt/summary-and-vote-prompt';
 
 async function main() {
-  const billId = process.argv[2];
+  const args = process.argv.slice(2);
+  const outputFlag = args.includes('--output') || args.includes('-o');
+  const billId = args.find(arg => !arg.startsWith('-'));
 
   if (!billId) {
-    console.error('Usage: npm run copy-prompt <bill-id>');
+    console.error('Usage: npm run copy-prompt <bill-id> [--output|-o]');
+    console.error('  --output, -o  Output prompt to stdout instead of copying to clipboard');
     process.exit(1);
   }
 
   try {
-    console.log(`Fetching bill ${billId}...`);
+    if (!outputFlag) {
+      console.log(`Fetching bill ${billId}...`);
+    }
 
     // Fetch bill from API
     const bill = await getBillFromApi(billId);
@@ -27,7 +31,9 @@ async function main() {
     // Fetch bill markdown if source is available
     let billMarkdown: string | null = null;
     if (bill.source) {
-      console.log('Fetching bill text...');
+      if (!outputFlag) {
+        console.log('Fetching bill text...');
+      }
       billMarkdown = await fetchBillMarkdown(bill.source);
     }
 
@@ -35,13 +41,18 @@ async function main() {
     const billText = billMarkdown || bill.header || '';
     const prompt = `${SUMMARY_AND_VOTE_PROMPT}\n\nBill Text:\n${billText}`;
 
-    // Copy to clipboard using macOS pbcopy
-    execSync('pbcopy', { input: prompt });
+    if (outputFlag) {
+      // Output to stdout
+      console.log(prompt);
+    } else {
+      // Copy to clipboard using macOS pbcopy
+      execSync('pbcopy', { input: prompt });
 
-    console.log(`✓ Copied prompt for bill ${billId} to clipboard`);
-    console.log(`  Title: ${bill.title}`);
-    console.log(`  Text length: ${billText.length} characters`);
-    console.log(`  Total prompt length: ${prompt.length} characters`);
+      console.log(`✓ Copied prompt for bill ${billId} to clipboard`);
+      console.log(`  Title: ${bill.title}`);
+      console.log(`  Text length: ${billText.length} characters`);
+      console.log(`  Total prompt length: ${prompt.length} characters`);
+    }
 
   } catch (error) {
     console.error('Error:', error);
