@@ -20,6 +20,7 @@ export const env = {
   GOOGLE_CLIENT_SECRET: optional("GOOGLE_CLIENT_SECRET", process.env.GOOGLE_CLIENT_SECRET) || optional("GOOGLE_SECRET", process.env.GOOGLE_SECRET),
   CIVICS_PROJECT_API_KEY: optional("CIVICS_PROJECT_API_KEY", process.env.CIVICS_PROJECT_API_KEY),
   MONGO_URI: optional("MONGO_URI", process.env.MONGO_URI),
+  NEXT_PUBLIC_APP_URL: optional("NEXT_PUBLIC_APP_URL", process.env.NEXT_PUBLIC_APP_URL),
 };
 
 export function assertServerEnv() {

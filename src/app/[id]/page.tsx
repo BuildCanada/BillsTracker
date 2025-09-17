@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
 import { getBillFromApi } from "@/services/billApi";
 import { fromDbBill, fromApiBill, type UnifiedBill } from "@/utils/billConverters";
+import type { Metadata, ResolvingMetadata } from "next";
+import { env } from "@/env";
 import {
   BillHeader,
   BillSummary,
@@ -58,7 +60,7 @@ export default async function BillDetail({ params }: Params) {
           ← Back to bills
         </Link>
         {session?.user && (
-          <Link href={`/${params.id}/edit`} className="ml-4 text-sm underline">
+          <Link href={`/bills/${id}/edit`} className="ml-4 text-sm underline">
             Edit
           </Link>
         )}
@@ -79,4 +81,47 @@ export default async function BillDetail({ params }: Params) {
       </section>
     </div>
   );
+}
+
+export async function generateMetadata(
+  { params }: Params,
+  _parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { id } = await params;
+  // Try database first, then fallback to API
+  const dbBill = await getBillByIdFromDB(id);
+  let unifiedBill: UnifiedBill | null = null;
+  if (dbBill) {
+    unifiedBill = fromDbBill(dbBill);
+  } else {
+    const apiBill = await getBillFromApi(id);
+    if (apiBill) {
+      unifiedBill = await fromApiBill(apiBill);
+    }
+  }
+
+  const title = unifiedBill?.short_title || unifiedBill?.title || id;
+  const description = unifiedBill?.summary || `Bill ${id} analysis and judgement`;
+  const base = env.NEXT_PUBLIC_APP_URL ? new URL(env.NEXT_PUBLIC_APP_URL) : undefined;
+  const pageUrl = base ? new URL(`/bills/${id}`, base).toString() : `/bills/${id}`;
+  const ogImageUrl = base ? new URL(`/bills/${id}/opengraph-image`, base).toString() : `/bills/${id}/opengraph-image`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: pageUrl },
+    openGraph: {
+      title,
+      description,
+      url: pageUrl,
+      type: "article",
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImageUrl],
+    },
+  };
 }

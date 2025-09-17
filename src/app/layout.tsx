@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer/footer.component";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
+import { env } from "@/env";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,8 +18,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Build Canada Bills",
+  title: {
+    default: "Build Canada Bills",
+    template: "%s · Build Canada Bills",
+  },
   description: "Understand Canadian Federal Bills",
+  metadataBase: env.NEXT_PUBLIC_APP_URL ? new URL(env.NEXT_PUBLIC_APP_URL) : undefined,
+  openGraph: {
+    type: "website",
+    siteName: "Build Canada Bills",
+    title: "Build Canada Bills",
+    description: "Understand Canadian Federal Bills",
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@buildcanada",
+  },
 };
 
 export default async function RootLayout({
