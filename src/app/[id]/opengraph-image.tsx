@@ -11,8 +11,28 @@ export const size = {
 
 export const contentType = "image/png";
 
+async function loadGoogleFont(font: string, weight: number, text: string) {
+  const params = new URLSearchParams({
+    family: `${font}:wght@${weight}`,
+    text,
+  });
+  const cssUrl = `https://fonts.googleapis.com/css2?${params.toString()}`;
+  const css = await (await fetch(cssUrl)).text();
+  const resource = css.match(/src: url\((.+?)\) format\('(opentype|truetype|woff2)'\)/);
+  if (resource) {
+    const res = await fetch(resource[1]);
+    if (res.status === 200) {
+      return await res.arrayBuffer();
+    }
+  }
+  throw new Error("failed to load font data");
+}
+
 export default async function OpengraphImage({ params }: { params: { id: string } }) {
   const bill = await getUnifiedBillById(params.id);
+  const textForFont = `${bill?.short_title || bill?.title || params.id} Build Canada Policy Tracker Powered by The Civics Project`;
+  const interRegular = await loadGoogleFont("Inter", 400, textForFont);
+  const interBold = await loadGoogleFont("Inter", 700, textForFont);
 
   return new ImageResponse(
     (
@@ -29,6 +49,10 @@ export default async function OpengraphImage({ params }: { params: { id: string 
     ),
     {
       ...size,
+      fonts: [
+        { name: "Inter", data: interRegular, weight: 400, style: "normal" },
+        { name: "Inter", data: interBold, weight: 700, style: "normal" },
+      ],
     }
   );
 }

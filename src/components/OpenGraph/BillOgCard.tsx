@@ -8,6 +8,15 @@ type BillSubset = Pick<UnifiedBill, "billId" | "title" | "short_title" | "summar
 export function BillOgCard({ bill }: { bill: BillSubset }) {
   const title = bill.short_title || bill.title || bill.fallbackId || "Bill";
   const pillTitle = title.length > 60 ? `${title.slice(0, 60)}…` : title;
+  const voteLabel = bill.final_judgment === "yes" ? "Vote: Yes" : bill.final_judgment === "no" ? "Vote: No" : "Vote: Neutral";
+  const voteBg = bill.final_judgment === "yes" ? "#166534" : bill.final_judgment === "no" ? "#b91c1c" : "#4b5563";
+
+  // the first sentence that isn't quoted 
+  let summaryText = bill.summary ? (bill.summary.split(".")[0]) : "";
+  // if the first character is ' - ' remove it
+  if (summaryText.startsWith('- ')) {
+    summaryText = summaryText.slice(2);
+  }
 
   return (
     <div style={{ width: 1200, height: 630, display: "flex", background: "#f5f3ef" }}>
@@ -20,34 +29,35 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
           height: "100%",
           background: "#efe6dd",
           border: "6px solid #e6ded6",
-          borderRadius: 28,
           padding: 24,
           color: "#1f2937",
           fontFamily:
-            "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Georgia, Cambria, Times New Roman",
+            "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
         }}
       >
         <div
           style={{
             position: "absolute",
-            top: 32,
-            right: 32,
+            top: 24,
+            right: 24,
             background: "#932f2f",
             color: "#ffffff",
-            borderRadius: 12,
-
+            padding: "12px 16px",
+            fontWeight: 300,
             display: "flex",
-
+            flexDirection: "column",
+            lineHeight: 1.05,
           }}
         >
-
-          <img src="https://cdn.prod.website-files.com/679d23fc682f2bf860558c9a/679d23fc682f2bf860558cc6_build_canada-wordmark.svg" alt="Build Canada" height={124} />
+          <div style={{ fontWeight: 600, fontSize: 32 }}>Build</div>
+          <div style={{ fontWeight: 600, fontSize: 32 }}>Parliament</div>
         </div>
 
-        <div style={{ display: "flex", flex: 1 }}>
+
+        <div style={{ display: "flex", flex: 1, flexDirection: "column", justifyContent: "space-between", gap: 16 }}>
           <div
             style={{
-              maxWidth: 980,
+              maxWidth: '80%',
               fontSize: 64,
               fontWeight: 800,
               lineHeight: 1.02,
@@ -58,39 +68,35 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
           >
             {title}
           </div>
-        </div>
-
-        {/* <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-            <img
-              src="https://cdn.prod.website-files.com/679d23fc682f2bf860558c9a/679d23fc682f2bf860558cc6_build_canada-wordmark.svg"
-              alt="Build Canada"
-              height={40}
-              style={{ background: "#932f2f", borderRadius: 8, padding: 8 }}
-            />
-            <div style={{ display: "flex", flexDirection: "column", marginTop: -4 }}>
-              <div style={{ fontWeight: 600, fontSize: 18, color: "#111827" }}>Policy Tracker</div>
-              <div style={{ marginTop: 2, fontSize: 12, color: "#6b7280" }}>Powered by The Civics Project</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {summaryText ? (
+              <div style={{ maxWidth: '80%', fontSize: 26, color: "#334155", lineHeight: 1.35, marginBottom: 24 }}>{summaryText}</div>
+            ) : null}
+            <div
+              style={{
+                display: "flex",
+                alignSelf: "flex-start",
+                background: voteBg,
+                color: "#ffffff",
+                padding: "10px 16px",
+                borderRadius: 999,
+                fontWeight: 800,
+                fontSize: 28,
+                letterSpacing: 0.2,
+                alignItems: "center",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {voteLabel}
             </div>
           </div>
-        </div> */}
-
-        <div
-          style={{
-            position: "absolute",
-            left: 32,
-            bottom: 24,
-            background: "#262626",
-            color: "#ffffff",
-            borderRadius: 12,
-            padding: "12px 18px",
-            fontSize: 32,
-            display: "flex",
-          }}
-        >
-          {pillTitle}
         </div>
+
+
+
+        {/* content end */}
       </div>
+
     </div>
   );
 }

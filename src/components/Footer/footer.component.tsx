@@ -36,9 +36,9 @@ export function Footer() {
               <p className="text-sm text-[var(--muted-foreground)]">
                 Questions or feedback?
               </p>
-              <a href="mailto:hello@buildcanada.ca"
+              <a href="mailto:hi@buildcanada.com"
                 className="text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors">
-                hello@buildcanada.ca
+                hi@buildcanada.com
               </a>
             </div>
           </div>

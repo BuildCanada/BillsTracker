@@ -53,8 +53,12 @@ export default async function RootLayout({
         <div className="border-b border-[var(--panel-border)]/80 bg-[var(--panel)]/60 backdrop-blur supports-[backdrop-filter]:bg-[var(--panel)]/60">
           <div className="mx-auto max-w-[1120px] px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src="https://cdn.prod.website-files.com/679d23fc682f2bf860558c9a/679d23fc682f2bf860558cc6_build_canada-wordmark.svg" alt="Build Canada" className="bg-[#932f2f] h-12 w-auto p-3" />
-              <span className="font-semibold">Policy Tracker</span>
+              <div className="rounded-md" style={{ background: '#932f2f' }}>
+                <div className="px-3 py-2 leading-[1.05] text-white font-extrabold">
+                  <div className="text-[18px]">Build</div>
+                  <div className="text-[18px]">Parliament</div>
+                </div>
+              </div>
             </div>
             <nav className="hidden sm:flex items-center gap-3 text-sm">
               {session?.user ? (

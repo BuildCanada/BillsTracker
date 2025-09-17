@@ -54,11 +54,11 @@ function verdictCopy(j: JudgementValue, isSocialIssue?: boolean) {
   }
   switch (j) {
     case "yes":
-      return "We would vote for this.";
+      return "Vote Yes";
     case "no":
-      return "We wouldn’t vote for this.";
+      return "Vote No";
     default:
-      return "We are neutral on this bill.";
+      return "Neutral";
   }
 }
 
