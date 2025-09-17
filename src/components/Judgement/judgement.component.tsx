@@ -93,7 +93,7 @@ export function Judgement({
       role="status"
       aria-live="polite"
       className={[
-        'border-1 rounded-full w-fit',
+        'border-1 rounded-full w-fit px-2',
         // "w-fit rounded-xl border-2 ring-1 transition-all duration-200 hover:shadow-lg",
         // "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
         // s.wrap[variant],
