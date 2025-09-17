@@ -7,85 +7,89 @@ type BillSubset = Pick<UnifiedBill, "billId" | "title" | "short_title" | "summar
 
 export function BillOgCard({ bill }: { bill: BillSubset }) {
   const title = bill.short_title || bill.title || bill.fallbackId || "Bill";
-  const judgement = bill.final_judgment || "neutral";
-  const badgeColor = judgement === "yes" ? "#16a34a" : judgement === "no" ? "#dc2626" : "#4b5563";
-  const truncatedSummary = bill.summary
-    ? bill.summary.length > 180
-      ? `${bill.summary.slice(0, 180)}…`
-      : bill.summary
-    : "";
-  const truncatedRationale = bill.rationale
-    ? bill.rationale.length > 120
-      ? `${bill.rationale.slice(0, 120)}…`
-      : bill.rationale
-    : "";
+  const pillTitle = title.length > 60 ? `${title.slice(0, 60)}…` : title;
 
   return (
-    <div
-      style={{
-        width: 1200,
-        height: 630,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        padding: 48,
-        background: "#0b0c0f",
-        color: "#e5e7eb",
-        fontFamily: "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-        <div style={{
-          background: "#932f2f",
-          color: "white",
-          padding: "8px 12px",
-          fontWeight: 700,
-          fontSize: 24,
-        }}>Build Canada</div>
-        <div style={{ fontSize: 24, color: "#9ca3af" }}>Policy Tracker</div>
-      </div>
+    <div style={{ width: 1200, height: 630, display: "flex", background: "#f5f3ef" }}>
+      <div
+        style={{
+          position: "relative",
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          height: "100%",
+          background: "#efe6dd",
+          border: "6px solid #e6ded6",
+          borderRadius: 28,
+          padding: 24,
+          color: "#1f2937",
+          fontFamily:
+            "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Georgia, Cambria, Times New Roman",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            top: 32,
+            right: 32,
+            background: "#932f2f",
+            color: "#ffffff",
+            borderRadius: 12,
 
-      <div style={{ display: "flex", gap: 32 }}>
-        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: 32, color: "#9ca3af" }}>{bill.billId || bill.fallbackId}</div>
-          <div style={{ fontSize: 56, fontWeight: 800, lineHeight: 1.1 }}>{title}</div>
-          <div style={{ marginTop: 16, fontSize: 28, color: "#cbd5e1" }}>{truncatedSummary}</div>
-          {bill.genres && bill.genres.length > 0 ? (
-            <div style={{ marginTop: 18, display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {bill.genres.slice(0, 4).map((g) => (
-                <span key={g} style={{
-                  border: "1px solid #374151",
-                  borderRadius: 999,
-                  padding: "4px 10px",
-                  fontSize: 18,
-                  color: "#9ca3af",
-                }}>{g}</span>
-              ))}
-            </div>
-          ) : null}
+            display: "flex",
+
+          }}
+        >
+
+          <img src="https://cdn.prod.website-files.com/679d23fc682f2bf860558c9a/679d23fc682f2bf860558cc6_build_canada-wordmark.svg" alt="Build Canada" height={124} />
         </div>
-        <div style={{ width: 340, alignSelf: "stretch", display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "flex-end" }}>
-          <div style={{
-            background: badgeColor,
-            color: "white",
-            padding: "12px 18px",
-            borderRadius: 10,
-            fontSize: 24,
-            fontWeight: 800,
-            textTransform: "uppercase",
-            letterSpacing: 1,
-          }}>
-            {judgement === "yes" ? "Supports" : judgement === "no" ? "Opposes" : "Neutral"}
+
+        <div style={{ display: "flex", flex: 1 }}>
+          <div
+            style={{
+              maxWidth: 980,
+              fontSize: 64,
+              fontWeight: 800,
+              lineHeight: 1.02,
+              letterSpacing: -1,
+              color: "#0f172a",
+              wordBreak: "break-word",
+            }}
+          >
+            {title}
           </div>
-          {bill.rationale ? (
-            <div style={{ marginTop: 16, fontSize: 22, color: "#d1d5db", textAlign: "right" }}>{truncatedRationale}</div>
-          ) : null}
         </div>
-      </div>
 
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", color: "#94a3b8", fontSize: 20 }}>
-        <div>buildcanada.org</div>
-        <div>Explore bills, positions, and analysis</div>
+        {/* <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+            <img
+              src="https://cdn.prod.website-files.com/679d23fc682f2bf860558c9a/679d23fc682f2bf860558cc6_build_canada-wordmark.svg"
+              alt="Build Canada"
+              height={40}
+              style={{ background: "#932f2f", borderRadius: 8, padding: 8 }}
+            />
+            <div style={{ display: "flex", flexDirection: "column", marginTop: -4 }}>
+              <div style={{ fontWeight: 600, fontSize: 18, color: "#111827" }}>Policy Tracker</div>
+              <div style={{ marginTop: 2, fontSize: 12, color: "#6b7280" }}>Powered by The Civics Project</div>
+            </div>
+          </div>
+        </div> */}
+
+        <div
+          style={{
+            position: "absolute",
+            left: 32,
+            bottom: 24,
+            background: "#262626",
+            color: "#ffffff",
+            borderRadius: 12,
+            padding: "12px 18px",
+            fontSize: 32,
+            display: "flex",
+          }}
+        >
+          {pillTitle}
+        </div>
       </div>
     </div>
   );
