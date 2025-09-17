@@ -8,10 +8,10 @@ interface Params {
 }
 
 export default async function EditBillPage({ params }: Params) {
-  // const session = await getServerSession(authOptions);
-  // if (!session?.user) {
-  //   redirect("/");
-  // }
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    redirect("/");
+  }
 
   const bill = await getBillByIdFromDB(params.id);
   if (!bill) {
