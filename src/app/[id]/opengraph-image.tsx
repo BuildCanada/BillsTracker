@@ -31,8 +31,16 @@ async function loadGoogleFont(font: string, weight: number, text: string) {
 export default async function OpengraphImage({ params }: { params: { id: string } }) {
   const bill = await getUnifiedBillById(params.id);
   const textForFont = `${bill?.short_title || bill?.title || params.id} Build Canada Policy Tracker Powered by The Civics Project`;
-  const interRegular = await loadGoogleFont("Inter", 400, textForFont);
-  const interBold = await loadGoogleFont("Inter", 700, textForFont);
+  let interRegular: ArrayBuffer | undefined;
+  let interBold: ArrayBuffer | undefined;
+  try {
+    interRegular = await loadGoogleFont("Inter", 400, textForFont);
+    interBold = await loadGoogleFont("Inter", 700, textForFont);
+  } catch (e) {
+    // Fallback to system fonts if remote font fetch fails in production
+    interRegular = undefined;
+    interBold = undefined;
+  }
 
   return new ImageResponse(
     (
@@ -49,10 +57,10 @@ export default async function OpengraphImage({ params }: { params: { id: string 
     ),
     {
       ...size,
-      fonts: [
+      fonts: interRegular && interBold ? [
         { name: "Inter", data: interRegular, weight: 400, style: "normal" },
         { name: "Inter", data: interBold, weight: 700, style: "normal" },
-      ],
+      ] : undefined,
     }
   );
 }

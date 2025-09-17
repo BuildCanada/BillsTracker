@@ -57,7 +57,7 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
         <div style={{ display: "flex", flex: 1, flexDirection: "column", justifyContent: "space-between", gap: 16 }}>
           <div
             style={{
-              maxWidth: '80%',
+              maxWidth: 980,
               fontSize: 64,
               fontWeight: 800,
               lineHeight: 1.02,
@@ -70,7 +70,7 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {summaryText ? (
-              <div style={{ maxWidth: '80%', fontSize: 26, color: "#334155", lineHeight: 1.35, marginBottom: 24 }}>{summaryText}</div>
+              <div style={{ maxWidth: 980, fontSize: 26, color: "#334155", lineHeight: 1.35, marginBottom: 24 }}>{summaryText}</div>
             ) : null}
             <div
               style={{
@@ -82,7 +82,7 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
                 borderRadius: 999,
                 fontWeight: 800,
                 fontSize: 28,
-                letterSpacing: 0.2,
+                letterSpacing: 0,
                 alignItems: "center",
                 whiteSpace: "nowrap",
               }}
