@@ -19,7 +19,7 @@ interface Params {
 
 
 export default async function BillDetail({ params }: Params) {
-  const { id } = await params;
+  const { id } = params;
 
   // Try database first, then fallback to API
   const dbBill = await getBillByIdFromDB(id);
