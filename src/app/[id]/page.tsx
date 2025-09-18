@@ -3,6 +3,7 @@ import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
 import { getBillFromApi } from "@/services/billApi";
 import { fromDbBill, fromApiBill, type UnifiedBill } from "@/utils/billConverters";
 import type { Metadata, ResolvingMetadata } from "next";
+import { headers } from "next/headers";
 import { env } from "@/env";
 import {
   BillHeader,
@@ -102,9 +103,12 @@ export async function generateMetadata(
 
   const title = unifiedBill?.short_title || unifiedBill?.title || id;
   const description = unifiedBill?.summary || `Bill ${id} analysis and judgement`;
-  const base = env.NEXT_PUBLIC_APP_URL ? new URL(env.NEXT_PUBLIC_APP_URL) : undefined;
-  const pageUrl = base ? new URL(`/bills/${id}`, base).toString() : `/bills/${id}`;
-  const ogImageUrl = base ? new URL(`/bills/${id}/opengraph-image`, base).toString() : `/bills/${id}/opengraph-image`;
+  const h = headers();
+  const host = (await h).get("x-forwarded-host") || (await h).get("host") || "";
+  const proto = ((await h).get("x-forwarded-proto") || "https").split(",")[0];
+  const baseUrl = env.NEXT_PUBLIC_APP_URL || (host ? `${proto}://${host}` : "");
+  const pageUrl = baseUrl ? `${baseUrl}/bills/${id}` : `/bills/${id}`;
+  const ogImageUrl = baseUrl ? `${baseUrl}/bills/${id}/opengraph-image` : `/bills/${id}/opengraph-image`;
 
   return {
     title,
