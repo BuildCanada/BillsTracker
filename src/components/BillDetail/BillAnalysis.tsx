@@ -45,7 +45,7 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
 
 
   return (
-    <div className="space-y-6 relative w-full h-full">
+    <div className="space-y-6 relative w-full">
 
       <Card>
         <CardHeader>
