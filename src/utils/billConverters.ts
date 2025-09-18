@@ -1,6 +1,11 @@
 import type { BillDocument } from "@/models/Bill";
 import type { ApiBillDetail } from "@/services/billApi";
-import { summarizeBillText, fetchBillMarkdown, onBillNotInDatabase, type BillAnalysis } from "@/services/billApi";
+import {
+  summarizeBillText,
+  fetchBillMarkdown,
+  onBillNotInDatabase,
+  type BillAnalysis,
+} from "@/services/billApi";
 import { socialIssueGrader } from "@/services/social-issue-grader";
 
 // Unified bill data structure
@@ -51,7 +56,7 @@ export function fromDbBill(bill: BillDocument): UnifiedBill {
     genres: bill.genres,
     parliamentNumber: bill.parliamentNumber,
     sessionNumber: bill.sessionNumber,
-    votes: bill.votes?.map(v => ({ motion: v.motion, result: v.result })),
+    votes: bill.votes?.map((v) => ({ motion: v.motion, result: v.result })),
     isSocialIssue: bill.isSocialIssue,
     // Include analysis data
     tenet_evaluations: bill.tenet_evaluations,
@@ -66,12 +71,17 @@ export function fromDbBill(bill: BillDocument): UnifiedBill {
 // Convert API bill to unified format
 export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
   const uri = process.env.MONGO_URI || "";
-  const hasValidMongoUri = uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
+  const hasValidMongoUri =
+    uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
   let existingBill: BillDocument | null = null;
-  const latestStageDate = bill.stages && bill.stages.length > 0
-    ? bill.stages[bill.stages.length - 1].date
-    : bill.updatedAt ?? bill.date;
-  const house = bill.stages && bill.stages.length > 0 ? bill.stages[bill.stages.length - 1].house : undefined;
+  const latestStageDate =
+    bill.stages && bill.stages.length > 0
+      ? bill.stages[bill.stages.length - 1].date
+      : (bill.updatedAt ?? bill.date);
+  const house =
+    bill.stages && bill.stages.length > 0
+      ? bill.stages[bill.stages.length - 1].house
+      : undefined;
 
   let billMarkdown: string | null = null;
   if (bill.source) {
@@ -79,24 +89,68 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
   }
 
   // Check if we need to regenerate summary based on bill texts count
-  const currentBillTextsCount = Array.isArray(bill.billTexts) ? bill.billTexts.length : 0;
+  const currentBillTextsCount = Array.isArray(bill.billTexts)
+    ? bill.billTexts.length
+    : 0;
   let analysis: BillAnalysis = {
     summary: bill.header || "",
     tenet_evaluations: [
-      { id: 1, title: "Canada should aim to be the world's richest country", alignment: "neutral", explanation: "Not analyzed" },
-      { id: 2, title: "Promote economic freedom, ambition, and breaking from bureaucratic inertia", alignment: "neutral", explanation: "Not analyzed" },
-      { id: 3, title: "Drive national productivity and global competitiveness", alignment: "neutral", explanation: "Not analyzed" },
-      { id: 4, title: "Grow exports of Canadian products and resources", alignment: "neutral", explanation: "Not analyzed" },
-      { id: 5, title: "Encourage investment, innovation, and resource development", alignment: "neutral", explanation: "Not analyzed" },
-      { id: 6, title: "Deliver better public services at lower cost (government efficiency)", alignment: "neutral", explanation: "Not analyzed" },
-      { id: 7, title: "Reform taxes to incentivize work, risk-taking, and innovation", alignment: "neutral", explanation: "Not analyzed" },
-      { id: 8, title: "Focus on large-scale prosperity, not incrementalism", alignment: "neutral", explanation: "Not analyzed" },
+      {
+        id: 1,
+        title: "Canada should aim to be the world's richest country",
+        alignment: "neutral",
+        explanation: "Not analyzed",
+      },
+      {
+        id: 2,
+        title:
+          "Promote economic freedom, ambition, and breaking from bureaucratic inertia",
+        alignment: "neutral",
+        explanation: "Not analyzed",
+      },
+      {
+        id: 3,
+        title: "Drive national productivity and global competitiveness",
+        alignment: "neutral",
+        explanation: "Not analyzed",
+      },
+      {
+        id: 4,
+        title: "Grow exports of Canadian products and resources",
+        alignment: "neutral",
+        explanation: "Not analyzed",
+      },
+      {
+        id: 5,
+        title: "Encourage investment, innovation, and resource development",
+        alignment: "neutral",
+        explanation: "Not analyzed",
+      },
+      {
+        id: 6,
+        title:
+          "Deliver better public services at lower cost (government efficiency)",
+        alignment: "neutral",
+        explanation: "Not analyzed",
+      },
+      {
+        id: 7,
+        title: "Reform taxes to incentivize work, risk-taking, and innovation",
+        alignment: "neutral",
+        explanation: "Not analyzed",
+      },
+      {
+        id: 8,
+        title: "Focus on large-scale prosperity, not incrementalism",
+        alignment: "neutral",
+        explanation: "Not analyzed",
+      },
     ],
     final_judgment: "no",
     rationale: "Not analyzed",
     needs_more_info: false,
     missing_details: [],
-    steel_man: "Not analyzed"
+    steel_man: "Not analyzed",
   };
   let shouldRegenerateSummary = true;
 
@@ -107,21 +161,33 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
 
     if (hasValidMongoUri) {
       await connectToDatabase();
-      existingBill = (await Bill.findOne({ billId: bill.billID }).lean().exec()) as BillDocument | null;
+      existingBill = (await Bill.findOne({ billId: bill.billID })
+        .lean()
+        .exec()) as BillDocument | null;
 
-      if (existingBill && existingBill.billTextsCount === currentBillTextsCount) {
+      if (
+        existingBill &&
+        existingBill.billTextsCount === currentBillTextsCount
+      ) {
         // Bill texts count hasn't changed, use existing analysis
         analysis = {
           summary: existingBill.summary,
-          tenet_evaluations: existingBill.tenet_evaluations || analysis.tenet_evaluations,
-          final_judgment: (existingBill.final_judgment as "yes" | "no" | "neutral") || analysis.final_judgment,
+          tenet_evaluations:
+            existingBill.tenet_evaluations || analysis.tenet_evaluations,
+          final_judgment:
+            (existingBill.final_judgment as "yes" | "no" | "neutral") ||
+            analysis.final_judgment,
           rationale: existingBill.rationale || analysis.rationale,
-          needs_more_info: existingBill.needs_more_info || analysis.needs_more_info,
-          missing_details: existingBill.missing_details || analysis.missing_details,
+          needs_more_info:
+            existingBill.needs_more_info || analysis.needs_more_info,
+          missing_details:
+            existingBill.missing_details || analysis.missing_details,
           steel_man: existingBill.steel_man || analysis.steel_man,
         };
         shouldRegenerateSummary = false;
-        console.log(`Using existing analysis for ${bill.billID} (billTexts count unchanged: ${currentBillTextsCount})`);
+        console.log(
+          `Using existing analysis for ${bill.billID} (billTexts count unchanged: ${currentBillTextsCount})`,
+        );
       }
     }
   } catch (error) {
@@ -129,17 +195,25 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
     // Continue with regeneration if DB check fails
   }
 
-
   if (shouldRegenerateSummary) {
-    console.log(`Regenerating analysis for ${bill.billID} (billTexts count: ${currentBillTextsCount})`);
+    console.log(
+      `Regenerating analysis for ${bill.billID} (billTexts count: ${currentBillTextsCount})`,
+    );
     analysis = await summarizeBillText(billMarkdown || bill.header || "");
   }
 
-
   // Only classify if missing (new bill or classification absent). Avoid calling otherwise.
-  let isSocialIssueFinal: boolean = typeof existingBill?.isSocialIssue === "boolean" ? (existingBill as BillDocument).isSocialIssue as boolean : false;
-  if (hasValidMongoUri && (existingBill === null || typeof existingBill.isSocialIssue !== "boolean")) {
-    isSocialIssueFinal = await socialIssueGrader(billMarkdown || analysis.summary || bill.header || bill.title);
+  let isSocialIssueFinal: boolean =
+    typeof existingBill?.isSocialIssue === "boolean"
+      ? ((existingBill as BillDocument).isSocialIssue as boolean)
+      : false;
+  if (
+    hasValidMongoUri &&
+    (existingBill === null || typeof existingBill.isSocialIssue !== "boolean")
+  ) {
+    isSocialIssueFinal = await socialIssueGrader(
+      billMarkdown || analysis.summary || bill.header || bill.title,
+    );
   }
 
   await onBillNotInDatabase({
@@ -151,7 +225,6 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
     billTextsCount: currentBillTextsCount,
     isSocialIssue: isSocialIssueFinal,
   });
-
 
   return {
     billId: bill.billID,

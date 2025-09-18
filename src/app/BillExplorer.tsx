@@ -3,7 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { BillSummary } from "./types";
 import BillCard from "@/components/BillCard";
-import { FilterSidebar, FilterState, FilterOptions } from "@/components/FilterSection/filter-section.component";
+import {
+  FilterSidebar,
+  FilterState,
+  FilterOptions,
+} from "@/components/FilterSection/filter-section.component";
 import { useIsMobile } from "@/components/ui/use-mobile";
 
 interface BillExplorerProps {
@@ -123,20 +127,26 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
       // Category (alignment + genres)
       if (filters.category.length > 0) {
         let ok = false;
-        if (bill.alignment && filters.category.includes(bill.alignment)) ok = true;
-        if (bill.genres && bill.genres.some((g: string) => filters.category.includes(g)))
+        if (bill.alignment && filters.category.includes(bill.alignment))
+          ok = true;
+        if (bill.genres?.some((g: string) => filters.category.includes(g)))
           ok = true;
         if (!ok) return false;
       }
 
       // Party
-      if (filters.party.length > 0 && bill.sponsorParty && !filters.party.includes(bill.sponsorParty)) {
+      if (
+        filters.party.length > 0 &&
+        bill.sponsorParty &&
+        !filters.party.includes(bill.sponsorParty)
+      ) {
         return false;
       }
 
       // Chamber
       if (filters.chamber.length > 0) {
-        const chamber = bill.chamber === "House of Commons" ? "House" : "Senate";
+        const chamber =
+          bill.chamber === "House of Commons" ? "House" : "Senate";
         if (!filters.chamber.includes(chamber)) return false;
       }
 
@@ -147,16 +157,32 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
         let cutoff: Date;
         switch (filters.dateRange) {
           case "last-month":
-            cutoff = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+            cutoff = new Date(
+              now.getFullYear(),
+              now.getMonth() - 1,
+              now.getDate(),
+            );
             break;
           case "last-3-months":
-            cutoff = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+            cutoff = new Date(
+              now.getFullYear(),
+              now.getMonth() - 3,
+              now.getDate(),
+            );
             break;
           case "last-6-months":
-            cutoff = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+            cutoff = new Date(
+              now.getFullYear(),
+              now.getMonth() - 6,
+              now.getDate(),
+            );
             break;
           case "last-year":
-            cutoff = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+            cutoff = new Date(
+              now.getFullYear() - 1,
+              now.getMonth(),
+              now.getDate(),
+            );
             break;
           default:
             cutoff = new Date(0);
@@ -185,7 +211,7 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
     for (const b of filteredBills) {
       const key = normalizeStatus(b.status);
       if (!groups.has(key)) groups.set(key, []);
-      groups.get(key)!.push(b);
+      groups.get(key)?.push(b);
 
       const origs = originalsByKey.get(key) || [];
       origs.push(b.status || "Unknown");
@@ -224,18 +250,19 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
       if (bill.status) statusKeyToLabel.set(key, bill.status);
 
       // parties
-      if (bill.sponsorParty && bill.sponsorParty.trim()) partySet.add(bill.sponsorParty.trim());
+      if (bill.sponsorParty?.trim()) partySet.add(bill.sponsorParty.trim());
 
       // chamber
       if (bill.chamber) {
-        const chamber = bill.chamber === "House of Commons" ? "House" : "Senate";
+        const chamber =
+          bill.chamber === "House of Commons" ? "House" : "Senate";
         chamberSet.add(chamber);
       }
 
       // categories
       if (bill.genres) {
         bill.genres.forEach((g: string) => {
-          if (g && g.trim()) categorySet.add(g.trim());
+          if (g?.trim()) categorySet.add(g.trim());
         });
       }
       if (bill.alignment) categorySet.add(bill.alignment);
@@ -299,7 +326,10 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
                 <section key={group.key} className="space-y-3 mb-4">
                   <header className="sticky top-0 z-10 -mx-1 px-1 py-2 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-zinc-100">
                     <h2 className="text-md font-semibold tracking-wide text-zinc-900">
-                      {group.statusLabel} <span className="text-zinc-500 font-normal">({group.items.length})</span>
+                      {group.statusLabel}{" "}
+                      <span className="text-zinc-500 font-normal">
+                        ({group.items.length})
+                      </span>
                     </h2>
                   </header>
                   <ul className="flex flex-col gap-3">

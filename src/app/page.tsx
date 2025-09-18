@@ -1,25 +1,26 @@
 import { BillSummary } from "./types";
 import BillExplorer from "./BillExplorer";
-import FAQModalTrigger from "./FAQModalTrigger";
 import { getAllBillsFromDB } from "@/server/get-all-bills-from-db";
 import { fromDbBill } from "@/utils/billConverters";
 import { getParliament45Header } from "@/components/BillDetail/BillHeader";
 import Markdown from "react-markdown";
 import { env } from "@/env";
 
-
 const CANADIAN_PARLIAMENT_NUMBER = 45;
-
 
 async function getApiBills(): Promise<BillSummary[]> {
   try {
-    const response = await fetch(`https://api.civicsproject.org/bills/region/canada/${CANADIAN_PARLIAMENT_NUMBER}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: env.CIVICS_PROJECT_API_KEY ? `Bearer ${env.CIVICS_PROJECT_API_KEY}` : "",
-
+    const response = await fetch(
+      `https://api.civicsproject.org/bills/region/canada/${CANADIAN_PARLIAMENT_NUMBER}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: env.CIVICS_PROJECT_API_KEY
+            ? `Bearer ${env.CIVICS_PROJECT_API_KEY}`
+            : "",
+        },
       },
-    });
+    );
     if (!response.ok) {
       throw new Error("Failed to fetch bills from API");
     }
@@ -34,20 +35,20 @@ async function getApiBills(): Promise<BillSummary[]> {
 async function getMergedBills(): Promise<BillSummary[]> {
   const [apiBills, dbBills] = await Promise.all([
     getApiBills(),
-    getAllBillsFromDB()
+    getAllBillsFromDB(),
   ]);
-
 
   // Convert DB bills to UnifiedBill format first, then to BillSummary
   const dbBillsAsUnified = dbBills.map(fromDbBill);
 
   // Create a map of DB bills by billId for quick lookup
-  const dbBillsMap = new Map(dbBillsAsUnified.map(bill => [bill.billId, bill]));
+  const dbBillsMap = new Map(
+    dbBillsAsUnified.map((bill) => [bill.billId, bill]),
+  );
 
   // Merge API bills with DB data
-  const mergedBills: BillSummary[] = apiBills.map(apiBill => {
+  const mergedBills: BillSummary[] = apiBills.map((apiBill) => {
     const dbBill = dbBillsMap.get(apiBill.billID);
-
 
     if (dbBill) {
       // Merge API bill with DB data (DB data takes precedence for analysis fields)
@@ -73,7 +74,7 @@ async function getMergedBills(): Promise<BillSummary[]> {
 
   // Add any DB-only bills that aren't in the API response
   for (const [billId, dbBill] of dbBillsMap) {
-    if (!mergedBills.find(bill => bill.billID === billId)) {
+    if (!mergedBills.find((bill) => bill.billID === billId)) {
       // Convert DB bill to BillSummary format
       const billSummary: BillSummary = {
         billID: dbBill.billId,
@@ -83,9 +84,13 @@ async function getMergedBills(): Promise<BillSummary[]> {
         status: (dbBill.status as BillSummary["status"]) || "Introduced",
         sponsorParty: dbBill.sponsorParty || "Unknown",
         sponsorName: "Unknown",
-        chamber: (dbBill.chamber as "House of Commons" | "Senate") || "House of Commons",
-        introducedOn: dbBill.introducedOn?.toISOString() || new Date().toISOString(),
-        lastUpdatedOn: dbBill.lastUpdatedOn?.toISOString() || new Date().toISOString(),
+        chamber:
+          (dbBill.chamber as "House of Commons" | "Senate") ||
+          "House of Commons",
+        introducedOn:
+          dbBill.introducedOn?.toISOString() || new Date().toISOString(),
+        lastUpdatedOn:
+          dbBill.lastUpdatedOn?.toISOString() || new Date().toISOString(),
         summary: dbBill.summary,
         isSocialIssue: dbBill.isSocialIssue,
         final_judgment: dbBill.final_judgment,
@@ -100,7 +105,9 @@ async function getMergedBills(): Promise<BillSummary[]> {
     }
   }
 
-  console.log(`Merged ${mergedBills.length} bills (${apiBills.length} from API, ${dbBills.length} from DB)`);
+  console.log(
+    `Merged ${mergedBills.length} bills (${apiBills.length} from API, ${dbBills.length} from DB)`,
+  );
   return mergedBills;
 }
 
@@ -111,11 +118,12 @@ export default async function Home() {
       <div className="mx-auto max-w-[1120px] px-6 py-8  gap-8">
         <main>
           <header className="flex items-center gap-4 pb-4 border-b border-[var(--panel-border)] mb-4">
-            <h1 className="text-[24px] font-semibold">45th Canadian Federal Parliament</h1>
+            <h1 className="text-[24px] font-semibold">
+              45th Canadian Federal Parliament
+            </h1>
           </header>
 
           <Markdown>{getParliament45Header()}</Markdown>
-
 
           <section className="mt-6">
             <BillExplorer bills={bills} />

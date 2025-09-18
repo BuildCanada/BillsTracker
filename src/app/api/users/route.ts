@@ -34,7 +34,12 @@ export async function POST(request: Request) {
       email: params.get("email") || undefined,
       name: params.get("name") || undefined,
       image: params.get("image") || undefined,
-      allowed: params.get("allowed") === "true" ? true : params.get("allowed") === "false" ? false : undefined,
+      allowed:
+        params.get("allowed") === "true"
+          ? true
+          : params.get("allowed") === "false"
+            ? false
+            : undefined,
     };
   } else {
     try {
@@ -43,7 +48,11 @@ export async function POST(request: Request) {
         email: (form?.get?.("email") as string | null) || undefined,
         name: (form?.get?.("name") as string | null) || undefined,
         image: (form?.get?.("image") as string | null) || undefined,
-        allowed: ((form?.get?.("allowed") as string | null) || "").toString() === "true" ? true : undefined,
+        allowed:
+          ((form?.get?.("allowed") as string | null) || "").toString() ===
+          "true"
+            ? true
+            : undefined,
       };
     } catch {
       // no-op; will fail on validation below
@@ -78,5 +87,3 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ ok: true, user: created, created: true });
 }
-
-

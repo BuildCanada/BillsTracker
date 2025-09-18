@@ -5,8 +5,8 @@ import { connectToDatabase } from "@/lib/mongoose";
 import { User } from "@/models/User";
 
 export async function POST(
-  request: NextRequest,
-  context: { params: Promise<{ email: string }> }
+  _request: NextRequest,
+  context: { params: Promise<{ email: string }> },
 ) {
   const session = await getServerSession(authOptions);
   // Simple gate: only signed-in users can allow others (adjust as needed)
@@ -19,9 +19,7 @@ export async function POST(
   const updated = await User.findOneAndUpdate(
     { emailLower },
     { $set: { allowed: true } },
-    { new: true }
+    { new: true },
   );
   return NextResponse.json({ ok: true, user: updated });
 }
-
-

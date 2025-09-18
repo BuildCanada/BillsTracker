@@ -7,8 +7,7 @@ export const TENETS = {
   6: "Deliver better public services at lower cost (government efficiency).",
   7: "Reform taxes to incentivize work, risk-taking, and innovation.",
   8: "Focus on large-scale prosperity, not incrementalism.",
-}
-
+};
 
 export const SUMMARY_AND_VOTE_PROMPT = `
 You are analyzing Canadian legislation. You must assess whether the bill aligns with Build Canada’s Core Tenets:
@@ -91,4 +90,4 @@ Output format (return valid JSON only):
   "rationale": "2 sentences explaining the overall judgment and then bullet points explaining the rationale for the judgment and suggestions for what we might change. Use markdown formatting.",
   "steel_man": "Present the strongest possible version of this bill's argument that would align with Build Canada's tenets. What aspects of the bill could be seen as most beneficial for Canadian prosperity? Use markdown formatting."
 }
-`
+`;

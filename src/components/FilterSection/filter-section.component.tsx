@@ -7,7 +7,13 @@ import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 export interface FilterState {
   search: string;
@@ -34,7 +40,14 @@ interface FilterSidebarProps {
   filterOptions?: FilterOptions;
 }
 
-export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceCollapsed, onCollapsedChange, filterOptions }: FilterSidebarProps) {
+export function FilterSidebar({
+  filters,
+  onFiltersChange,
+  onClearFilters,
+  forceCollapsed,
+  onCollapsedChange,
+  filterOptions,
+}: FilterSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(forceCollapsed ?? false);
 
   // Update collapsed state when forceCollapsed prop changes
@@ -55,10 +68,13 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
     onFiltersChange({ ...filters, [key]: value });
   };
 
-  const toggleArrayFilter = (key: 'status' | 'category' | 'party' | 'chamber', value: string) => {
+  const toggleArrayFilter = (
+    key: "status" | "category" | "party" | "chamber",
+    value: string,
+  ) => {
     const currentValues = filters[key];
     const newValues = currentValues.includes(value)
-      ? currentValues.filter(v => v !== value)
+      ? currentValues.filter((v) => v !== value)
       : [...currentValues, value];
     updateFilter(key, newValues);
   };
@@ -70,7 +86,7 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
     count += filters.category.length;
     count += filters.party.length;
     count += filters.chamber.length;
-    if (filters.dateRange && filters.dateRange !== 'all') count++;
+    if (filters.dateRange && filters.dateRange !== "all") count++;
     return count;
   };
 
@@ -106,7 +122,7 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
               onClick={handleCollapseToggle}
               className="px-2"
             >
-              {isCollapsed ? '+' : '−'}
+              {isCollapsed ? "+" : "−"}
             </Button>
           </div>
         </div>
@@ -122,7 +138,7 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
               <Input
                 placeholder="Search bills..."
                 value={filters.search}
-                onChange={(e) => updateFilter('search', e.target.value)}
+                onChange={(e) => updateFilter("search", e.target.value)}
                 className="pl-9"
               />
               {filters.search && (
@@ -130,7 +146,7 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
                   variant="ghost"
                   size="sm"
                   className="absolute right-1 top-1 h-8 w-8 p-0"
-                  onClick={() => updateFilter('search', '')}
+                  onClick={() => updateFilter("search", "")}
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -148,7 +164,9 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
                     id={status}
                     className="mt-0.5"
                     checked={filters.status.includes(status.toLowerCase())}
-                    onCheckedChange={() => toggleArrayFilter('status', status.toLowerCase())}
+                    onCheckedChange={() =>
+                      toggleArrayFilter("status", status.toLowerCase())
+                    }
                   />
                   <Label htmlFor={status} className="text-sm font-normal">
                     {status}
@@ -167,7 +185,9 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
                   <Checkbox
                     id={category}
                     checked={filters.category.includes(category)}
-                    onCheckedChange={() => toggleArrayFilter('category', category)}
+                    onCheckedChange={() =>
+                      toggleArrayFilter("category", category)
+                    }
                   />
                   <Label htmlFor={category} className="text-sm font-normal">
                     {category}
@@ -186,7 +206,7 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
                   <Checkbox
                     id={party}
                     checked={filters.party.includes(party)}
-                    onCheckedChange={() => toggleArrayFilter('party', party)}
+                    onCheckedChange={() => toggleArrayFilter("party", party)}
                   />
                   <Label htmlFor={party} className="text-sm font-normal">
                     {party}
@@ -205,7 +225,9 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
                   <Checkbox
                     id={chamber}
                     checked={filters.chamber.includes(chamber)}
-                    onCheckedChange={() => toggleArrayFilter('chamber', chamber)}
+                    onCheckedChange={() =>
+                      toggleArrayFilter("chamber", chamber)
+                    }
                   />
                   <Label htmlFor={chamber} className="text-sm font-normal">
                     {chamber}
@@ -218,7 +240,10 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
           {/* Date Range */}
           <div className="space-y-2">
             <Label>Date Range</Label>
-            <Select value={filters.dateRange} onValueChange={(value) => updateFilter('dateRange', value)}>
+            <Select
+              value={filters.dateRange}
+              onValueChange={(value) => updateFilter("dateRange", value)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="All time" />
               </SelectTrigger>

@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
 import { getBillFromApi } from "@/services/billApi";
-import { fromDbBill, fromApiBill, type UnifiedBill } from "@/utils/billConverters";
+import {
+  fromDbBill,
+  fromApiBill,
+  type UnifiedBill,
+} from "@/utils/billConverters";
 import {
   BillHeader,
   BillSummary,
@@ -15,8 +19,6 @@ import { authOptions } from "@/auth";
 interface Params {
   params: Promise<{ id: string }>;
 }
-
-
 
 export default async function BillDetail({ params }: Params) {
   const { id } = await params;
@@ -53,12 +55,14 @@ export default async function BillDetail({ params }: Params) {
   return (
     <div className="mx-auto max-w-[1100px] px-6 py-8">
       <div className="mb-6">
-
         <Link href="/" className="text-sm underline  mb-6">
           ← Back to bills
         </Link>
         {session?.user && (
-          <Link href={`/bills/${params.id}/edit`} className="ml-4 text-sm underline">
+          <Link
+            href={`/bills/${params.id}/edit`}
+            className="ml-4 text-sm underline"
+          >
             Edit
           </Link>
         )}
@@ -75,7 +79,6 @@ export default async function BillDetail({ params }: Params) {
         <div className="space-y-6">
           <BillMetadata bill={unifiedBill} />
         </div>
-
       </section>
     </div>
   );

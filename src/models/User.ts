@@ -11,15 +11,16 @@ export interface UserDocument extends mongoose.Document {
   updatedAt: Date;
 }
 
-const UserSchema = new Schema<UserDocument>({
-  email: { type: String, required: true },
-  emailLower: { type: String, required: true, unique: true, index: true },
-  name: { type: String },
-  image: { type: String },
-  allowed: { type: Boolean, default: false },
-  lastLoginAt: { type: Date },
-}, { timestamps: true });
+const UserSchema = new Schema<UserDocument>(
+  {
+    email: { type: String, required: true },
+    emailLower: { type: String, required: true, unique: true, index: true },
+    name: { type: String },
+    image: { type: String },
+    allowed: { type: Boolean, default: false },
+    lastLoginAt: { type: Date },
+  },
+  { timestamps: true },
+);
 
 export const User = models.User || model<UserDocument>("User", UserSchema);
-
-

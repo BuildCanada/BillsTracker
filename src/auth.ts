@@ -5,8 +5,15 @@ import { connectToDatabase } from "@/lib/mongoose";
 import { User } from "@/models/User";
 
 if (env.NODE_ENV !== "production") {
-  try { assertServerEnv(); } catch (e) { console.warn("[auth] env check:", e); }
-  if (!env.NEXTAUTH_URL) console.warn("[auth] Missing NEXTAUTH_URL (e.g. http://localhost:3000 in dev).");
+  try {
+    assertServerEnv();
+  } catch (e) {
+    console.warn("[auth] env check:", e);
+  }
+  if (!env.NEXTAUTH_URL)
+    console.warn(
+      "[auth] Missing NEXTAUTH_URL (e.g. http://localhost:3000 in dev).",
+    );
 }
 
 export const authOptions: NextAuthOptions = {
@@ -33,7 +40,9 @@ export const authOptions: NextAuthOptions = {
         const existing = await User.findOne({ emailLower: email });
         if (!existing) {
           if (env.NODE_ENV !== "production") {
-            console.warn(`[auth] User ${email} not found. No auto-creation. Denying sign-in.`);
+            console.warn(
+              `[auth] User ${email} not found. No auto-creation. Denying sign-in.`,
+            );
           }
           return false;
         }
@@ -74,5 +83,3 @@ export const authOptions: NextAuthOptions = {
 
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
-
-

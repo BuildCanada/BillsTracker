@@ -1,13 +1,12 @@
-
 import "server-only";
 import { connectToDatabase } from "@/lib/mongoose";
 import { Bill } from "@/models/Bill";
 import type { BillDocument } from "@/models/Bill";
 
 export async function getAllBillsFromDB(): Promise<BillDocument[]> {
-
   const uri = process.env.MONGO_URI || "";
-  const hasValidMongoUri = uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
+  const hasValidMongoUri =
+    uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
   if (!hasValidMongoUri) {
     console.warn("!!! No valid MongoDB URI found, returning empty bills array");
     return [];
@@ -23,5 +22,3 @@ export async function getAllBillsFromDB(): Promise<BillDocument[]> {
     return [];
   }
 }
-
-
