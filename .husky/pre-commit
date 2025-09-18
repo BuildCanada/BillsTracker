@@ -1,2 +1,3 @@
 npm test
+npm run format
 npx biome check --error-on-warnings
