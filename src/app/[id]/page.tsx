@@ -13,13 +13,13 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 
 interface Params {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 
 
 export default async function BillDetail({ params }: Params) {
-  const { id } = await params;
+  const { id } = params;
 
   // Try database first, then fallback to API
   const dbBill = await getBillByIdFromDB(id);
@@ -58,7 +58,7 @@ export default async function BillDetail({ params }: Params) {
           ← Back to bills
         </Link>
         {session?.user && (
-          <Link href={`/bills/${params.id}/edit`} className="ml-4 text-sm underline">
+          <Link href={`/${params.id}/edit`} className="ml-4 text-sm underline">
             Edit
           </Link>
         )}

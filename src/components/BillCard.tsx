@@ -24,7 +24,7 @@ export default function BillCard({ bill }: BillCardProps) {
 
   return (
     <li className="group rounded-lg border   bg-[var(--panel)] shadow-sm   duration-200 overflow-hidden">
-      <Link href={`/bills/${bill.billID}`} className="block">
+      <Link href={`/${bill.billID}`} className="block">
         <div className="p-5">
           {/* Header Section */}
           <div className="flex items-start md:flex-row flex-col-reverse  justify-between gap-4 mb-3">
