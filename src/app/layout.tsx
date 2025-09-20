@@ -59,8 +59,8 @@ export default async function RootLayout({
 
             <nav className="hidden sm:flex items-center gap-3 text-sm">
               {session?.user ? (
-                <form action="/api/auth/signout" method="post">
-                  <input type="hidden" name="callbackUrl" value="/" />
+                <form action="/bills/api/auth/signout" method="post">
+                  <input type="hidden" name="callbackUrl" value="/bills" />
                   <button type="submit" className="underline">Sign out</button>
                 </form>
               ) : null}

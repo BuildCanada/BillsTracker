@@ -16,7 +16,10 @@ export default function SignInPage() {
   const onGoogle = async () => {
     try {
       setLoading(true);
-      await signIn("google", { callbackUrl: "/" });
+      await signIn("google", { callbackUrl: "/bills" });
+    } catch (error) {
+      console.error("Sign-in error:", error);
+      throw error;
     } finally {
       setLoading(false);
     }
