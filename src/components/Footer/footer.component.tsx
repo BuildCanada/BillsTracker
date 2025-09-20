@@ -49,7 +49,7 @@ export function Footer() {
           <p className="text-xs text-[var(--muted-foreground)]">
             © {new Date().getFullYear()} Build Canada Bills. All rights reserved.
             A Project of {' '}
-            <a href="https://buildcanada.ca" target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--muted-foreground)] underline">
+            <a href="https://buildcanada.com" target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--muted-foreground)] underline">
               Build Canada
             </a>
 
