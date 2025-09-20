@@ -58,7 +58,7 @@ export default async function BillDetail({ params }: Params) {
           ← Back to bills
         </Link>
         {session?.user && (
-          <Link href={`/${params.id}/edit`} className="ml-4 text-sm underline">
+          <Link href={`/${id}/edit`} className="ml-4 text-sm underline">
             Edit
           </Link>
         )}
