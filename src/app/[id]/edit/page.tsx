@@ -4,7 +4,7 @@ import { authOptions } from "@/auth";
 import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
 
 interface Params {
-  params: { id: string };
+  params: Promise<any>;
 }
 
 export default async function EditBillPage({ params }: Params) {
@@ -13,9 +13,11 @@ export default async function EditBillPage({ params }: Params) {
     redirect("/");
   }
 
-  const bill = await getBillByIdFromDB(params.id);
+  const { id } = await params;
+
+  const bill = await getBillByIdFromDB(id);
   if (!bill) {
-    redirect(`/${params.id}`);
+    redirect(`/${id}`);
   }
 
   return (
@@ -23,7 +25,7 @@ export default async function EditBillPage({ params }: Params) {
       <h1 className="text-xl font-semibold mb-6">Edit Bill</h1>
       <form
         className="space-y-6"
-        action={`/bills/api/${params.id}`}
+        action={`/bills/api/${id}`}
         method="post"
       >
         <div className="space-y-2">
