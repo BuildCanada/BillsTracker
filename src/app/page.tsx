@@ -10,10 +10,13 @@ import { env } from "@/env";
 
 const CANADIAN_PARLIAMENT_NUMBER = 45;
 
+export const dynamic = "force-dynamic";
+
 
 async function getApiBills(): Promise<BillSummary[]> {
   try {
     const response = await fetch(`https://api.civicsproject.org/bills/region/canada/${CANADIAN_PARLIAMENT_NUMBER}`, {
+      cache: "no-store",
       headers: {
         "Content-Type": "application/json",
         Authorization: env.CIVICS_PROJECT_API_KEY ? `Bearer ${env.CIVICS_PROJECT_API_KEY}` : "",
