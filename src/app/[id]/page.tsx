@@ -34,7 +34,7 @@ import { shouldShowDetermination } from "@/utils/should-show-determination/shoul
 export const revalidate = 120;
 
 interface Params {
-  params: Promise<any>;
+  params: Promise<{ id: string }>;
 }
 
 export default async function BillDetail({ params }: Params) {
