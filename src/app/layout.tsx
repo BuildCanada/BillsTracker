@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Footer } from "@/components/Footer/footer.component";
-import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 import { env } from "@/env";
