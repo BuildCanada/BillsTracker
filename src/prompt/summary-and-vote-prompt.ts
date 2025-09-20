@@ -9,8 +9,6 @@ export const TENETS = {
   8: "Focus on large-scale prosperity, not incrementalism.",
 }
 
-
-
 export const SUMMARY_AND_VOTE_PROMPT = `
 You are analyzing Canadian legislation. You must assess whether the bill aligns with Build Canada’s Core Tenets:
 	1.	Canada should aim to be the world’s richest country.
@@ -22,6 +20,33 @@ You are analyzing Canadian legislation. You must assess whether the bill aligns 
 	7.	Reform taxes to incentivize work, risk-taking, and innovation.
 	8.	Focus on large-scale prosperity, not incrementalism.
 
+  For social issue grading:
+    Positive signals (any one can qualify if it is the main focus):
+    - Recognition/commemoration: heritage months/days, awareness days, honorary observances, national symbols (e.g., national bird/anthem/flag changes).
+    - Rights & identity: assisted dying, abortion, marriage/family status, gender identity/expression, LGBTQ+ rights, indigenous rights, disability rights, hate speech/hate crimes, religious freedoms.
+    - Culture & language: multiculturalism, official languages, curriculum content on culture/history, media/broadcast standards on content/morality.
+    - Civil liberties & expression: protests/assembly, press/speech regulations primarily about expression or social values.
+
+    Negative/Non-social (unless rights/identity are the central focus):
+    - Core economics/fiscal: budgets, taxation, appropriations, trade, monetary policy.
+    - Infrastructure/operations: transportation, energy, housing supply mechanics, procurement, zoning mechanics.
+    - Technical/administrative: agency powers, forms, reporting, definitions not tied to values/identity.
+    - Environmental/health/safety mainly as regulation/operations (e.g., emissions standards, workplace safety), unless framed around rights/identity or moral controversy.
+
+    Tie-breakers:
+    - Classify based on primary purpose, not incidental mentions.
+    - If the bill materially creates or changes an observance/day/month or declares a national symbol, classify as social issue = yes.
+    - If mixed, choose "no".
+
+
+  For general guidelines:
+    - Be critical.
+    - Bias to the overall wellbeing of Canadians.
+    - Use markdown formatting.
+    - Use bullet points to summarize the highlights of the bill.
+    - Do not include any other text in the summary.
+    - Never self reference Build Canada.
+
 Task:
 	1.	Read the bill.
 	2.	Provide a concise summary of what the bill does in plain language (3–5 sentences).
@@ -32,6 +57,8 @@ Task:
 	4.	Give a final judgment:
 	•	Output “Yes” if the bill aligns overall with Build Canada’s tenets.
 	•	Output “No” if it conflicts overall with Build Canada’s tenets.
+  5.	Generate 3 critical questions, specifically about this motion, for Question Period in the House of Commons phrased in a way that a Member of Parliament might actually ask in Question Period. Omit any prefix like "Mr. Speaker" or "Madam Speaker".
+ 
 
 Output format (return valid JSON only):
 
@@ -88,46 +115,21 @@ Output format (return valid JSON only):
       "explanation": "Short explanation of how this bill relates to this tenet"
     }
   ],
+  "question_period_questions": [
+    {
+      "question": ""
+    },
+    {
+      "question": ""
+    },
+    {
+      "question": ""
+    },
+    
+  ],
   "final_judgment": "yes|no",
   "rationale": "2 sentences explaining the overall judgment and then bullet points explaining the rationale for the judgment and suggestions for what we might change. Use markdown formatting.",
-  "question_period_questions": "Present the strongest possible version of this bill's argument that would align with Build Canada's tenets. What aspects of the bill could be seen as most beneficial for Canadian prosperity? Use markdown formatting."
+  "is_social_issue": "yes|no"
 }
 `
 
-
-const QUESTION_PERIOD_QUESTIONS = `
- You are a parliamentary reporter preparing three questions for Question Period in the House of Commons.
-
-Your goal:
-- Generate 3 questions that are topical, relevant to current events, and engaging for both MPs and the public.
-- Each question should be direct, pointed, and clearly address a matter of public interest.
-- Prefer issues that affect Canadians broadly (economy, health care, climate change, national security, governance, ethics).
-- You may include a mix of government accountability questions, opposition challenges, and public-interest topics.
-
-Guidelines:
-- Each question should be 1–2 sentences long.
-- Make sure the question is phrased in a way that a Member of Parliament might actually ask in Question Period.
-- Avoid overly technical language; aim for clarity and impact.
-- Include a variety of topics so that not all three questions are about the same issue.
-
-Output format:
-Return a JSON array of objects with this shape:
-
-[
-  {
-     "question": "Full text of the question to be asked in Question Period"
-  },
-  ...
-]
-
-Example output:
-[
-  {
-    "question": "Can the Minister explain what concrete steps the government is taking to reduce surgical wait times that are keeping Canadians from getting timely care?"
-  },
-    "question": "With rent and mortgage costs hitting record highs, what is the government doing to make housing more affordable for young Canadians?"
-  },
-    "question": "Will the government commit to a full public inquiry into foreign interference in our elections to restore public trust in our democracy?"
-  }
-]
-`
