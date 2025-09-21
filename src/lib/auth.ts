@@ -25,8 +25,8 @@ export const authOptions: NextAuthOptions = {
         const existingUser = await User.findOne({ emailLower: user.email.toLowerCase() });
 
         if (existingUser) {
-          return true;
-
+          // Only allow sign-in if the user is approved
+          return existingUser.allowed === true;
         }
 
         return false;
