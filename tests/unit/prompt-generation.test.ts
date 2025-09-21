@@ -134,7 +134,7 @@ describe('Prompt Generation', () => {
 
   describe('Prompt content validation', () => {
     it('should include all 8 Build Canada tenets in prompt', () => {
-      expect(SUMMARY_AND_VOTE_PROMPT).toContain('Canada should aim to be the world\'s richest country');
+      expect(SUMMARY_AND_VOTE_PROMPT).toContain('Canada should aim to be the world\'s most prosperous country');
       expect(SUMMARY_AND_VOTE_PROMPT).toContain('Promote economic freedom');
       expect(SUMMARY_AND_VOTE_PROMPT).toContain('Drive national productivity');
       expect(SUMMARY_AND_VOTE_PROMPT).toContain('Grow exports');
@@ -165,7 +165,7 @@ describe('Prompt Generation', () => {
     let consoleErrorSpy: any;
 
     beforeEach(() => {
-      consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
     });
 
     afterEach(() => {

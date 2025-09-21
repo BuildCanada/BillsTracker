@@ -85,7 +85,7 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
   let analysis: BillAnalysis = {
     summary: bill.header || "",
     tenet_evaluations: [
-      { id: 1, title: "Canada should aim to be the world's richest country", alignment: "neutral", explanation: "Not analyzed" },
+      { id: 1, title: "Canada should aim to be the world's most prosperous country", alignment: "neutral", explanation: "Not analyzed" },
       { id: 2, title: "Promote economic freedom, ambition, and breaking from bureaucratic inertia", alignment: "neutral", explanation: "Not analyzed" },
       { id: 3, title: "Drive national productivity and global competitiveness", alignment: "neutral", explanation: "Not analyzed" },
       { id: 4, title: "Grow exports of Canadian products and resources", alignment: "neutral", explanation: "Not analyzed" },

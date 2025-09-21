@@ -83,7 +83,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
       summary: truncatedSummary || "No bill text available for analysis.",
       short_title: undefined,
       tenet_evaluations: [
-        { id: 1, title: "Canada should aim to be the world's richest country", alignment: "neutral", explanation: "Unable to analyze without AI" },
+        { id: 1, title: "Canada should aim to be the world's most prosperous country", alignment: "neutral", explanation: "Unable to analyze without AI" },
         { id: 2, title: "Promote economic freedom, ambition, and breaking from bureaucratic inertia", alignment: "neutral", explanation: "Unable to analyze without AI" },
         { id: 3, title: "Drive national productivity and global competitiveness", alignment: "neutral", explanation: "Unable to analyze without AI" },
         { id: 4, title: "Grow exports of Canadian products and resources", alignment: "neutral", explanation: "Unable to analyze without AI" },
@@ -146,7 +146,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
         summary,
         short_title: undefined,
         tenet_evaluations: [
-          { id: 1, title: "Canada should aim to be the world's richest country", alignment: "neutral", explanation: "JSON parse failed" },
+          { id: 1, title: "Canada should aim to be the world's most prosperous country", alignment: "neutral", explanation: "JSON parse failed" },
           { id: 2, title: "Promote economic freedom, ambition, and breaking from bureaucratic inertia", alignment: "neutral", explanation: "JSON parse failed" },
           { id: 3, title: "Drive national productivity and global competitiveness", alignment: "neutral", explanation: "JSON parse failed" },
           { id: 4, title: "Grow exports of Canadian products and resources", alignment: "neutral", explanation: "JSON parse failed" },
@@ -173,7 +173,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
       summary: truncatedSummary || "Error occurred during analysis.",
       short_title: undefined,
       tenet_evaluations: [
-        { id: 1, title: "Canada should aim to be the world's richest country", alignment: "neutral", explanation: "Analysis failed" },
+        { id: 1, title: "Canada should aim to be the world's most prosperous country", alignment: "neutral", explanation: "Analysis failed" },
         { id: 2, title: "Promote economic freedom, ambition, and breaking from bureaucratic inertia", alignment: "neutral", explanation: "Analysis failed" },
         { id: 3, title: "Drive national productivity and global competitiveness", alignment: "neutral", explanation: "Analysis failed" },
         { id: 4, title: "Grow exports of Canadian products and resources", alignment: "neutral", explanation: "Analysis failed" },
