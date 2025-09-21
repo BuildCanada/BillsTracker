@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback, memo } from "react";
 import { BillSummary } from "./types";
 import BillCard from "@/components/BillCard";
 import { FilterSidebar, FilterState, FilterOptions } from "@/components/FilterSection/filter-section.component";
@@ -84,7 +84,7 @@ function statusRank(statusKey: string): number {
 
 // --------------------------------------------------------------------
 
-export default function BillExplorer({ bills }: BillExplorerProps) {
+function BillExplorer({ bills }: BillExplorerProps) {
   const isMobile = useIsMobile();
   const [isFilterCollapsed, setIsFilterCollapsed] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
@@ -265,7 +265,7 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
     setIsFilterCollapsed(isMobile);
   }, [isMobile]);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setFilters({
       search: "",
       status: [],
@@ -274,7 +274,7 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
       chamber: [],
       dateRange: "all",
     });
-  };
+  }, []);
 
   return (
     <div className="mx-auto max-w-7xl py-4 md:py-6">
@@ -305,3 +305,6 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
     </div>
   );
 }
+
+// Memoize the component to prevent unnecessary re-renders
+export default memo(BillExplorer);

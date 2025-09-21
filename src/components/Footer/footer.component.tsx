@@ -1,3 +1,5 @@
+import { PROJECT_NAME } from "@/consts/general";
+
 export function Footer() {
   return (
     <footer className="mt-16 border-t border-[var(--panel-border)] bg-white">
@@ -13,7 +15,7 @@ export function Footer() {
               />
               <div className="flex flex-col items-start -mt-1 ">
 
-                <span className="font-semibold text-lg mb-0">Policy Tracker</span>
+                <span className="font-semibold text-lg mb-0">{PROJECT_NAME}</span>
                 <div className="text-xs">
 
                   Powered by {' '}

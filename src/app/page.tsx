@@ -10,13 +10,17 @@ import { env } from "@/env";
 
 const CANADIAN_PARLIAMENT_NUMBER = 45;
 
-export const dynamic = "force-dynamic";
-
+// Cache for 5 minutes - Next.js requires a static value
+export const revalidate = 300;
 
 async function getApiBills(): Promise<BillSummary[]> {
   try {
     const response = await fetch(`https://api.civicsproject.org/bills/region/canada/${CANADIAN_PARLIAMENT_NUMBER}`, {
-      cache: "no-store",
+      // Cache for 5 minutes in production, no cache in development
+      ...(process.env.NODE_ENV === 'production'
+        ? { next: { revalidate: 300 } }
+        : { cache: 'no-store' }
+      ),
       headers: {
         "Content-Type": "application/json",
         Authorization: env.CIVICS_PROJECT_API_KEY ? `Bearer ${env.CIVICS_PROJECT_API_KEY}` : "",

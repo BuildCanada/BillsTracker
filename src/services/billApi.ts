@@ -37,7 +37,11 @@ const CANADIAN_PARLIAMENT_NUMBER = 45;
 export async function getBillFromApi(billId: string): Promise<ApiBillDetail | null> {
   const URL = `https://api.civicsproject.org/bills/canada/${billId.toLowerCase()}/${CANADIAN_PARLIAMENT_NUMBER}`;
   const response = await fetch(URL, {
-    cache: "no-store",
+    // Cache individual bills for 10 minutes in production
+    ...(process.env.NODE_ENV === 'production'
+      ? { next: { revalidate: 600 } }
+      : { cache: 'no-store' }
+    ),
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${process.env.CIVICS_PROJECT_API_KEY}`,
@@ -83,7 +87,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
       summary: truncatedSummary || "No bill text available for analysis.",
       short_title: undefined,
       tenet_evaluations: [
-        { id: 1, title: "Canada should aim to be the world's richest country", alignment: "neutral", explanation: "Unable to analyze without AI" },
+        { id: 1, title: "Canada should aim to be the world's most prosperous country", alignment: "neutral", explanation: "Unable to analyze without AI" },
         { id: 2, title: "Promote economic freedom, ambition, and breaking from bureaucratic inertia", alignment: "neutral", explanation: "Unable to analyze without AI" },
         { id: 3, title: "Drive national productivity and global competitiveness", alignment: "neutral", explanation: "Unable to analyze without AI" },
         { id: 4, title: "Grow exports of Canadian products and resources", alignment: "neutral", explanation: "Unable to analyze without AI" },
@@ -146,7 +150,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
         summary,
         short_title: undefined,
         tenet_evaluations: [
-          { id: 1, title: "Canada should aim to be the world's richest country", alignment: "neutral", explanation: "JSON parse failed" },
+          { id: 1, title: "Canada should aim to be the world's most prosperous country", alignment: "neutral", explanation: "JSON parse failed" },
           { id: 2, title: "Promote economic freedom, ambition, and breaking from bureaucratic inertia", alignment: "neutral", explanation: "JSON parse failed" },
           { id: 3, title: "Drive national productivity and global competitiveness", alignment: "neutral", explanation: "JSON parse failed" },
           { id: 4, title: "Grow exports of Canadian products and resources", alignment: "neutral", explanation: "JSON parse failed" },
@@ -173,7 +177,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
       summary: truncatedSummary || "Error occurred during analysis.",
       short_title: undefined,
       tenet_evaluations: [
-        { id: 1, title: "Canada should aim to be the world's richest country", alignment: "neutral", explanation: "Analysis failed" },
+        { id: 1, title: "Canada should aim to be the world's most prosperous country", alignment: "neutral", explanation: "Analysis failed" },
         { id: 2, title: "Promote economic freedom, ambition, and breaking from bureaucratic inertia", alignment: "neutral", explanation: "Analysis failed" },
         { id: 3, title: "Drive national productivity and global competitiveness", alignment: "neutral", explanation: "Analysis failed" },
         { id: 4, title: "Grow exports of Canadian products and resources", alignment: "neutral", explanation: "Analysis failed" },
@@ -194,7 +198,13 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
 
 export async function fetchBillMarkdown(sourceUrl: string): Promise<string | null> {
   try {
-    const xmlResponse = await fetch(sourceUrl, { cache: "no-store" });
+    const xmlResponse = await fetch(sourceUrl, {
+      // Cache bill text for 1 hour in production since it rarely changes
+      ...(process.env.NODE_ENV === 'production'
+        ? { next: { revalidate: 3600 } }
+        : { cache: 'no-store' }
+      )
+    });
     if (xmlResponse.ok) {
       const xml = await xmlResponse.text();
       return xmlToMarkdown(xml);

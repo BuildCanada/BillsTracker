@@ -1,15 +1,15 @@
 import React from "react";
 import type { UnifiedBill } from "@/utils/billConverters";
+import { PROJECT_NAME } from "@/consts/general";
 
-type BillSubset = Pick<UnifiedBill, "billId" | "title" | "short_title" | "summary" | "final_judgment" | "rationale" | "genres"> & {
+type BillSubset = Pick<UnifiedBill, "billId" | "title" | "short_title" | "summary" | "final_judgment" | "rationale" | "genres" | "isSocialIssue"> & {
   fallbackId?: string;
 };
 
 export function BillOgCard({ bill }: { bill: BillSubset }) {
   const title = bill.short_title || bill.title || bill.fallbackId || "Bill";
-  const pillTitle = title.length > 60 ? `${title.slice(0, 60)}…` : title;
-  const voteLabel = bill.final_judgment === "yes" ? "Vote: Yes" : bill.final_judgment === "no" ? "Vote: No" : "Vote: Neutral";
-  const voteBg = bill.final_judgment === "yes" ? "#166534" : bill.final_judgment === "no" ? "#b91c1c" : "#4b5563";
+  const voteLabel = bill.isSocialIssue ? "Vote: Neutral" : bill.final_judgment === "yes" ? "Vote: Yes" : bill.final_judgment === "no" ? "Vote: No" : "Vote: Neutral";
+  const voteBg = bill.isSocialIssue ? "#4b5563" : bill.final_judgment === "yes" ? "#166534" : bill.final_judgment === "no" ? "#b91c1c" : "#4b5563";
 
   // the first sentence that isn't quoted 
   let summaryText = bill.summary ? (bill.summary.split(".")[0]) : "";
@@ -17,6 +17,8 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
   if (summaryText.startsWith('- ')) {
     summaryText = summaryText.slice(2);
   }
+
+  const splitProjectTitle = PROJECT_NAME.split(" ");
 
   return (
     <div style={{ width: 1200, height: 630, display: "flex", background: "#f5f3ef" }}>
@@ -49,8 +51,11 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
             lineHeight: 1.05,
           }}
         >
-          <div style={{ fontWeight: 600, fontSize: 32 }}>Build</div>
-          <div style={{ fontWeight: 600, fontSize: 32 }}>Parliament</div>
+          {splitProjectTitle.map((title, index) => (
+            <div key={index} style={{
+              fontWeight: 700, fontSize: 32, fontFamily: "Inter",
+            }}>{title}</div>
+          ))}
         </div>
 
 
@@ -80,11 +85,12 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
                 color: "#ffffff",
                 padding: "10px 16px",
                 borderRadius: 999,
-                fontWeight: 800,
+                fontWeight: 700,
                 fontSize: 28,
-                letterSpacing: 0,
+                letterSpacing: 0.5,
                 alignItems: "center",
                 whiteSpace: "nowrap",
+                fontFamily: "Inter",
               }}
             >
               {voteLabel}

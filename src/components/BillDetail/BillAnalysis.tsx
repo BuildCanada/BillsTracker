@@ -66,7 +66,7 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
 
 
   return (
-    <div className="space-y-6 relative w-full h-full">
+    <div className="relative">
 
 
       {hasTenets && (
@@ -93,7 +93,7 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
           {hasQP && (
             <Card>
               <CardHeader>
-                <CardTitle>What we would ask</CardTitle>
+                <CardTitle>What we would ask during Question Period</CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="list-disc pl-5 space-y-2">
