@@ -46,7 +46,7 @@ export default async function BillDetail({ params }: Params) {
         <p className="mt-2 text-sm">
           The bill you are looking for does not exist.
         </p>
-        <Link className="mt-4 inline-block underline" href="/bills">
+        <Link className="mt-4 inline-block underline" href="/">
           Back to list
         </Link>
       </div>
