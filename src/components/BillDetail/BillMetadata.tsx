@@ -18,7 +18,9 @@ const DataPoint = ({ label, value }: { label: string, value: string }) => {
 
 export function BillMetadata({ bill }: BillMetadataProps) {
   const billDates = getBillStageDates(bill.stages)
-  const lastUpdatedDate = dayjs(billDates.lastUpdated).format('MMM D, YYYY')
+  const lastUpdatedDate = billDates.lastUpdated
+    ? dayjs(billDates.lastUpdated).format('MMM D, YYYY')
+    : "N/A";
 
   return (
     <Card>
