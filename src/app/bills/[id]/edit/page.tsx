@@ -18,13 +18,13 @@ export default async function EditBillPage({ params }: Params) {
   const { id } = await params;
   const bill = await getBillByIdFromDB(id);
   if (!bill) {
-    redirect(`/bills/${id}`);
+    redirect(`/${id}`);
   }
 
   return (
     <div className="mx-auto max-w-[900px] px-6 py-8">
       <h1 className="text-xl font-semibold mb-6">Edit Bill</h1>
-      <form className="space-y-6" action={`/api/bills/${id}`} method="post">
+      <form className="space-y-6" action={`/api/${id}`} method="post">
         <div className="space-y-2">
           <label className="block text-sm font-medium" htmlFor="title">Title</label>
           <textarea id="title" name="title" defaultValue={bill.title} className="w-full min-h-20 border rounded p-2" />
@@ -89,30 +89,3 @@ export default async function EditBillPage({ params }: Params) {
     </div>
   );
 }
-
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const { id } = await params;
-  const base = env.NEXT_PUBLIC_APP_URL ? new URL(env.NEXT_PUBLIC_APP_URL) : undefined;
-  const pageUrl = base ? new URL(`/bills/${id}/edit`, base).toString() : `/bills/${id}/edit`;
-  const ogImageUrl = base ? new URL(`/bills/${id}/opengraph-image`, base).toString() : `/bills/${id}/opengraph-image`;
-  return {
-    title: `Edit ${id}`,
-    description: `Edit analysis and details for Bill ${id}`,
-    alternates: { canonical: pageUrl },
-    openGraph: {
-      title: `Edit ${id}`,
-      description: `Edit analysis and details for Bill ${id}`,
-      url: pageUrl,
-      type: "article",
-      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: id }],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `Edit ${id}`,
-      description: `Edit analysis and details for Bill ${id}`,
-      images: [ogImageUrl],
-    },
-  };
-}
-
-

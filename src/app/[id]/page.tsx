@@ -62,7 +62,7 @@ export default async function BillDetail({ params }: Params) {
           ← Back to bills
         </Link>
         {session?.user && (
-          <Link href={`/bills/${id}/edit`} className="ml-4 text-sm underline">
+          <Link href={`/${id}/edit`} className="ml-4 text-sm underline">
             Edit
           </Link>
         )}
@@ -108,8 +108,8 @@ export async function generateMetadata(
   const host = (await h).get("x-forwarded-host") || (await h).get("host") || "";
   const proto = ((await h).get("x-forwarded-proto") || "https").split(",")[0];
   const baseUrl = env.NEXT_PUBLIC_APP_URL || (host ? `${proto}://${host}` : "");
-  const pageUrl = baseUrl ? `${baseUrl}/bills/${id}` : `/bills/${id}`;
-  const ogImageUrl = baseUrl ? `${baseUrl}/bills/${id}/opengraph-image` : `/bills/${id}/opengraph-image`;
+  const pageUrl = baseUrl ? `${baseUrl}/${id}` : `/${id}`;
+  const ogImageUrl = baseUrl ? `${baseUrl}/${id}/opengraph-image` : `/${id}/opengraph-image`;
 
   return {
     title,

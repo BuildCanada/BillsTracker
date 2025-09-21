@@ -115,7 +115,7 @@ export async function POST(
 
   await Bill.updateOne({ billId: id }, { $set: update }, { upsert: false });
 
-  return NextResponse.redirect(new URL(`/bills/${id}`, request.url));
+  return NextResponse.redirect(new URL(`/${id}`, request.url));
 }
 
 

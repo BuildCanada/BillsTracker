@@ -25,7 +25,7 @@ export default async function EditBillPage({ params }: Params) {
       <h1 className="text-xl font-semibold mb-6">Edit Bill</h1>
       <form
         className="space-y-6"
-        action={`/bills/api/${id}`}
+        action={`/api/${id}`}
         method="post"
       >
         <div className="space-y-2">
