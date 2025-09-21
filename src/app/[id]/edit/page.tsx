@@ -119,6 +119,18 @@ export default async function EditBillPage({ params }: Params) {
             className="w-full min-h-20 border rounded p-2"
           />
         </div>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium" htmlFor="question_period_questions">
+            Question Period Questions (one per line)
+          </label>
+          <textarea
+            id="question_period_questions"
+            name="question_period_questions"
+            defaultValue={(bill.question_period_questions || []).map(q => q.question).join('\n')}
+            className="w-full min-h-32 border rounded p-2"
+            placeholder="Enter each question on a new line..."
+          />
+        </div>
         <div className="space-y-4">
           <h2 className="text-lg font-medium">Tenet Analysis</h2>
           {(bill.tenet_evaluations || []).map((tenet, index) => {

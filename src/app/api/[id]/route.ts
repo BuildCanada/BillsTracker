@@ -25,6 +25,7 @@ export async function POST(
   let steel_man: string | undefined;
   let missing_details_raw = "";
   let genres_raw = "";
+  let question_period_questions_raw = "";
   let tenet_ids: string[] = [];
   let tenet_titles: string[] = [];
   let tenet_alignments: string[] = [];
@@ -41,6 +42,7 @@ export async function POST(
     steel_man = params.get("steel_man") || undefined;
     missing_details_raw = params.get("missing_details") || "";
     genres_raw = params.get("genres") || "";
+    question_period_questions_raw = params.get("question_period_questions") || "";
     tenet_ids = params.getAll("tenet_id");
     tenet_titles = params.getAll("tenet_title");
     tenet_alignments = params.getAll("tenet_alignment");
@@ -57,6 +59,7 @@ export async function POST(
     steel_man = asString(json.steel_man);
     missing_details_raw = asString(json.missing_details) || "";
     genres_raw = asString(json.genres) || "";
+    question_period_questions_raw = asString(json.question_period_questions) || "";
     tenet_ids = Array.isArray((json as any).tenet_id) ? ((json as any).tenet_id as unknown[]).map(String) : [];
     tenet_titles = Array.isArray((json as any).tenet_title) ? ((json as any).tenet_title as unknown[]).map(String) : [];
     tenet_alignments = Array.isArray((json as any).tenet_alignment) ? ((json as any).tenet_alignment as unknown[]).map(String) : [];
@@ -73,6 +76,7 @@ export async function POST(
       steel_man = (form.get("steel_man") as string | null) || undefined;
       missing_details_raw = (form.get("missing_details") as string | null) || "";
       genres_raw = (form.get("genres") as string | null) || "";
+      question_period_questions_raw = (form.get("question_period_questions") as string | null) || "";
       tenet_ids = (form.getAll as any)("tenet_id").map(String);
       tenet_titles = (form.getAll as any)("tenet_title").map(String);
       tenet_alignments = (form.getAll as any)("tenet_alignment").map(String);
@@ -91,6 +95,12 @@ export async function POST(
     .map((s) => s.trim())
     .filter(Boolean);
 
+  const question_period_questions = question_period_questions_raw
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((question) => ({ question }));
+
   const update: Record<string, unknown> = {
     lastUpdatedOn: new Date(),
   };
@@ -102,6 +112,7 @@ export async function POST(
   if (steel_man !== undefined) update.steel_man = steel_man;
   update.missing_details = missing_details;
   update.genres = genres;
+  update.question_period_questions = question_period_questions;
   const tenet_evaluations = tenet_titles.map((title, idx) => ({
     id: Number(tenet_ids[idx] ?? idx + 1),
     title,
