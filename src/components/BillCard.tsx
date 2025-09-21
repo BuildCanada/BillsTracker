@@ -20,7 +20,8 @@ interface BillCardProps {
 function BillCard({ bill }: BillCardProps) {
 
 
-  const dateDisplay = dayjs(getBillStageDates(bill.stages).lastUpdated).format('MMM D, YYYY')
+  const { lastUpdated } = getBillStageDates(bill.stages);
+  const dateDisplay = lastUpdated ? dayjs(lastUpdated).format('MMM D, YYYY') : "N/A";
 
   return (
     <li className="group rounded-lg border   bg-[var(--panel)] shadow-sm   duration-200 overflow-hidden">
