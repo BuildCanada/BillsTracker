@@ -71,7 +71,7 @@ export default async function BillDetail({ params }: Params) {
 
       <Separator />
       <section className="mt-6 grid gap-6 md:grid-cols-[1fr_280px] relative">
-        <div className="space-y-6">
+        <div className="flex gap-4 flex-col">
           <BillSummary bill={unifiedBill} />
           <BillAnalysis bill={unifiedBill} />
           {/* <BillTimeline bill={unifiedBill} /> */}
