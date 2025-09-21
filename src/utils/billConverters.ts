@@ -143,9 +143,9 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
   }
 
 
-  if (shouldRegenerateSummary) {
+  if (shouldRegenerateSummary && billMarkdown) {
     console.log(`Regenerating analysis for ${bill.billID} (billTexts count: ${currentBillTextsCount})`);
-    analysis = await summarizeBillText(billMarkdown || bill.header || "");
+    analysis = await summarizeBillText(billMarkdown);
   }
 
 
