@@ -10,8 +10,8 @@ import { env } from "@/env";
 
 const CANADIAN_PARLIAMENT_NUMBER = 45;
 
-// Cache for 5 minutes in production, force-dynamic in development
-export const revalidate = process.env.NODE_ENV === 'production' ? 300 : false;
+// Cache for 5 minutes - Next.js requires a static value
+export const revalidate = 300;
 
 async function getApiBills(): Promise<BillSummary[]> {
   try {
