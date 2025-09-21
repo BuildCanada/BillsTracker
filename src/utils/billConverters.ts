@@ -85,7 +85,8 @@ export function fromDbBill(bill: BillDocument): UnifiedBill {
 
 // Convert API bill to unified format
 export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
-  const uri = process.env.MONGO_URI || "";
+  const { env } = await import("@/env");
+  const uri = env.MONGO_URI || "";
   const hasValidMongoUri = uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
   let existingBill: BillDocument | null = null;
   const latestStageDate = bill.stages && bill.stages.length > 0

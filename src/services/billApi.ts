@@ -231,7 +231,8 @@ export async function onBillNotInDatabase(params: {
   const { Bill } = await import("@/models/Bill");
 
   try {
-    const uri = process.env.MONGO_URI || "";
+    const { env } = await import("@/env");
+    const uri = env.MONGO_URI || "";
     const hasValidMongoUri = uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
 
     if (!hasValidMongoUri) {
