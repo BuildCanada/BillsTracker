@@ -3,6 +3,7 @@ import Google from "next-auth/providers/google";
 import { env, assertServerEnv } from "@/env";
 import { connectToDatabase } from "@/lib/mongoose";
 import { User } from "@/models/User";
+import { isInitiallyAllowed } from "@/lib/auth/allowed-users";
 
 if (env.NODE_ENV !== "production") {
   try { assertServerEnv(); } catch (e) { console.warn("[auth] env check:", e); }
@@ -55,43 +56,7 @@ export const authOptions: NextAuthOptions = {
 
       console.log(`[auth] Sign-in attempt for ${email}`);
 
-      // In development, allow all sign-ins to avoid blocking
-      if (env.NODE_ENV !== "production") {
-        console.log(`[auth] Development mode - allowing ${email}`);
-
-        // Try to update DB in background, but don't block on it
-        setImmediate(async () => {
-          try {
-            await connectToDatabase();
-            const now = new Date();
-            const existing = await User.findOne({ emailLower: email });
-
-            if (!existing) {
-              await User.create({
-                email: user.email,
-                emailLower: email,
-                name: user.name,
-                image: (user as any)?.image,
-                allowed: true,
-                lastLoginAt: now,
-              });
-              console.log(`[auth] Created user ${email} in background`);
-            } else {
-              existing.name = user?.name ?? existing.name;
-              (existing as any).image = (user as any)?.image ?? existing.image;
-              existing.lastLoginAt = now;
-              await existing.save();
-              console.log(`[auth] Updated user ${email} in background`);
-            }
-          } catch (err) {
-            console.warn("[auth] Background DB operation failed:", err);
-          }
-        });
-
-        return true;
-      }
-
-      // Production mode - check database with timeout
+      // Check database for user approval (both dev and production)
       try {
         const timeoutPromise = new Promise((_, reject) =>
           setTimeout(() => reject(new Error('Database timeout')), 5000)
@@ -106,7 +71,7 @@ export const authOptions: NextAuthOptions = {
         const existing = await Promise.race([dbPromise, timeoutPromise]) as any;
 
         if (!existing) {
-          console.warn(`[auth] User ${email} not found in production`);
+          console.warn(`[auth] User ${email} not found in database`);
           return "/sign-in?error=AccessDenied";
         }
 
@@ -114,6 +79,8 @@ export const authOptions: NextAuthOptions = {
           console.warn(`[auth] User ${email} not allowed`);
           return "/sign-in?error=AccessDenied";
         }
+
+        console.log(`[auth] User ${email} approved and signed in`);
 
         // Update user in background
         setImmediate(async () => {
@@ -129,9 +96,10 @@ export const authOptions: NextAuthOptions = {
 
         return true;
       } catch (err) {
-        console.error("[auth] DB check failed in production:", err);
+        console.error("[auth] DB check failed:", err);
         return "/sign-in?error=Configuration";
       }
+
     },
     async jwt({ token, user }) {
       if (user?.email) {

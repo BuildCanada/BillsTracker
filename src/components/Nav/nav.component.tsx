@@ -1,5 +1,8 @@
+"use client"
+
 import { PROJECT_NAME } from "@/consts/general"
 import { Session } from "next-auth"
+import { signOut } from "next-auth/react"
 import Link from "next/link"
 
 export const Nav = ({ user }: { user: Session["user"] | null }) => {
@@ -15,10 +18,12 @@ export const Nav = ({ user }: { user: Session["user"] | null }) => {
 
         <nav className="hidden sm:flex items-center gap-3 text-sm">
           {user && (
-            <form action="/api/auth/signout" method="post">
-              <input type="hidden" name="callbackUrl" value="/" />
-              <button type="submit" className="underline">Sign out</button>
-            </form>
+            <button
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="underline"
+            >
+              Sign out
+            </button>
           )}
         </nav>
       </div>
