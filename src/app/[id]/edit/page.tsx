@@ -1,19 +1,28 @@
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/auth";
 import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { connectToDatabase } from "@/lib/mongoose";
+import { User } from "@/models/User";
 
 interface Params {
   params: Promise<any>;
 }
 
 export default async function EditBillPage({ params }: Params) {
+  const { id } = await params;
+
   const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    redirect("/");
+  if (!session?.user?.email) {
+    redirect(`/unauthorized`);
   }
 
-  const { id } = await params;
+  // Verify the signed-in user exists in DB; do not create
+  await connectToDatabase();
+  const dbUser = await User.findOne({ emailLower: session.user.email.toLowerCase() });
+  if (!dbUser) {
+    redirect(`/unauthorized`);
+  }
 
   const bill = await getBillByIdFromDB(id);
   if (!bill) {
@@ -117,6 +126,18 @@ export default async function EditBillPage({ params }: Params) {
             name="genres"
             defaultValue={(bill.genres || []).join(", ")}
             className="w-full min-h-20 border rounded p-2"
+          />
+        </div>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium" htmlFor="question_period_questions">
+            Question Period Questions (one per line)
+          </label>
+          <textarea
+            id="question_period_questions"
+            name="question_period_questions"
+            defaultValue={(bill.question_period_questions || []).map(q => q.question).join('\n')}
+            className="w-full min-h-32 border rounded p-2"
+            placeholder="Enter each question on a new line..."
           />
         </div>
         <div className="space-y-4">

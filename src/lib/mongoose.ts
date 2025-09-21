@@ -19,7 +19,11 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
   if (!cached.promise) {
     cached.promise = mongoose.connect(MONGODB_URI, {
       dbName: DATABASE_NAME,
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 3000,
+      socketTimeoutMS: 3000,
+      connectTimeoutMS: 3000,
+      maxPoolSize: 5,
+      bufferCommands: false,
     });
   }
   cached.conn = await cached.promise;

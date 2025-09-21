@@ -22,9 +22,9 @@ export interface VoteRecord {
 
 export interface StageRecord {
   stage: string; // e.g., "First Reading", "Committee", "Third Reading"
-  state?: string; // e.g., "Completed", "In Committee"
-  house?: string; // e.g., "House of Commons", "Senate"
-  date?: Date;
+  state: string; // e.g., "Completed", "In Committee"
+  house: string; // e.g., "House of Commons", "Senate"
+  date: Date;
 }
 
 // Updated main interface for the Bill document
@@ -45,6 +45,7 @@ export interface BillDocument extends mongoose.Document {
   steel_man: string;
 
   status: string;
+
   sponsorName?: string;
   sponsorParty?: string;
   chamber: string;

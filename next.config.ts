@@ -1,8 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   basePath: "/bills",
+
+
+  /* config options here */
   output: "standalone",
 
   // Performance optimizations

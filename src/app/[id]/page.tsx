@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
-import { getBillFromApi } from "@/services/billApi";
-import { fromDbBill, fromApiBill, type UnifiedBill } from "@/utils/billConverters";
+import { getBillFromCivicsProjectApi } from "@/services/billApi";
+import { fromBuildCanadaDbBill, fromCivicsProjectApiBill, type UnifiedBill } from "@/utils/billConverters";
 import type { Metadata, ResolvingMetadata } from "next";
 import { headers } from "next/headers";
 import { env } from "@/env";
@@ -13,7 +13,7 @@ import {
 } from "@/components/BillDetail";
 import { Separator } from "@/components/ui/separator";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/auth";
+import { authOptions } from "@/lib/auth";
 
 // Cache individual bill pages for 10 minutes
 export const revalidate = 600;
@@ -25,16 +25,17 @@ interface Params {
 export default async function BillDetail({ params }: Params) {
   const { id } = await params;
 
+  const session = await getServerSession(authOptions);
   // Try database first, then fallback to API
   const dbBill = await getBillByIdFromDB(id);
   let unifiedBill: UnifiedBill | null = null;
 
   if (dbBill) {
-    unifiedBill = fromDbBill(dbBill);
+    unifiedBill = fromBuildCanadaDbBill(dbBill);
   } else {
-    const apiBill = await getBillFromApi(id);
+    const apiBill = await getBillFromCivicsProjectApi(id);
     if (apiBill) {
-      unifiedBill = await fromApiBill(apiBill);
+      unifiedBill = await fromCivicsProjectApiBill(apiBill);
     }
   }
 
@@ -52,7 +53,6 @@ export default async function BillDetail({ params }: Params) {
     );
   }
 
-  const session = await getServerSession(authOptions);
 
   return (
     <div className="mx-auto max-w-[1100px] px-6 py-8">
@@ -62,7 +62,7 @@ export default async function BillDetail({ params }: Params) {
           ← Back to bills
         </Link>
         {session?.user && (
-          <Link href={`/bills/${id}/edit`} className="ml-4 text-sm underline">
+          <Link href={`/${id}/edit`} className="ml-4 text-sm underline">
             Edit
           </Link>
         )}
@@ -71,7 +71,7 @@ export default async function BillDetail({ params }: Params) {
 
       <Separator />
       <section className="mt-6 grid gap-6 md:grid-cols-[1fr_280px] relative">
-        <div className="space-y-6">
+        <div className="flex gap-4 flex-col">
           <BillSummary bill={unifiedBill} />
           <BillAnalysis bill={unifiedBill} />
           {/* <BillTimeline bill={unifiedBill} /> */}
@@ -90,26 +90,14 @@ export async function generateMetadata(
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { id } = await params;
-  // Try database first, then fallback to API
-  const dbBill = await getBillByIdFromDB(id);
-  let unifiedBill: UnifiedBill | null = null;
-  if (dbBill) {
-    unifiedBill = fromDbBill(dbBill);
-  } else {
-    const apiBill = await getBillFromApi(id);
-    if (apiBill) {
-      unifiedBill = await fromApiBill(apiBill);
-    }
-  }
-
-  const title = unifiedBill?.short_title || unifiedBill?.title || id;
-  const description = unifiedBill?.summary || `Bill ${id} analysis and judgement`;
+  const title = id;
+  const description = `Bill ${id} analysis and judgement`;
   const h = headers();
   const host = (await h).get("x-forwarded-host") || (await h).get("host") || "";
   const proto = ((await h).get("x-forwarded-proto") || "https").split(",")[0];
   const baseUrl = env.NEXT_PUBLIC_APP_URL || (host ? `${proto}://${host}` : "");
-  const pageUrl = baseUrl ? `${baseUrl}/bills/${id}` : `/bills/${id}`;
-  const ogImageUrl = baseUrl ? `${baseUrl}/bills/${id}/opengraph-image` : `/bills/${id}/opengraph-image`;
+  const pageUrl = baseUrl ? `${baseUrl}/${id}` : `/${id}`;
+  const ogImageUrl = baseUrl ? `${baseUrl}/${id}/opengraph-image` : `/${id}/opengraph-image`;
 
   return {
     title,

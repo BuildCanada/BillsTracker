@@ -66,7 +66,7 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
 
 
   return (
-    <div className="relative">
+    <div className="relative flex gap-4 flex-col">
 
 
       {hasTenets && (

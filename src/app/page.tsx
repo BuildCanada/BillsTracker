@@ -2,7 +2,7 @@ import { BillSummary } from "./types";
 import BillExplorer from "./BillExplorer";
 import FAQModalTrigger from "./FAQModalTrigger";
 import { getAllBillsFromDB } from "@/server/get-all-bills-from-db";
-import { fromDbBill } from "@/utils/billConverters";
+import { fromBuildCanadaDbBill } from "@/utils/billConverters";
 import { getParliament45Header } from "@/components/BillDetail/BillHeader";
 import Markdown from "react-markdown";
 import { env } from "@/env";
@@ -46,7 +46,7 @@ async function getMergedBills(): Promise<BillSummary[]> {
 
 
   // Convert DB bills to UnifiedBill format first, then to BillSummary
-  const dbBillsAsUnified = dbBills.map(fromDbBill);
+  const dbBillsAsUnified = dbBills.map(fromBuildCanadaDbBill);
 
   // Create a map of DB bills by billId for quick lookup
   const dbBillsMap = new Map(dbBillsAsUnified.map(bill => [bill.billId, bill]));
@@ -86,6 +86,7 @@ async function getMergedBills(): Promise<BillSummary[]> {
         billID: dbBill.billId,
         title: dbBill.title,
         shortTitle: dbBill.short_title,
+        stages: dbBill.stages || [],
         description: dbBill.summary || "",
         status: (dbBill.status as BillSummary["status"]) || "Introduced",
         sponsorParty: dbBill.sponsorParty || "Unknown",
