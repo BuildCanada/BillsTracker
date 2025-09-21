@@ -49,18 +49,29 @@ export function fromDbBill(bill: BillDocument): UnifiedBill {
     supportedRegion: bill.supportedRegion,
     introducedOn: bill.introducedOn,
     lastUpdatedOn: bill.lastUpdatedOn,
-    genres: bill.genres,
+    genres: bill.genres ? [...bill.genres] : undefined,
     parliamentNumber: bill.parliamentNumber,
     sessionNumber: bill.sessionNumber,
-    votes: bill.votes?.map(v => ({ motion: v.motion, result: v.result })),
+    votes: bill.votes?.map(v => ({
+      motion: v.motion,
+      result: v.result
+    })),
     isSocialIssue: bill.isSocialIssue,
-    question_period_questions: bill.question_period_questions,
-    // Include analysis data
-    tenet_evaluations: bill.tenet_evaluations,
+    // Properly serialize question_period_questions to remove MongoDB ObjectIds
+    question_period_questions: bill.question_period_questions?.map(q => ({
+      question: q.question
+    })),
+    // Include analysis data - ensure proper serialization
+    tenet_evaluations: bill.tenet_evaluations?.map(te => ({
+      id: te.id,
+      title: te.title,
+      alignment: te.alignment,
+      explanation: te.explanation
+    })),
     final_judgment: bill.final_judgment as "yes" | "no" | "neutral" | undefined,
     rationale: bill.rationale,
     needs_more_info: bill.needs_more_info,
-    missing_details: bill.missing_details,
+    missing_details: bill.missing_details ? [...bill.missing_details] : undefined,
     steel_man: bill.steel_man,
   };
 }

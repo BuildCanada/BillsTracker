@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { memo } from "react";
 import { BillSummary } from "@/app/types";
 import { getPartyColor } from "@/utils/get-party-colors/get-party-colors.util";
 import { stageSummarizer, getStageCategory } from "@/utils/stage-summarizer/stage-summarizer.util";
@@ -14,7 +15,7 @@ interface BillCardProps {
   bill: BillSummary;
 }
 
-export default function BillCard({ bill }: BillCardProps) {
+function BillCard({ bill }: BillCardProps) {
 
   const updatedAt = bill.lastUpdatedOn ? new Date(bill.lastUpdatedOn) : null;
   const formattedDate = updatedAt && !isNaN(updatedAt.getTime())
@@ -107,3 +108,6 @@ export default function BillCard({ bill }: BillCardProps) {
     </li>
   );
 }
+
+// Memoize BillCard to prevent unnecessary re-renders when bill data hasn't changed
+export default memo(BillCard);
