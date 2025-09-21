@@ -9,6 +9,19 @@ if (env.NODE_ENV !== "production") {
   if (!env.NEXTAUTH_URL) console.warn("[auth] Missing NEXTAUTH_URL (e.g. http://localhost:3000 in dev).");
 }
 
+// Ensure NEXTAUTH_URL includes the basePath ("/bills") when not explicitly provided.
+// This helps NextAuth generate correct callback URLs like "/bills/api/auth/callback/google".
+if (!process.env.NEXTAUTH_URL && env.NEXT_PUBLIC_APP_URL) {
+  try {
+    const urlWithBase = new URL("/bills", env.NEXT_PUBLIC_APP_URL).toString().replace(/\/$/, "");
+    process.env.NEXTAUTH_URL = urlWithBase;
+  } catch (e) {
+    if (env.NODE_ENV !== "production") {
+      console.warn("[auth] Failed to derive NEXTAUTH_URL from NEXT_PUBLIC_APP_URL:", e);
+    }
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     Google({
@@ -67,7 +80,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: "/sign-in",
+    signIn: "/bills/sign-in",
   },
   secret: env.NEXTAUTH_SECRET || env.AUTH_SECRET,
 };

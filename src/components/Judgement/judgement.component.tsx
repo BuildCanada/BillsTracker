@@ -54,11 +54,11 @@ function verdictCopy(j: JudgementValue, isSocialIssue?: boolean) {
   }
   switch (j) {
     case "yes":
-      return "We would vote for this.";
+      return "Vote Yes";
     case "no":
-      return "We wouldn’t vote for this.";
+      return "Vote No";
     default:
-      return "We are neutral on this bill.";
+      return "Neutral";
   }
 }
 
@@ -93,7 +93,7 @@ export function Judgement({
       role="status"
       aria-live="polite"
       className={[
-        'border-1 rounded-full w-fit',
+        'border-1 rounded-full w-fit px-2',
         // "w-fit rounded-xl border-2 ring-1 transition-all duration-200 hover:shadow-lg",
         // "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
         // s.wrap[variant],

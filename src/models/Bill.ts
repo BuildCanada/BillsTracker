@@ -57,6 +57,7 @@ export interface BillDocument extends mongoose.Document {
   votes?: VoteRecord[];
   billTextsCount?: number; // track number of bill texts to detect changes
   isSocialIssue?: boolean;
+  question_period_questions?: Array<{ question: string }>;
 }
 
 // Schema for the Tenet Evaluation sub-document
@@ -117,6 +118,7 @@ const BillSchema = new Schema<BillDocument>(
     votes: { type: [VoteSchema], default: [] },
     billTextsCount: { type: Number },
     isSocialIssue: { type: Boolean, default: false },
+    question_period_questions: { type: [{ question: { type: String, required: true } }], default: [] },
   },
   { timestamps: true }
 );

@@ -21,6 +21,7 @@ export interface UnifiedBill {
   votes?: Array<{ motion?: string; result: string }>;
   fullTextMarkdown?: string | null;
   isSocialIssue?: boolean;
+  question_period_questions?: Array<{ question: string }>;
   // Analysis data from AI
   tenet_evaluations?: Array<{
     id: number;
@@ -53,6 +54,7 @@ export function fromDbBill(bill: BillDocument): UnifiedBill {
     sessionNumber: bill.sessionNumber,
     votes: bill.votes?.map(v => ({ motion: v.motion, result: v.result })),
     isSocialIssue: bill.isSocialIssue,
+    question_period_questions: bill.question_period_questions,
     // Include analysis data
     tenet_evaluations: bill.tenet_evaluations,
     final_judgment: bill.final_judgment as "yes" | "no" | "neutral" | undefined,
@@ -168,6 +170,7 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
     parliamentNumber: bill.parliamentNumber,
     sessionNumber: bill.sessionNumber,
     fullTextMarkdown: billMarkdown,
+    question_period_questions: analysis.question_period_questions,
     // Include analysis data
     tenet_evaluations: analysis.tenet_evaluations,
     final_judgment: analysis.final_judgment,

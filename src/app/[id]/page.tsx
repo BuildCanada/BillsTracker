@@ -2,6 +2,9 @@ import Link from "next/link";
 import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
 import { getBillFromApi } from "@/services/billApi";
 import { fromDbBill, fromApiBill, type UnifiedBill } from "@/utils/billConverters";
+import type { Metadata, ResolvingMetadata } from "next";
+import { headers } from "next/headers";
+import { env } from "@/env";
 import {
   BillHeader,
   BillSummary,
@@ -13,13 +16,13 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 
 interface Params {
-  params: { id: string };
+  params: Promise<any>;
 }
 
 
 
 export default async function BillDetail({ params }: Params) {
-  const { id } = params;
+  const { id } = await params;
 
   // Try database first, then fallback to API
   const dbBill = await getBillByIdFromDB(id);
@@ -58,7 +61,7 @@ export default async function BillDetail({ params }: Params) {
           ← Back to bills
         </Link>
         {session?.user && (
-          <Link href={`/${params.id}/edit`} className="ml-4 text-sm underline">
+          <Link href={`/bills/${id}/edit`} className="ml-4 text-sm underline">
             Edit
           </Link>
         )}
@@ -79,4 +82,50 @@ export default async function BillDetail({ params }: Params) {
       </section>
     </div>
   );
+}
+
+export async function generateMetadata(
+  { params }: Params,
+  _parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { id } = await params;
+  // Try database first, then fallback to API
+  const dbBill = await getBillByIdFromDB(id);
+  let unifiedBill: UnifiedBill | null = null;
+  if (dbBill) {
+    unifiedBill = fromDbBill(dbBill);
+  } else {
+    const apiBill = await getBillFromApi(id);
+    if (apiBill) {
+      unifiedBill = await fromApiBill(apiBill);
+    }
+  }
+
+  const title = unifiedBill?.short_title || unifiedBill?.title || id;
+  const description = unifiedBill?.summary || `Bill ${id} analysis and judgement`;
+  const h = headers();
+  const host = (await h).get("x-forwarded-host") || (await h).get("host") || "";
+  const proto = ((await h).get("x-forwarded-proto") || "https").split(",")[0];
+  const baseUrl = env.NEXT_PUBLIC_APP_URL || (host ? `${proto}://${host}` : "");
+  const pageUrl = baseUrl ? `${baseUrl}/bills/${id}` : `/bills/${id}`;
+  const ogImageUrl = baseUrl ? `${baseUrl}/bills/${id}/opengraph-image` : `/bills/${id}/opengraph-image`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: pageUrl },
+    openGraph: {
+      title,
+      description,
+      url: pageUrl,
+      type: "article",
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImageUrl],
+    },
+  };
 }

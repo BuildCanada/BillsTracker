@@ -38,57 +38,105 @@ function getAlignmentIcon(alignment: "aligns" | "conflicts" | "neutral"): string
 
 
 export function BillAnalysis({ bill }: BillAnalysisProps) {
-  if (!bill.tenet_evaluations || bill.tenet_evaluations.length === 0) {
+  const hasTenets = bill.tenet_evaluations && bill.tenet_evaluations.length > 0;
+  const hasQP = bill.question_period_questions && bill.question_period_questions.length > 0;
+  const isNeutral = bill.final_judgment === "neutral";
+  const isSocialIssue = bill.isSocialIssue;
+
+  const showAnalysis = !isNeutral && !isSocialIssue;
+
+
+
+  if (!hasTenets && !hasQP) {
     return null;
   }
 
+
+  if (!showAnalysis) {
+    return (
+      <Card>
+
+        <CardContent className="mt-6">
+          <Judgement isSocialIssue={bill.isSocialIssue} judgement={bill.final_judgment as JudgementValue} />
+
+        </CardContent>
+      </Card>
+    )
+  }
 
 
   return (
     <div className="space-y-6 relative w-full h-full">
 
-      <Card>
-        <CardHeader>
-          <div className="flex md:items-center md:justify-between md:flex-row flex-col gap-4 ">
 
-            <CardTitle className="mb-2">Our Assessment</CardTitle>
-            <div>
-              <Judgement isSocialIssue={bill.isSocialIssue} judgement={bill.final_judgment as JudgementValue} />
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {bill.rationale && (
-            <div className="text-sm  leading-6 prose prose-sm max-w-none ">
-              <Markdown>{bill.rationale}</Markdown>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Tenet Analysis</CardTitle>
+      {hasTenets && (
+        <>
+          <Card>
+            <CardHeader>
+              <div className="flex md:items-center md:justify-between md:flex-row flex-col gap-4 ">
 
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {bill.tenet_evaluations.map((tenet) => (
-            <div key={tenet.id} className="border-l-4 border-slate-200 pl-4">
-              <div className="flex items-start gap-3">
-                <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${getAlignmentColor(tenet.alignment)}`}>
-                  {getAlignmentIcon(tenet.alignment)}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <h3 className="  font-medium text-[var(--foreground)] mb-1">
-                    {TENETS?.[tenet.id as keyof typeof TENETS] || "Unknown"}
-                  </h3>
-                  <p className="text-sm text-[ leading-5">{tenet.explanation}</p>
-
+                <CardTitle className="mb-2">Our Assessment</CardTitle>
+                <div>
+                  <Judgement isSocialIssue={bill.isSocialIssue} judgement={bill.final_judgment as JudgementValue} />
                 </div>
               </div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+            </CardHeader>
+            <CardContent>
+              {bill.rationale && (
+                <div className="text-sm  leading-6 prose prose-sm max-w-none ">
+                  <Markdown>{bill.rationale}</Markdown>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {hasQP && (
+            <Card>
+              <CardHeader>
+                <CardTitle>What we would ask</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="list-disc pl-5 space-y-2">
+                  {bill.question_period_questions?.map((q, idx) => (
+                    <li key={idx} className=" marker:text-sm marker:pr-1" >
+                      <div className="text-sm" >
+                        {q.question}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Tenet Analysis</CardTitle>
+
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {(bill.tenet_evaluations ?? []).map((tenet) => (
+                <div key={tenet.id} className="border-l-4 border-slate-200 pl-4">
+                  <div className="flex items-start gap-3">
+                    <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${getAlignmentColor(tenet.alignment)}`}>
+                      {getAlignmentIcon(tenet.alignment)}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="  font-medium text-[var(--foreground)] mb-1">
+                        {TENETS?.[tenet.id as keyof typeof TENETS] || "Unknown"}
+                      </h3>
+                      <p className="text-sm text-[ leading-5">{tenet.explanation}</p>
+
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </>
+      )}
+
+
 
     </div>
   );

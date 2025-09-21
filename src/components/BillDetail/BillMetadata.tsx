@@ -43,7 +43,7 @@ export function BillMetadata({ bill }: BillMetadataProps) {
           <DataPoint label="Topics" value={bill.genres.join(", ")} />
         )}
         {bill.parliamentNumber && bill.sessionNumber && (
-          <DataPoint label="Parliament" value={`${bill.parliamentNumber}-${bill.sessionNumber}`} />
+          <DataPoint label="Parliament" value={`${bill.parliamentNumber}`} />
         )}
 
       </CardContent>
