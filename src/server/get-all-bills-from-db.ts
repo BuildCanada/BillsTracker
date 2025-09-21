@@ -3,9 +3,8 @@ import "server-only";
 import { connectToDatabase } from "@/lib/mongoose";
 import { Bill } from "@/models/Bill";
 import type { BillDocument } from "@/models/Bill";
-import { unstable_cache } from 'next/cache';
 
-async function _getAllBillsFromDB(): Promise<BillDocument[]> {
+export const getAllBillsFromDB = async (): Promise<BillDocument[]> => {
   const uri = process.env.MONGO_URI || "";
   const hasValidMongoUri = uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
   if (!hasValidMongoUri) {
@@ -26,16 +25,5 @@ async function _getAllBillsFromDB(): Promise<BillDocument[]> {
   }
 }
 
-// Cache database bills for 5 minutes in production, no cache in development
-export const getAllBillsFromDB = process.env.NODE_ENV === 'production'
-  ? unstable_cache(
-    _getAllBillsFromDB,
-    ['all-bills-from-db'],
-    {
-      revalidate: 300,
-      tags: ['bills']
-    }
-  )
-  : _getAllBillsFromDB;
 
 

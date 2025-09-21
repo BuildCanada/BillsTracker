@@ -19,11 +19,7 @@ interface BillCardProps {
 
 function BillCard({ bill }: BillCardProps) {
 
-  console.log({ bill });
-  const updatedAt = bill.lastUpdatedOn ? new Date(bill.lastUpdatedOn) : null;
-  const formattedDate = updatedAt && !isNaN(updatedAt.getTime())
-    ? updatedAt.toISOString().split('T')[0]
-    : null;
+
   const dateDisplay = dayjs(getBillStageDates(bill.stages).lastUpdated).format('MMM D, YYYY')
 
   return (
