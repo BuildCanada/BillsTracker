@@ -7,8 +7,6 @@ import { env } from "@/env";
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { GOOGLE_ANALYTICS_ID, } from "@/consts/general";
 import { Nav } from "@/components/Nav/nav.component";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,7 +43,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession(authOptions);
 
   return (
     <html lang="en" className="light">
@@ -53,7 +50,7 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SessionProvider>
-          <Nav user={session?.user} />
+          <Nav />
           {children}
           <Footer />
         </SessionProvider>

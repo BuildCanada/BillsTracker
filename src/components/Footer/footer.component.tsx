@@ -1,6 +1,11 @@
 import { PROJECT_NAME } from "@/consts/general";
+import { SignIn } from "../SignIn/sign-in.component";
 
 export function Footer() {
+
+
+
+
   return (
     <footer className="mt-16 border-t border-[var(--panel-border)] bg-white">
       <div className="mx-auto max-w-[1120px] px-6 py-12">
@@ -56,6 +61,8 @@ export function Footer() {
             </a>
 
           </p>
+
+          <SignIn />
 
         </div>
       </div>

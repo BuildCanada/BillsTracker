@@ -13,6 +13,7 @@ import {
 } from "@/components/BillDetail";
 import { Separator } from "@/components/ui/separator";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 // Cache individual bill pages for 10 minutes
 export const revalidate = 600;
@@ -24,6 +25,7 @@ interface Params {
 export default async function BillDetail({ params }: Params) {
   const { id } = await params;
 
+  const session = await getServerSession(authOptions);
   // Try database first, then fallback to API
   const dbBill = await getBillByIdFromDB(id);
   let unifiedBill: UnifiedBill | null = null;
@@ -51,7 +53,6 @@ export default async function BillDetail({ params }: Params) {
     );
   }
 
-  const session = { user: null };
 
   return (
     <div className="mx-auto max-w-[1100px] px-6 py-8">
@@ -89,20 +90,8 @@ export async function generateMetadata(
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { id } = await params;
-  // Try database first, then fallback to API
-  const dbBill = await getBillByIdFromDB(id);
-  let unifiedBill: UnifiedBill | null = null;
-  if (dbBill) {
-    unifiedBill = fromDbBill(dbBill);
-  } else {
-    const apiBill = await getBillFromApi(id);
-    if (apiBill) {
-      unifiedBill = await fromApiBill(apiBill);
-    }
-  }
-
-  const title = unifiedBill?.short_title || unifiedBill?.title || id;
-  const description = unifiedBill?.summary || `Bill ${id} analysis and judgement`;
+  const title = id;
+  const description = `Bill ${id} analysis and judgement`;
   const h = headers();
   const host = (await h).get("x-forwarded-host") || (await h).get("host") || "";
   const proto = ((await h).get("x-forwarded-proto") || "https").split(",")[0];

@@ -2,17 +2,25 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { connectToDatabase } from "@/lib/mongoose";
 import { Bill } from "@/models/Bill";
+import { User } from "@/models/User";
+import { authOptions } from "@/lib/auth";
 
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = { user: { email: null } };
+  const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   await connectToDatabase();
+
+  // Verify user exists in DB; do not create
+  const dbUser = await User.findOne({ emailLower: session.user.email.toLowerCase() });
+  if (!dbUser) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const contentType = request.headers.get("content-type")?.toLowerCase() || "";
 

@@ -1,17 +1,28 @@
 import { redirect } from "next/navigation";
 import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { connectToDatabase } from "@/lib/mongoose";
+import { User } from "@/models/User";
 
 interface Params {
   params: Promise<any>;
 }
 
 export default async function EditBillPage({ params }: Params) {
-  const session = { user: null };
-  if (!session?.user) {
-    redirect("/bills");
+  const { id } = await params;
+
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    redirect(`/unauthorized`);
   }
 
-  const { id } = await params;
+  // Verify the signed-in user exists in DB; do not create
+  await connectToDatabase();
+  const dbUser = await User.findOne({ emailLower: session.user.email.toLowerCase() });
+  if (!dbUser) {
+    redirect(`/unauthorized`);
+  }
 
   const bill = await getBillByIdFromDB(id);
   if (!bill) {
@@ -23,7 +34,7 @@ export default async function EditBillPage({ params }: Params) {
       <h1 className="text-xl font-semibold mb-6">Edit Bill</h1>
       <form
         className="space-y-6"
-        action={`/api/${id}`}
+        action={`/bills/api/${id}`}
         method="post"
       >
         <div className="space-y-2">

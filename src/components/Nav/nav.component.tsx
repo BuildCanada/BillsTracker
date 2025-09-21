@@ -2,16 +2,13 @@
 
 import { PROJECT_NAME } from "@/consts/general"
 import { Session } from "next-auth"
-import { signIn, signOut, useSession } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 import Link from "next/link"
 import { Button } from "../ui/button"
 
-export const Nav = ({ user }: { user: Session["user"] | null }) => {
-  const { data: session, } = useSession();
+export const Nav = () => {
+  const { data: session } = useSession();
 
-  const handleSignIn = () => {
-    signIn("google");
-  };
 
   const handleSignOut = () => {
     signOut({ callbackUrl: "/bills" });
