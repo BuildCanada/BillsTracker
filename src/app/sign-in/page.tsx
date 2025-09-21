@@ -61,7 +61,11 @@ export default function SignInPage() {
         <h1 className="text-xl font-semibold">Sign in</h1>
         {error && (
           <div className="text-sm text-red-600">
-            {error === "AccessDenied" ? "Your email is not allowed." : "Sign-in failed. Please try again."}
+            {error === "AccessDenied"
+              ? "Your email is not allowed. Please contact an administrator."
+              : error === "Configuration"
+                ? "Authentication configuration error. Please try again later."
+                : "Sign-in failed. Please try again."}
           </div>
         )}
         <Button disabled={loading} className="w-full" onClick={onGoogle}>

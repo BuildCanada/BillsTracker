@@ -64,15 +64,11 @@ export default async function RootLayout({
               </Link>
 
               <nav className="hidden sm:flex items-center gap-3 text-sm">
-                {session?.user ? (
+                {session?.user && (
                   <form action="/api/auth/signout" method="post">
                     <input type="hidden" name="callbackUrl" value="/" />
                     <button type="submit" className="underline">Sign out</button>
                   </form>
-                ) : (
-                  <Link href="/sign-in" className="underline">
-                    Sign in
-                  </Link>
                 )}
               </nav>
             </div>
