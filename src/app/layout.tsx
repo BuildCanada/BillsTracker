@@ -5,6 +5,8 @@ import { Footer } from "@/components/Footer/footer.component";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 import { env } from "@/env";
+import { GoogleAnalytics } from '@next/third-parties/google'
+import { GOOGLE_ANALYTICS_ID } from "@/consts/general";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -68,6 +70,8 @@ export default async function RootLayout({
         </div>
         {children}
         <Footer />
+        <GoogleAnalytics gaId={GOOGLE_ANALYTICS_ID} />
+
       </body>
     </html>
   );
