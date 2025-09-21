@@ -58,7 +58,7 @@ export default async function BillDetail({ params }: Params) {
     <div className="mx-auto max-w-[1100px] px-6 py-8">
       <div className="mb-6">
 
-        <Link href="/bills" className="text-sm underline  mb-6">
+        <Link href="/" className="text-sm underline  mb-6">
           ← Back to bills
         </Link>
         {session?.user && (

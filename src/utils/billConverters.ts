@@ -15,6 +15,12 @@ export interface UnifiedBill {
   supportedRegion?: string;
   introducedOn?: Date;
   lastUpdatedOn?: Date;
+  stages: {
+    stage: string;
+    state: string;
+    house: string;
+    date: Date;
+  }[];
   genres?: string[];
   parliamentNumber?: number;
   sessionNumber?: number;
@@ -49,6 +55,7 @@ export function fromDbBill(bill: BillDocument): UnifiedBill {
     supportedRegion: bill.supportedRegion,
     introducedOn: bill.introducedOn,
     lastUpdatedOn: bill.lastUpdatedOn,
+    stages: bill.stages ? [...bill.stages] : [],
     genres: bill.genres ? [...bill.genres] : undefined,
     parliamentNumber: bill.parliamentNumber,
     sessionNumber: bill.sessionNumber,
@@ -172,6 +179,12 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
     short_title: bill.shortTitle,
     summary: analysis.summary,
     status: bill.status,
+    stages: bill.stages ? bill.stages.map(stage => ({
+      stage: stage.stage,
+      state: stage.state,
+      house: stage.house,
+      date: new Date(stage.date),
+    })) : [],
     sponsorParty: bill.sponsorParty,
     chamber: house,
     supportedRegion: bill.supportedRegion,

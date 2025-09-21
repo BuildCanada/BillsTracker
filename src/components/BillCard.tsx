@@ -5,8 +5,10 @@ import { getPartyColor } from "@/utils/get-party-colors/get-party-colors.util";
 import { stageSummarizer, getStageCategory } from "@/utils/stage-summarizer/stage-summarizer.util";
 import { Judgement } from "./Judgement/judgement.component";
 import { DynamicIcon } from 'lucide-react/dynamic';
+import dayjs from 'dayjs'
 
 import { getCategoryIcon } from "@/utils/bill-category-to-icon/bill-category-to-icon.util";
+import { getBillStageDates } from "@/utils/stages-to-dates/stages-to-dates";
 
 type StageStyle = { dot: string; chipBg: string; chipText: string };
 
@@ -17,11 +19,12 @@ interface BillCardProps {
 
 function BillCard({ bill }: BillCardProps) {
 
+  console.log({ bill });
   const updatedAt = bill.lastUpdatedOn ? new Date(bill.lastUpdatedOn) : null;
   const formattedDate = updatedAt && !isNaN(updatedAt.getTime())
     ? updatedAt.toISOString().split('T')[0]
     : null;
-  const dateDisplay = formattedDate ? `Updated ${formattedDate}` : 'Bill not processed';
+  const dateDisplay = dayjs(getBillStageDates(bill.stages).lastUpdated).format('MMM D, YYYY')
 
   return (
     <li className="group rounded-lg border   bg-[var(--panel)] shadow-sm   duration-200 overflow-hidden">

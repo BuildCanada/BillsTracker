@@ -86,6 +86,7 @@ async function getMergedBills(): Promise<BillSummary[]> {
         billID: dbBill.billId,
         title: dbBill.title,
         shortTitle: dbBill.short_title,
+        stages: dbBill.stages || [],
         description: dbBill.summary || "",
         status: (dbBill.status as BillSummary["status"]) || "Introduced",
         sponsorParty: dbBill.sponsorParty || "Unknown",
