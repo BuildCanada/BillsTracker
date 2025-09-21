@@ -42,8 +42,8 @@ export interface UnifiedBill {
   steel_man?: string;
 }
 
-// Convert DB bill to unified format
-export function fromDbBill(bill: BillDocument): UnifiedBill {
+// Convert Build Canada DB bill to unified format
+export function fromBuildCanadaDbBill(bill: BillDocument): UnifiedBill {
   return {
     billId: bill.billId,
     title: bill.title,
@@ -83,8 +83,8 @@ export function fromDbBill(bill: BillDocument): UnifiedBill {
   };
 }
 
-// Convert API bill to unified format
-export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
+// Convert Civics Project API bill to unified format
+export async function fromCivicsProjectApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
   const { env } = await import("@/env");
   const uri = env.MONGO_URI || "";
   const hasValidMongoUri = uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
@@ -99,8 +99,8 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
     billMarkdown = await fetchBillMarkdown(bill.source);
   }
 
-  // Check if we need to regenerate summary based on bill texts count
-  const currentBillTextsCount = Array.isArray(bill.billTexts) ? bill.billTexts.length : 0;
+  // Check if we need to regenerate summary based on source changes from Civics Project API
+  const currentSource = bill.source || null;
   let analysis: BillAnalysis = {
     summary: bill.header || "",
     tenet_evaluations: [
@@ -121,7 +121,7 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
   };
   let shouldRegenerateSummary = true;
 
-  // Check existing bill in database to see if bill texts count changed
+  // Check existing bill in database to see if source changed
   try {
     const { connectToDatabase } = await import("@/lib/mongoose");
     const { Bill } = await import("@/models/Bill");
@@ -130,8 +130,8 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
       await connectToDatabase();
       existingBill = (await Bill.findOne({ billId: bill.billID }).lean().exec()) as BillDocument | null;
 
-      if (existingBill && existingBill.billTextsCount === currentBillTextsCount) {
-        // Bill texts count hasn't changed, use existing analysis
+      if (existingBill && existingBill.source === currentSource) {
+        // Source hasn't changed, use existing analysis
         analysis = {
           summary: existingBill.summary,
           tenet_evaluations: existingBill.tenet_evaluations || analysis.tenet_evaluations,
@@ -142,7 +142,7 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
           steel_man: existingBill.steel_man || analysis.steel_man,
         };
         shouldRegenerateSummary = false;
-        console.log(`Using existing analysis for ${bill.billID} (billTexts count unchanged: ${currentBillTextsCount})`);
+        console.log(`Using existing analysis for ${bill.billID} (source unchanged)`);
       }
     }
   } catch (error) {
@@ -152,7 +152,7 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
 
 
   if (shouldRegenerateSummary && billMarkdown) {
-    console.log(`Regenerating analysis for ${bill.billID} (billTexts count: ${currentBillTextsCount})`);
+    console.log(`Regenerating analysis for ${bill.billID} (source changed)`);
     analysis = await summarizeBillText(billMarkdown);
   }
 
@@ -169,7 +169,7 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
     markdown: billMarkdown,
     bill,
     analysis,
-    billTextsCount: currentBillTextsCount,
+    billTextsCount: Array.isArray(bill.billTexts) ? bill.billTexts.length : 0,
     isSocialIssue: isSocialIssueFinal,
   });
 

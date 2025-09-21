@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
-import { getBillFromApi } from "@/services/billApi";
-import { fromDbBill, fromApiBill, type UnifiedBill } from "@/utils/billConverters";
+import { getBillFromCivicsProjectApi } from "@/services/billApi";
+import { fromBuildCanadaDbBill, fromCivicsProjectApiBill, type UnifiedBill } from "@/utils/billConverters";
 import type { Metadata, ResolvingMetadata } from "next";
 import { headers } from "next/headers";
 import { env } from "@/env";
@@ -31,11 +31,11 @@ export default async function BillDetail({ params }: Params) {
   let unifiedBill: UnifiedBill | null = null;
 
   if (dbBill) {
-    unifiedBill = fromDbBill(dbBill);
+    unifiedBill = fromBuildCanadaDbBill(dbBill);
   } else {
-    const apiBill = await getBillFromApi(id);
+    const apiBill = await getBillFromCivicsProjectApi(id);
     if (apiBill) {
-      unifiedBill = await fromApiBill(apiBill);
+      unifiedBill = await fromCivicsProjectApiBill(apiBill);
     }
   }
 

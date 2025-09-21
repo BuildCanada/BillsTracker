@@ -34,7 +34,7 @@ export type ApiBillDetail = {
 
 const CANADIAN_PARLIAMENT_NUMBER = 45;
 
-export async function getBillFromApi(billId: string): Promise<ApiBillDetail | null> {
+export async function getBillFromCivicsProjectApi(billId: string): Promise<ApiBillDetail | null> {
   const URL = `https://api.civicsproject.org/bills/canada/${billId.toLowerCase()}/${CANADIAN_PARLIAMENT_NUMBER}`;
   const response = await fetch(URL, {
     // Cache individual bills for 10 minutes in production
@@ -246,13 +246,16 @@ export async function onBillNotInDatabase(params: {
     const existing = (await Bill.findOne({ billId: params.billId }).lean().exec()) as any;
     if (existing) {
       const countChanged = existing.billTextsCount !== params.billTextsCount;
+      const sourceChanged = (existing.source || null) !== (params.source || null);
       const existingQP = Array.isArray(existing.question_period_questions) ? existing.question_period_questions : [];
       const newQP = Array.isArray(params.analysis.question_period_questions) ? params.analysis.question_period_questions : [];
       const qpMissingOrDifferent = (existingQP.length === 0 && newQP.length > 0) || JSON.stringify(existingQP) !== JSON.stringify(newQP);
       const shortTitleMissing = !existing.short_title && (params.bill.shortTitle || params.analysis.short_title);
 
-      if (countChanged || qpMissingOrDifferent || shortTitleMissing) {
-        if (countChanged) {
+      if (sourceChanged || countChanged || qpMissingOrDifferent || shortTitleMissing) {
+        if (sourceChanged) {
+          console.log(`Updating bill ${params.billId} - source changed from ${existing.source || "<none>"} to ${params.source || "<none>"}`);
+        } else if (countChanged) {
           console.log(`Updating bill ${params.billId} - billTexts count changed from ${existing.billTextsCount} to ${params.billTextsCount}`);
         } else if (qpMissingOrDifferent) {
           console.log(`Updating bill ${params.billId} - adding/updating Question Period questions (${existingQP.length} -> ${newQP.length})`);
@@ -279,6 +282,7 @@ export async function onBillNotInDatabase(params: {
             lastUpdatedOn: new Date(),
             isSocialIssue: params.isSocialIssue,
             question_period_questions: newQP,
+            source: params.source,
           }
         );
       }
@@ -316,7 +320,7 @@ export async function onBillNotInDatabase(params: {
       supportedRegion: params.bill.supportedRegion,
       introducedOn: new Date(params.bill.date),
       lastUpdatedOn: new Date(latestStageDate),
-      source: params.bill.source,
+      source: params.source || params.bill.source,
       stages: params.bill.stages?.map(stage => ({
         stage: stage.stage,
         state: stage.state,

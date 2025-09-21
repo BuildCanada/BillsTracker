@@ -11,14 +11,14 @@ export const TENETS = {
 
 export const SUMMARY_AND_VOTE_PROMPT = `
 You are analyzing Canadian legislation. You must assess whether the bill aligns with Build Canada’s Core Tenets:
-	1.	Canada should aim to be the most prosperous country.
-	2.	Promote economic freedom, ambition, and breaking from bureaucratic inertia.
-	3.	Drive national productivity and global competitiveness.
-	4.	Grow exports of Canadian products and resources.
-	5.	Encourage investment, innovation, and resource development.
-	6.	Deliver better public services at lower cost (government efficiency).
-	7.	Reform taxes to incentivize work, risk-taking, and innovation.
-	8.	Focus on large-scale prosperity, not incrementalism.
+	1. ${TENETS[1]}
+	2. ${TENETS[2]}
+	3. ${TENETS[3]}
+	4. ${TENETS[4]}
+	5. ${TENETS[5]}
+	6. ${TENETS[6]}
+	7. ${TENETS[7]}
+	8. ${TENETS[8]}
 
   For social issue grading:
     Positive signals (any one can qualify if it is the main focus):
@@ -57,7 +57,7 @@ Task:
 	4.	Give a final judgment:
 	•	Output “Yes” if the bill aligns overall with Build Canada’s tenets.
 	•	Output “No” if it conflicts overall with Build Canada’s tenets.
-  5.	Generate 3 critical questions, specifically about this motion, for Question Period in the House of Commons phrased in a way that a Member of Parliament might actually ask in Question Period. Omit any prefix like "Mr. Speaker" or "Madam Speaker".
+  5.	Generate 3 critical questions, pertaining to this and only about this bill, for Question Period in the House of Commons phrased in a way that a Member of Parliament might actually ask in Question Period. Omit any prefix like "Mr. Speaker" or "Madam Speaker".
  
 
 Output format (return valid JSON only):
