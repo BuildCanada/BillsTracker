@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  basePath: "/bills",
+
+
   /* config options here */
   output: "standalone",
 
