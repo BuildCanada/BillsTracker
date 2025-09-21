@@ -35,24 +35,59 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
-## Magic link sign-in (dev only)
+## Authentication
 
-The app includes a simple email magic-link flow for a limited set of users.
+The app uses NextAuth.js with Google OAuth for authentication.
 
-Environment variables:
+### Environment Variables Required:
 
-- `MAGIC_LINK_SECRET`: secret key for signing tokens (required)
-- `APP_URL`: base URL for generating links (optional; defaults to `http://localhost:3000`)
-- `SESSION_COOKIE_NAME`: cookie name for the session (optional; defaults to `auth_session`)
+- `NEXTAUTH_URL`: Base URL of your application (e.g., `http://localhost:3000` or `https://buildcanada.com/bills`)
+- `NEXTAUTH_SECRET`: Secret key for signing JWT tokens
+- `GOOGLE_CLIENT_ID`: Your Google OAuth client ID
+- `GOOGLE_CLIENT_SECRET`: Your Google OAuth client secret
+- `MONGO_URI`: MongoDB connection string
+- `NEXT_PUBLIC_APP_URL`: Public URL of your application (optional, for metadata)
 
-Endpoints:
+### Troubleshooting:
 
-- `POST /api/auth/magic` JSON `{ email, next? }` → issues a magic link. In development, the link is returned in the response for convenience.
-- `GET /api/auth/verify?token=...&next=/` → verifies token, sets session cookie, redirects to `next`.
-- `POST /api/auth/signout` → clears the session cookie.
+If you get a JSON parsing error when navigating to the sign-in page:
 
-Page:
+1. **Check environment variables**:
+   - Create a `.env.local` file in the project root
+   - Set the required variables (see list above)
+   - Run `node test-env.js` to verify they're set correctly
 
-- `/sign-in` → email form to request the link.
+2. **Check the debug endpoint**: Visit `http://localhost:3000/api/auth/debug` to see which variables are detected
 
-Allowed users are currently stubbed in `src/lib/auth/allowed-users.ts`. Replace this with a DB lookup later.
+3. **Verify the NextAuth route**: Visit `http://localhost:3000/api/auth/session` directly to see if it returns JSON
+
+4. **Check browser console**: Look for any client-side errors
+
+5. **Ensure NEXTAUTH_URL is correct**: This should be your full base URL (e.g., `http://localhost:3000` for development)
+
+### Quick Test:
+
+After setting up your environment variables, run:
+```bash
+node test-env.js
+npm run dev
+```
+
+Then visit `http://localhost:3000` and click the "Sign In" button. You should see a loading spinner briefly, then either the sign-in button or your user info.
+
+### Google OAuth Setup:
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Enable the Google+ API
+4. Create OAuth 2.0 credentials
+5. Add these URLs to your OAuth consent screen:
+   - **Authorized JavaScript Origins**: `https://buildcanada.com`
+   - **Authorized Redirect URIs**: `https://buildcanada.com/bills/api/auth/callback/google`
+
+### Features:
+
+- Users can sign in with Google accounts
+- New users are automatically created in the database
+- Admin approval is required for new users (controlled by `allowed` field in User model)
+- Session management with automatic database sync

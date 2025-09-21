@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/auth";
 import { connectToDatabase } from "@/lib/mongoose";
 import { Bill } from "@/models/Bill";
 
@@ -8,7 +7,7 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession(authOptions);
+  const session = { user: { email: null } };
   if (!session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -126,7 +125,7 @@ export async function POST(
 
   await Bill.updateOne({ billId: id }, { $set: update }, { upsert: false });
 
-  return NextResponse.redirect(new URL(`/${id}`, request.url));
+  return NextResponse.redirect(new URL(`/bills/${id}`, request.url));
 }
 
 

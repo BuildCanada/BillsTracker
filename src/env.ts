@@ -25,6 +25,7 @@ export const env = {
 
 export function assertServerEnv() {
   // Required for auth
+  required("NEXTAUTH_URL", env.NEXTAUTH_URL);
   required("NEXTAUTH_SECRET or AUTH_SECRET", env.NEXTAUTH_SECRET || env.AUTH_SECRET);
   required("GOOGLE_CLIENT_ID/GOOGLE_ID", env.GOOGLE_CLIENT_ID);
   required("GOOGLE_CLIENT_SECRET/GOOGLE_SECRET", env.GOOGLE_CLIENT_SECRET);

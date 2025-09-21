@@ -3,12 +3,12 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Footer } from "@/components/Footer/footer.component";
 import { SessionProvider } from "@/components/SessionProvider";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/auth";
 import { env } from "@/env";
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { GOOGLE_ANALYTICS_ID, } from "@/consts/general";
 import { Nav } from "@/components/Nav/nav.component";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,7 +45,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   const session = await getServerSession(authOptions);
 
   return (
@@ -54,7 +53,7 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SessionProvider>
-          <Nav user={session?.user ?? null} />
+          <Nav user={session?.user} />
           {children}
           <Footer />
         </SessionProvider>

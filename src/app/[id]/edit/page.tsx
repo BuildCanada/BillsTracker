@@ -1,6 +1,4 @@
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/auth";
 import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
 
 interface Params {
@@ -8,9 +6,9 @@ interface Params {
 }
 
 export default async function EditBillPage({ params }: Params) {
-  const session = await getServerSession(authOptions);
+  const session = { user: null };
   if (!session?.user) {
-    redirect("/");
+    redirect("/bills");
   }
 
   const { id } = await params;

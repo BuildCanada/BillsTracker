@@ -2,10 +2,21 @@
 
 import { PROJECT_NAME } from "@/consts/general"
 import { Session } from "next-auth"
-import { signOut } from "next-auth/react"
+import { signIn, signOut, useSession } from "next-auth/react"
 import Link from "next/link"
+import { Button } from "../ui/button"
 
 export const Nav = ({ user }: { user: Session["user"] | null }) => {
+  const { data: session, } = useSession();
+
+  const handleSignIn = () => {
+    signIn("google");
+  };
+
+  const handleSignOut = () => {
+    signOut({ callbackUrl: "/bills" });
+  };
+
   return (
     <div className="border-b border-[var(--panel-border)]/80 bg-[var(--panel)]/60 backdrop-blur supports-[backdrop-filter]:bg-[var(--panel)]/60">
       <div className="mx-auto max-w-[1120px] px-6 py-4 flex items-center justify-between">
@@ -17,13 +28,19 @@ export const Nav = ({ user }: { user: Session["user"] | null }) => {
         </Link>
 
         <nav className="hidden sm:flex items-center gap-3 text-sm">
-          {user && (
-            <button
-              onClick={() => signOut({ callbackUrl: "/" })}
-              className="underline"
-            >
-              Sign out
-            </button>
+
+
+          {session?.user && (
+            <div className="flex items-center gap-3">
+
+              <Button
+                size="sm"
+                variant='secondary'
+                onClick={handleSignOut}
+              >
+                Sign Out
+              </Button>
+            </div>
           )}
         </nav>
       </div>

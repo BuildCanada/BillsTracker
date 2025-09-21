@@ -13,7 +13,6 @@ import {
 } from "@/components/BillDetail";
 import { Separator } from "@/components/ui/separator";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/auth";
 
 // Cache individual bill pages for 10 minutes
 export const revalidate = 600;
@@ -45,20 +44,20 @@ export default async function BillDetail({ params }: Params) {
         <p className="mt-2 text-sm">
           The bill you are looking for does not exist.
         </p>
-        <Link className="mt-4 inline-block underline" href="/">
+        <Link className="mt-4 inline-block underline" href="/bills">
           Back to list
         </Link>
       </div>
     );
   }
 
-  const session = await getServerSession(authOptions);
+  const session = { user: null };
 
   return (
     <div className="mx-auto max-w-[1100px] px-6 py-8">
       <div className="mb-6">
 
-        <Link href="/" className="text-sm underline  mb-6">
+        <Link href="/bills" className="text-sm underline  mb-6">
           ← Back to bills
         </Link>
         {session?.user && (
