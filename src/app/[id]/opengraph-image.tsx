@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getUnifiedBillById } from "@/server/get-unified-bill-by-id";
 import { BillOgCard } from "@/components/OpenGraph/BillOgCard";
+import { PROJECT_NAME } from "@/consts/general";
 
 export const runtime = "nodejs";
 
@@ -30,7 +31,8 @@ async function loadGoogleFont(font: string, weight: number, text: string) {
 
 export default async function OpengraphImage({ params }: { params: { id: string } }) {
   const bill = await getUnifiedBillById(params.id);
-  const textForFont = `${bill?.short_title || bill?.title || params.id} Build Canada Policy Tracker Powered by The Civics Project`;
+  const voteText = bill?.final_judgment === "yes" ? "Vote: Yes" : bill?.final_judgment === "no" ? "Vote: No" : "Vote: Neutral";
+  const textForFont = `${bill?.short_title || bill?.title || params.id} ${voteText} ${PROJECT_NAME} Build Canada Policy Tracker Powered by The Civics Project`;
   let interRegular: ArrayBuffer | undefined;
   let interBold: ArrayBuffer | undefined;
   try {
