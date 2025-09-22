@@ -1,8 +1,8 @@
-import { env } from "@/env";
-import { redirect } from "next/navigation";
-import { Suspense } from "react";
-import { connectToDatabase } from "@/lib/mongoose";
-import { User } from "@/models/User";
+// import { env } from "@/env";
+// import { redirect } from "next/navigation";
+// import { Suspense } from "react";
+// import { connectToDatabase } from "@/lib/mongoose";
+// import { User } from "@/models/User";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -71,5 +71,3 @@ export default function DevUsersPage() {
     </div>
   );
 }
-
-

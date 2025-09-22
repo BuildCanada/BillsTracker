@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
 import { getBillFromCivicsProjectApi } from "@/services/billApi";
-import { fromBuildCanadaDbBill, fromCivicsProjectApiBill, type UnifiedBill } from "@/utils/billConverters";
+import {
+  fromBuildCanadaDbBill,
+  fromCivicsProjectApiBill,
+  type UnifiedBill,
+} from "@/utils/billConverters";
 import type { Metadata, ResolvingMetadata } from "next";
 import { headers } from "next/headers";
 import { env } from "@/env";
@@ -53,11 +57,9 @@ export default async function BillDetail({ params }: Params) {
     );
   }
 
-
   return (
     <div className="mx-auto max-w-[1100px] px-6 py-8">
       <div className="mb-6">
-
         <Link href="/" className="text-sm underline  mb-6">
           ← Back to bills
         </Link>
@@ -79,7 +81,6 @@ export default async function BillDetail({ params }: Params) {
         <div className="space-y-6">
           <BillMetadata bill={unifiedBill} />
         </div>
-
       </section>
     </div>
   );
@@ -87,7 +88,7 @@ export default async function BillDetail({ params }: Params) {
 
 export async function generateMetadata(
   { params }: Params,
-  _parent: ResolvingMetadata
+  _parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const { id } = await params;
   const title = id;
@@ -97,7 +98,9 @@ export async function generateMetadata(
   const proto = ((await h).get("x-forwarded-proto") || "https").split(",")[0];
   const baseUrl = env.NEXT_PUBLIC_APP_URL || (host ? `${proto}://${host}` : "");
   const pageUrl = baseUrl ? `${baseUrl}/${id}` : `/${id}`;
-  const ogImageUrl = baseUrl ? `${baseUrl}/${id}/opengraph-image` : `/${id}/opengraph-image`;
+  const ogImageUrl = baseUrl
+    ? `${baseUrl}/${id}/opengraph-image`
+    : `/${id}/opengraph-image`;
 
   return {
     title,

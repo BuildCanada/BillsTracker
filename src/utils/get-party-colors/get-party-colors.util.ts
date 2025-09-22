@@ -70,5 +70,8 @@ export const getPartyColor = (party: string) => {
     return partyChipStyles.liberal;
   }
 
-  return partyChipStyles[normalizedParty as keyof typeof partyChipStyles] || partyChipStyles.default;
+  return (
+    partyChipStyles[normalizedParty as keyof typeof partyChipStyles] ||
+    partyChipStyles.default
+  );
 };

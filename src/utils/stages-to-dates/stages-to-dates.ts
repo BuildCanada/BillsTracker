@@ -5,7 +5,9 @@ type BillStageDates = {
   lastUpdated: Date | null;
 };
 
-export function getBillStageDates(stages: BillSummary['stages']): BillStageDates {
+export function getBillStageDates(
+  stages: BillSummary["stages"],
+): BillStageDates {
   if (!stages || stages.length === 0) {
     return { firstIntroduced: null, lastUpdated: null };
   }

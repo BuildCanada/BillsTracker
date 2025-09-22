@@ -1,4 +1,9 @@
-export type BillStatus = "Introduced" | "In Progress" | "Passed" | "Failed" | "Paused";
+export type BillStatus =
+  | "Introduced"
+  | "In Progress"
+  | "Passed"
+  | "Failed"
+  | "Paused";
 
 export interface BillSummary {
   billID: string;
@@ -29,8 +34,6 @@ export interface BillSummary {
     state: string;
     house: string;
     date: Date;
-  }[]
+  }[];
   isSocialIssue?: boolean;
 }
-
-

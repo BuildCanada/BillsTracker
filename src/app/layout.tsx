@@ -4,8 +4,8 @@ import "./globals.css";
 import { Footer } from "@/components/Footer/footer.component";
 import { SessionProvider } from "@/components/SessionProvider";
 import { env } from "@/env";
-import { GoogleAnalytics } from '@next/third-parties/google'
-import { GOOGLE_ANALYTICS_ID, } from "@/consts/general";
+import { GoogleAnalytics } from "@next/third-parties/google";
+import { GOOGLE_ANALYTICS_ID } from "@/consts/general";
 import { Nav } from "@/components/Nav/nav.component";
 
 const geistSans = Geist({
@@ -24,7 +24,9 @@ export const metadata: Metadata = {
     template: "%s · Build Canada Bills",
   },
   description: "Understand Canadian Federal Bills",
-  metadataBase: env.NEXT_PUBLIC_APP_URL ? new URL(env.NEXT_PUBLIC_APP_URL) : undefined,
+  metadataBase: env.NEXT_PUBLIC_APP_URL
+    ? new URL(env.NEXT_PUBLIC_APP_URL)
+    : undefined,
   openGraph: {
     type: "website",
     siteName: "Build Canada Bills",
@@ -43,7 +45,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   return (
     <html lang="en" className="light">
       <body
@@ -55,7 +56,6 @@ export default async function RootLayout({
           <Footer />
         </SessionProvider>
         <GoogleAnalytics gaId={GOOGLE_ANALYTICS_ID} />
-
       </body>
     </html>
   );

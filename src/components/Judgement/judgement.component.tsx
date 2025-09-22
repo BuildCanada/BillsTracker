@@ -2,7 +2,6 @@ import { CheckCircle2, XCircle, CircleHelp } from "lucide-react";
 import React from "react";
 
 export type JudgementValue = "yes" | "no" | "neutral";
-type Variant = "subtle" | "outline";
 type Size = "sm" | "md";
 
 const stylesByJudgement: Record<
@@ -33,17 +32,18 @@ const stylesByJudgement: Record<
   },
   neutral: {
     wrap: {
-      subtle:
-        "bg-slate-50 text-slate-900 border-slate-200 ring-slate-600/10",
-      outline:
-        "bg-white text-slate-900 border-slate-300 ring-slate-600/10",
+      subtle: "bg-slate-50 text-slate-900 border-slate-200 ring-slate-600/10",
+      outline: "bg-white text-slate-900 border-slate-300 ring-slate-600/10",
     },
     iconWrap: "bg-slate-100 text-slate-700 border-slate-200",
     icon: "text-slate-700",
   },
 };
 
-const sizes: Record<Size, { pad: string; text: string; icon: string; gap: string }> = {
+const sizes: Record<
+  Size,
+  { pad: string; text: string; icon: string; gap: string }
+> = {
   sm: { pad: "p-1", text: "text-xs", icon: "h-4 w-4", gap: "gap-2" },
   md: { pad: "p-3", text: "text-base", icon: "h-5 w-5", gap: "gap-3" },
 };
@@ -64,43 +64,40 @@ function verdictCopy(j: JudgementValue, isSocialIssue?: boolean) {
 
 export function Judgement({
   judgement,
-  variant = "subtle",
   size = "sm",
   className,
-  showLabel = false,
   isSocialIssue,
 }: {
   judgement: JudgementValue;
-  variant?: Variant;
   size?: Size;
   className?: string;
-  showLabel?: boolean;
   isSocialIssue?: boolean;
 }) {
-  const s = isSocialIssue ? stylesByJudgement.neutral : stylesByJudgement[judgement];
+  const s = isSocialIssue
+    ? stylesByJudgement.neutral
+    : stylesByJudgement[judgement];
   const sz = sizes[size];
 
-  const Icon =
-    isSocialIssue ? CircleHelp :
-      judgement === "yes"
-        ? CheckCircle2
-        : judgement === "no"
-          ? XCircle
-          : CircleHelp;
+  const Icon = isSocialIssue
+    ? CircleHelp
+    : judgement === "yes"
+      ? CheckCircle2
+      : judgement === "no"
+        ? XCircle
+        : CircleHelp;
 
   return (
     <article
       role="status"
       aria-live="polite"
       className={[
-        'border-1 rounded-full w-fit px-2',
+        "border-1 rounded-full w-fit px-2",
         // "w-fit rounded-xl border-2 ring-1 transition-all duration-200 hover:shadow-lg",
         // "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
         // s.wrap[variant],
         sz.pad,
         className,
       ].join(" ")}
-      tabIndex={0}
     >
       <div className={`flex items-center ${sz.gap}`}>
         <span
@@ -111,7 +108,15 @@ export function Judgement({
           ].join(" ")}
           aria-hidden="true"
         >
-          <Icon className={sz.icon + " " + s.icon + " " + (isSocialIssue ? "text-slate-700" : "")} />
+          <Icon
+            className={
+              sz.icon +
+              " " +
+              s.icon +
+              " " +
+              (isSocialIssue ? "text-slate-700" : "")
+            }
+          />
         </span>
 
         <span className={`font-medium leading-none ${sz.text}`}>

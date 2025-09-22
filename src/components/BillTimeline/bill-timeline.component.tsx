@@ -1,8 +1,6 @@
 export const BillTimeline = () => {
   return (
     <div className="space-y-6 relative w-full h-full">
-
-
       <ul className="timeline timeline-vertical">
         <li>
           <div className="timeline-middle">
@@ -19,7 +17,9 @@ export const BillTimeline = () => {
               />
             </svg>
           </div>
-          <div className="timeline-end timeline-box">First Macintosh computer</div>
+          <div className="timeline-end timeline-box">
+            First Macintosh computer
+          </div>
           <hr />
         </li>
         <li>

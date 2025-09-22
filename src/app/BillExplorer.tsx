@@ -3,7 +3,11 @@
 import { useEffect, useMemo, useState, useCallback, memo } from "react";
 import { BillSummary } from "./types";
 import BillCard from "@/components/BillCard";
-import { FilterSidebar, FilterState, FilterOptions } from "@/components/FilterSection/filter-section.component";
+import {
+  FilterSidebar,
+  FilterState,
+  FilterOptions,
+} from "@/components/FilterSection/filter-section.component";
 import { useIsMobile } from "@/components/ui/use-mobile";
 
 interface BillExplorerProps {
@@ -123,20 +127,26 @@ function BillExplorer({ bills }: BillExplorerProps) {
       // Category (alignment + genres)
       if (filters.category.length > 0) {
         let ok = false;
-        if (bill.alignment && filters.category.includes(bill.alignment)) ok = true;
-        if (bill.genres && bill.genres.some((g: string) => filters.category.includes(g)))
+        if (bill.alignment && filters.category.includes(bill.alignment))
+          ok = true;
+        if (bill.genres?.some((g: string) => filters.category.includes(g)))
           ok = true;
         if (!ok) return false;
       }
 
       // Party
-      if (filters.party.length > 0 && bill.sponsorParty && !filters.party.includes(bill.sponsorParty)) {
+      if (
+        filters.party.length > 0 &&
+        bill.sponsorParty &&
+        !filters.party.includes(bill.sponsorParty)
+      ) {
         return false;
       }
 
       // Chamber
       if (filters.chamber.length > 0) {
-        const chamber = bill.chamber === "House of Commons" ? "House" : "Senate";
+        const chamber =
+          bill.chamber === "House of Commons" ? "House" : "Senate";
         if (!filters.chamber.includes(chamber)) return false;
       }
 
@@ -147,16 +157,32 @@ function BillExplorer({ bills }: BillExplorerProps) {
         let cutoff: Date;
         switch (filters.dateRange) {
           case "last-month":
-            cutoff = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+            cutoff = new Date(
+              now.getFullYear(),
+              now.getMonth() - 1,
+              now.getDate(),
+            );
             break;
           case "last-3-months":
-            cutoff = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+            cutoff = new Date(
+              now.getFullYear(),
+              now.getMonth() - 3,
+              now.getDate(),
+            );
             break;
           case "last-6-months":
-            cutoff = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+            cutoff = new Date(
+              now.getFullYear(),
+              now.getMonth() - 6,
+              now.getDate(),
+            );
             break;
           case "last-year":
-            cutoff = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+            cutoff = new Date(
+              now.getFullYear() - 1,
+              now.getMonth(),
+              now.getDate(),
+            );
             break;
           default:
             cutoff = new Date(0);
@@ -224,18 +250,19 @@ function BillExplorer({ bills }: BillExplorerProps) {
       if (bill.status) statusKeyToLabel.set(key, bill.status);
 
       // parties
-      if (bill.sponsorParty && bill.sponsorParty.trim()) partySet.add(bill.sponsorParty.trim());
+      if (bill.sponsorParty?.trim()) partySet.add(bill.sponsorParty.trim());
 
       // chamber
       if (bill.chamber) {
-        const chamber = bill.chamber === "House of Commons" ? "House" : "Senate";
+        const chamber =
+          bill.chamber === "House of Commons" ? "House" : "Senate";
         chamberSet.add(chamber);
       }
 
       // categories
       if (bill.genres) {
         bill.genres.forEach((g: string) => {
-          if (g && g.trim()) categorySet.add(g.trim());
+          if (g?.trim()) categorySet.add(g.trim());
         });
       }
       if (bill.alignment) categorySet.add(bill.alignment);

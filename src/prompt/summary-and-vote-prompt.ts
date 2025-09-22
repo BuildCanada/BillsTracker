@@ -27,7 +27,7 @@ const SOCIAL_ISSUE_GRADING = `
     - Classify based on primary purpose, not incidental mentions.
     - If the bill materially creates or changes an observance/day/month or declares a national symbol, classify as social issue = yes.
     - If mixed, choose "no".
-`
+`;
 
 export const SUMMARY_AND_VOTE_PROMPT = `
 You are analyzing Canadian legislation. You must assess whether the bill aligns with Build Canada’s Core Tenets:
@@ -139,5 +139,4 @@ You are analyzing Canadian legislation. You must assess whether the bill aligns 
     "rationale": "2 sentences explaining the overall judgment and then bullet points explaining the rationale for the judgment and suggestions for what we might change. Use markdown formatting.",
     "is_social_issue": "yes|no"
   }
-`
-
+`;

@@ -7,8 +7,8 @@ import { env } from "@/env";
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
-      clientId: env.GOOGLE_CLIENT_ID!,
-      clientSecret: env.GOOGLE_CLIENT_SECRET!,
+      clientId: env.GOOGLE_CLIENT_ID || "",
+      clientSecret: env.GOOGLE_CLIENT_SECRET || "",
     }),
   ],
   callbacks: {
@@ -22,7 +22,9 @@ export const authOptions: NextAuthOptions = {
         await connectToDatabase();
 
         // Check if user exists in our database
-        const existingUser = await User.findOne({ emailLower: user.email.toLowerCase() });
+        const existingUser = await User.findOne({
+          emailLower: user.email.toLowerCase(),
+        });
 
         if (existingUser) {
           // Only allow sign-in if the user is approved
@@ -40,7 +42,9 @@ export const authOptions: NextAuthOptions = {
       if (session.user?.email) {
         try {
           await connectToDatabase();
-          const dbUser = await User.findOne({ emailLower: session.user.email.toLowerCase() });
+          const dbUser = await User.findOne({
+            emailLower: session.user.email.toLowerCase(),
+          });
           if (dbUser) {
             (session.user as any).id = dbUser._id.toString();
             (session.user as any).allowed = dbUser.allowed;
