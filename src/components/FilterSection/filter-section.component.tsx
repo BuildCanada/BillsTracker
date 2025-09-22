@@ -16,6 +16,7 @@ export interface FilterState {
   party: string[];
   chamber: string[];
   dateRange: string;
+  judgement: string[];
 }
 
 export interface FilterOptions {
@@ -55,7 +56,7 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
     onFiltersChange({ ...filters, [key]: value });
   };
 
-  const toggleArrayFilter = (key: 'status' | 'category' | 'party' | 'chamber', value: string) => {
+  const toggleArrayFilter = (key: 'status' | 'category' | 'party' | 'chamber' | 'judgement', value: string) => {
     const currentValues = filters[key];
     const newValues = currentValues.includes(value)
       ? currentValues.filter(v => v !== value)
@@ -70,6 +71,7 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
     count += filters.category.length;
     count += filters.party.length;
     count += filters.chamber.length;
+    count += filters.judgement.length;
     if (filters.dateRange && filters.dateRange !== 'all') count++;
     return count;
   };
@@ -152,6 +154,26 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters, forceC
                   />
                   <Label htmlFor={status} className="text-sm font-normal">
                     {status}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Judgement */}
+          <div className="space-y-3 ">
+            <Label>Judgement</Label>
+            <div className="space-y-2">
+              {["yes", "no", "neutral"].map((j) => (
+                <div key={j} className="flex items-start space-x-2">
+                  <Checkbox
+                    id={`judgement-${j}`}
+                    className="mt-0.5"
+                    checked={filters.judgement.includes(j)}
+                    onCheckedChange={() => toggleArrayFilter('judgement', j)}
+                  />
+                  <Label htmlFor={`judgement-${j}`} className="text-sm font-normal capitalize">
+                    {j}
                   </Label>
                 </div>
               ))}
