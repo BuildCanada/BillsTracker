@@ -39,6 +39,8 @@ export default async function BillDetail({ params }: Params) {
     }
   }
 
+
+
   if (!unifiedBill) {
     return (
       <div className="mx-auto max-w-[800px] px-6 py-10">

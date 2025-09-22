@@ -42,8 +42,12 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
   const hasQP = bill.question_period_questions && bill.question_period_questions.length > 0;
   const isNeutral = bill.final_judgment === "neutral";
   const isSocialIssue = bill.isSocialIssue;
+  const alignCount = (bill.tenet_evaluations ?? []).filter((t) => t.alignment === "aligns").length;
+  const conflictCount = (bill.tenet_evaluations ?? []).filter((t) => t.alignment === "conflicts").length;
+  const onlySingleIssueVarying = alignCount === 1 || conflictCount === 1;
 
-  const showAnalysis = !isNeutral && !isSocialIssue;
+  const showAnalysis = !isNeutral && !isSocialIssue && !onlySingleIssueVarying;
+  const displayJudgement = (onlySingleIssueVarying ? "neutral" : (bill.final_judgment as JudgementValue)) as JudgementValue;
 
 
 
@@ -57,7 +61,7 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
       <Card>
 
         <CardContent className="mt-6">
-          <Judgement isSocialIssue={bill.isSocialIssue} judgement={bill.final_judgment as JudgementValue} />
+          <Judgement isSocialIssue={bill.isSocialIssue} judgement={displayJudgement} />
 
         </CardContent>
       </Card>
@@ -77,7 +81,7 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
 
                 <CardTitle className="mb-2">Builder Assessment</CardTitle>
                 <div>
-                  <Judgement isSocialIssue={bill.isSocialIssue} judgement={bill.final_judgment as JudgementValue} />
+                  <Judgement isSocialIssue={bill.isSocialIssue} judgement={displayJudgement} />
                 </div>
               </div>
             </CardHeader>

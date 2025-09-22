@@ -8,7 +8,7 @@ Example to output to stdout: npm run prompt -- C-1 --output
 */
 
 import { execSync } from 'node:child_process';
-import { getBillFromApi, fetchBillMarkdown } from '@/services/billApi';
+import { getBillFromCivicsProjectApi, fetchBillMarkdown } from '@/services/billApi';
 import { SUMMARY_AND_VOTE_PROMPT } from '@/prompt/summary-and-vote-prompt';
 
 async function main() {
@@ -28,7 +28,7 @@ async function main() {
     }
 
     // Fetch bill from API
-    const bill = await getBillFromApi(billId);
+    const bill = await getBillFromCivicsProjectApi(billId);
 
     if (!bill) {
       console.error(`Bill ${billId} not found`);
