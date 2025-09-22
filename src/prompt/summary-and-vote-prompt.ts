@@ -125,13 +125,13 @@ You are analyzing Canadian legislation. You must assess whether the bill aligns 
     ],
     "question_period_questions": [
       {
-        "question": ""
+        "question": "A crticial question, pertaining to this and only about this bill, for Question Period in the House of Commons phrased in a way that a Member of Parliament might actually ask in Question Period. Omit any prefix like "Mr. Speaker" or "Madam Speaker""
       },
       {
-        "question": ""
+        "question": "A crticial question, pertaining to this and only about this bill, for Question Period in the House of Commons phrased in a way that a Member of Parliament might actually ask in Question Period. Omit any prefix like "Mr. Speaker" or "Madam Speaker""
       },
       {
-        "question": ""
+        "question": "A crticial question, pertaining to this and only about this bill, for Question Period in the House of Commons phrased in a way that a Member of Parliament might actually ask in Question Period. Omit any prefix like "Mr. Speaker" or "Madam Speaker""
       },
       
     ],
