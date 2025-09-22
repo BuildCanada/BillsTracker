@@ -39,10 +39,10 @@ async function getApiBills(): Promise<BillSummary[]> {
 }
 
 async function getMergedBills(): Promise<BillSummary[]> {
-  const [apiBills, dbBills] = await Promise.all([
-    getApiBills(),
-    getAllBillsFromDB()
-  ]);
+  const apiBills = await getApiBills();
+  const uri = env.MONGO_URI || "";
+  const hasValidMongoUri = uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
+  const dbBills = hasValidMongoUri ? await getAllBillsFromDB() : [];
 
 
   // Convert DB bills to UnifiedBill format first, then to BillSummary
@@ -108,7 +108,9 @@ async function getMergedBills(): Promise<BillSummary[]> {
     }
   }
 
-  console.log(`Merged ${mergedBills.length} bills (${apiBills.length} from API, ${dbBills.length} from DB)`);
+  console.log(
+    `Merged ${mergedBills.length} bills (${apiBills.length} from API, ${dbBills.length} from DB${hasValidMongoUri ? "" : " - Mongo disabled"})`
+  );
   return mergedBills;
 }
 
