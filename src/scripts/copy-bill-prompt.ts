@@ -1,5 +1,12 @@
 #!/usr/bin/env tsx
 
+/*
+Usage: npm run prompt -- [bill-id] [options]
+
+Example to copy to clipboard:: npm run prompt -- C-1
+Example to output to stdout: npm run prompt -- C-1 --output
+*/
+
 import { execSync } from 'node:child_process';
 import { getBillFromApi, fetchBillMarkdown } from '@/services/billApi';
 import { SUMMARY_AND_VOTE_PROMPT } from '@/prompt/summary-and-vote-prompt';
