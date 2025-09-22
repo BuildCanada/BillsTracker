@@ -61,6 +61,11 @@ async function getMergedBills(): Promise<BillSummary[]> {
 
 
     if (dbBill) {
+      const alignCount = (dbBill.tenet_evaluations ?? []).filter(t => t.alignment === "aligns").length;
+      const conflictCount = (dbBill.tenet_evaluations ?? []).filter(t => t.alignment === "conflicts").length;
+      const displayFinal: BillSummary["final_judgment"] = (alignCount === 1 && conflictCount === 0)
+        ? "neutral"
+        : (dbBill.final_judgment as BillSummary["final_judgment"]);
       // Merge API bill with DB data (DB data takes precedence for analysis fields)
       return {
         ...dbBill,
@@ -68,7 +73,7 @@ async function getMergedBills(): Promise<BillSummary[]> {
         shortTitle: dbBill.short_title || apiBill.shortTitle,
         summary: dbBill.summary,
         isSocialIssue: dbBill.isSocialIssue,
-        final_judgment: dbBill.final_judgment,
+        final_judgment: displayFinal,
         rationale: dbBill.rationale,
         needs_more_info: dbBill.needs_more_info,
         missing_details: dbBill.missing_details,
@@ -86,6 +91,11 @@ async function getMergedBills(): Promise<BillSummary[]> {
   for (const [billId, dbBill] of dbBillsMap) {
     if (!mergedBills.find(bill => bill.billID === billId)) {
       // Convert DB bill to BillSummary format
+      const alignCount = (dbBill.tenet_evaluations ?? []).filter(t => t.alignment === "aligns").length;
+      const conflictCount = (dbBill.tenet_evaluations ?? []).filter(t => t.alignment === "conflicts").length;
+      const displayFinal: BillSummary["final_judgment"] = (alignCount === 1 && conflictCount === 0)
+        ? "neutral"
+        : (dbBill.final_judgment as BillSummary["final_judgment"]);
       const billSummary: BillSummary = {
         billID: dbBill.billId,
         title: dbBill.title,
@@ -100,7 +110,7 @@ async function getMergedBills(): Promise<BillSummary[]> {
         lastUpdatedOn: dbBill.lastUpdatedOn?.toISOString() || new Date().toISOString(),
         summary: dbBill.summary,
         isSocialIssue: dbBill.isSocialIssue,
-        final_judgment: dbBill.final_judgment,
+        final_judgment: displayFinal,
         rationale: dbBill.rationale,
         needs_more_info: dbBill.needs_more_info,
         missing_details: dbBill.missing_details,

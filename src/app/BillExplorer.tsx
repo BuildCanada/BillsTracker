@@ -94,6 +94,7 @@ function BillExplorer({ bills }: BillExplorerProps) {
     party: [],
     chamber: [],
     dateRange: "all",
+    judgement: [],
   });
 
   // Filter bills
@@ -127,6 +128,12 @@ function BillExplorer({ bills }: BillExplorerProps) {
         if (bill.genres && bill.genres.some((g: string) => filters.category.includes(g)))
           ok = true;
         if (!ok) return false;
+      }
+
+      // Judgement (final_judgment)
+      if (filters.judgement.length > 0) {
+        const j = bill.final_judgment;
+        if (!j || !filters.judgement.includes(j)) return false;
       }
 
       // Party
@@ -273,6 +280,7 @@ function BillExplorer({ bills }: BillExplorerProps) {
       party: [],
       chamber: [],
       dateRange: "all",
+      judgement: [],
     });
   }, []);
 
