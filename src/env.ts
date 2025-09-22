@@ -19,7 +19,6 @@ export const env = {
   GOOGLE_CLIENT_ID: optional("GOOGLE_CLIENT_ID", process.env.GOOGLE_CLIENT_ID) || optional("GOOGLE_ID", process.env.GOOGLE_ID),
   GOOGLE_CLIENT_SECRET: optional("GOOGLE_CLIENT_SECRET", process.env.GOOGLE_CLIENT_SECRET) || optional("GOOGLE_SECRET", process.env.GOOGLE_SECRET),
   CIVICS_PROJECT_API_KEY: optional("CIVICS_PROJECT_API_KEY", process.env.CIVICS_PROJECT_API_KEY),
-  // Accept either MONGO_URI or MONGODB_URI; trim whitespace
   MONGO_URI: optional("MONGO_URI", (process.env.MONGO_URI || process.env.MONGODB_URI)?.trim()),
   NEXT_PUBLIC_APP_URL: optional("NEXT_PUBLIC_APP_URL", process.env.NEXT_PUBLIC_APP_URL),
 };

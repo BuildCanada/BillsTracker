@@ -24,6 +24,12 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Optionally pass a build-time DB connection string without affecting runtime
+# docker build --build-arg MONGODB_URI_BUILD=... .
+ARG MONGODB_URI_BUILD
+ENV MONGO_URI=$MONGODB_URI_BUILD
+ENV MONGODB_URI=$MONGODB_URI_BUILD
+
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.

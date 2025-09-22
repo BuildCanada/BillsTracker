@@ -10,8 +10,11 @@ import { env } from "@/env";
 
 const CANADIAN_PARLIAMENT_NUMBER = 45;
 
-// Cache for 5 minutes - Next.js requires a static value
+// Force runtime generation (avoid build-time pre-render) and cache in-memory for 5 minutes
+export const dynamic = "force-dynamic";
 export const revalidate = 300;
+
+let mergedBillsCache: { data: BillSummary[]; expiresAt: number } | null = null;
 
 async function getApiBills(): Promise<BillSummary[]> {
   try {
@@ -39,10 +42,11 @@ async function getApiBills(): Promise<BillSummary[]> {
 }
 
 async function getMergedBills(): Promise<BillSummary[]> {
-  const [apiBills, dbBills] = await Promise.all([
-    getApiBills(),
-    getAllBillsFromDB()
-  ]);
+  const apiBills = await getApiBills();
+  const uri = process.env.MONGO_URI || "";
+  console.log({ "THE MONGO URI IS": uri });
+  const hasValidMongoUri = uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
+  const dbBills = hasValidMongoUri ? await getAllBillsFromDB() : [];
 
 
   // Convert DB bills to UnifiedBill format first, then to BillSummary
@@ -108,12 +112,25 @@ async function getMergedBills(): Promise<BillSummary[]> {
     }
   }
 
-  console.log(`Merged ${mergedBills.length} bills (${apiBills.length} from API, ${dbBills.length} from DB)`);
+  console.log(
+    `Merged ${mergedBills.length} bills (${apiBills.length} from API, ${dbBills.length} from DB${hasValidMongoUri ? "" : " - Mongo disabled"})`
+  );
   return mergedBills;
 }
 
+async function getMergedBillsCached(): Promise<BillSummary[]> {
+  const now = Date.now();
+  const ttlMs = 300 * 1000; // 5 minutes
+  if (mergedBillsCache && mergedBillsCache.expiresAt > now) {
+    return mergedBillsCache.data;
+  }
+  const data = await getMergedBills();
+  mergedBillsCache = { data, expiresAt: now + ttlMs };
+  return data;
+}
+
 export default async function Home() {
-  const bills = await getMergedBills();
+  const bills = await getMergedBillsCached();
   return (
     <div className="min-h-screen">
       <div className="mx-auto max-w-[1120px] px-6 py-8  gap-8">
