@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* @custom-variant dark (&:is(.dark *)); */
 
 :root {
   /* warm parchment */
@@ -165,7 +164,8 @@ body {
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
+    outline-color: var(--ring);
   }
 
   body {

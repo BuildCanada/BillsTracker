@@ -1,11 +1,14 @@
 import Link from "next/link";
+import { memo } from "react";
 import { BillSummary } from "@/app/types";
 import { getPartyColor } from "@/utils/get-party-colors/get-party-colors.util";
 import { stageSummarizer, getStageCategory } from "@/utils/stage-summarizer/stage-summarizer.util";
 import { Judgement } from "./Judgement/judgement.component";
 import { DynamicIcon } from 'lucide-react/dynamic';
+import dayjs from 'dayjs'
 
 import { getCategoryIcon } from "@/utils/bill-category-to-icon/bill-category-to-icon.util";
+import { getBillStageDates } from "@/utils/stages-to-dates/stages-to-dates";
 
 type StageStyle = { dot: string; chipBg: string; chipText: string };
 
@@ -14,12 +17,15 @@ interface BillCardProps {
   bill: BillSummary;
 }
 
-export default function BillCard({ bill }: BillCardProps) {
-  const updatedAt = new Date(bill.lastUpdatedOn);
+function BillCard({ bill }: BillCardProps) {
+
+
+  const { lastUpdated } = getBillStageDates(bill.stages);
+  const dateDisplay = lastUpdated ? dayjs(lastUpdated).format('MMM D, YYYY') : "N/A";
 
   return (
     <li className="group rounded-lg border   bg-[var(--panel)] shadow-sm   duration-200 overflow-hidden">
-      <Link href={`/bills/${bill.billID}`} className="block">
+      <Link href={`/${bill.billID}`} className="block">
         <div className="p-5">
           {/* Header Section */}
           <div className="flex items-start md:flex-row flex-col-reverse  justify-between gap-4 mb-3">
@@ -36,7 +42,7 @@ export default function BillCard({ bill }: BillCardProps) {
 
 
             {bill.final_judgment && (
-              <Judgement judgement={bill?.final_judgment} />
+              <Judgement judgement={bill?.final_judgment} isSocialIssue={bill.isSocialIssue} />
             )}
           </div>
 
@@ -95,10 +101,13 @@ export default function BillCard({ bill }: BillCardProps) {
                 <span>by {bill.sponsorName}</span>
               )}
             </div>
-            <span className="text-[var(--muted-foreground)]">Updated {updatedAt.toLocaleDateString()}</span>
+            <span className="text-[var(--muted-foreground)]">{dateDisplay}</span>
           </div>
         </div>
       </Link>
     </li>
   );
 }
+
+// Memoize BillCard to prevent unnecessary re-renders when bill data hasn't changed
+export default memo(BillCard);

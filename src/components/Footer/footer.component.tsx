@@ -1,4 +1,11 @@
+import { PROJECT_NAME } from "@/consts/general";
+import { SignIn } from "../SignIn/sign-in.component";
+
 export function Footer() {
+
+
+
+
   return (
     <footer className="mt-16 border-t border-[var(--panel-border)] bg-white">
       <div className="mx-auto max-w-[1120px] px-6 py-12">
@@ -13,7 +20,7 @@ export function Footer() {
               />
               <div className="flex flex-col items-start -mt-1 ">
 
-                <span className="font-semibold text-lg mb-0">Policy Tracker</span>
+                <span className="font-semibold text-lg mb-0">{PROJECT_NAME}</span>
                 <div className="text-xs">
 
                   Powered by {' '}
@@ -36,9 +43,9 @@ export function Footer() {
               <p className="text-sm text-[var(--muted-foreground)]">
                 Questions or feedback?
               </p>
-              <a href="mailto:hello@buildcanada.ca"
+              <a href="mailto:hi@buildcanada.com"
                 className="text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors">
-                hello@buildcanada.ca
+                hi@buildcanada.com
               </a>
             </div>
           </div>
@@ -49,11 +56,13 @@ export function Footer() {
           <p className="text-xs text-[var(--muted-foreground)]">
             © {new Date().getFullYear()} Build Canada Bills. All rights reserved.
             A Project of {' '}
-            <a href="https://buildcanada.ca" target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--muted-foreground)] underline">
+            <a href="https://buildcanada.com" target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--muted-foreground)] underline">
               Build Canada
             </a>
 
           </p>
+
+          <SignIn />
 
         </div>
       </div>

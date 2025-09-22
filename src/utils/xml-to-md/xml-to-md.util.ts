@@ -119,7 +119,7 @@ function renderNode(node: XMLNode, ctx: Ctx): string {
       // Other children (excluding the ones we handled) to avoid duplication
       const leftovers = children.filter(c => {
         const t = getTagName(c);
-        return t !== "label" && t !== "marginalnote" && t !== "text" && t !== "subsection" && t !== "amendedtext";
+        return t !== "label" && t !== "marginalnote" && t !== "text" && t !== "subsection" && t !== "amendedtext" && t !== "sectionpiece";
       });
 
       return `${head}${textBlocks}${subSecs}${renderNodes(leftovers, ctx)}${amended}`;
@@ -132,9 +132,28 @@ function renderNode(node: XMLNode, ctx: Ctx): string {
     case "paragraph": {
       const lbl = findText(children, "label");
       const mn = findText(children, "marginalnote");
-      const t = findText(children, "text") || inline(children, ctx);
+      const t = findText(children, "text") || "";
       const head = [lbl, mn].filter(Boolean).join(" ");
-      return head ? `- **${head}** ${t}\n` : `- ${t}\n`;
+
+      // Handle subparagraphs if present
+      const subParas = children
+        .filter(c => getTagName(c) === "subparagraph")
+        .map(sp => {
+          const spChildren = getChildren(sp, "subparagraph");
+          const spLbl = findText(spChildren, "label") || "";
+          const spText = findText(spChildren, "text") || "";
+          return spLbl ? `  - **${spLbl}** ${spText}` : `  - ${spText}`;
+        })
+        .join("\n");
+
+      const mainText = head ? `- **${head}** ${t}` : `- ${t}`;
+      return subParas ? `${mainText}\n${subParas}\n` : `${mainText}\n`;
+    }
+    case "subparagraph": {
+      // Handle standalone subparagraphs
+      const lbl = findText(children, "label") || "";
+      const t = findText(children, "text") || "";
+      return lbl ? `  - **${lbl}** ${t}\n` : `  - ${t}\n`;
     }
     case "provision": {
       // In Summary/Preamble: prefer the <Text> child
@@ -187,8 +206,24 @@ function renderNode(node: XMLNode, ctx: Ctx): string {
 
 function renderSubsection(children: NodeList, ctx: Ctx): string {
   const lbl = findText(children, "label");
-  const t = findText(children, "text") || inline(children, ctx);
-  return lbl ? `**${lbl}** ${t}\n\n` : `${t}\n\n`;
+  const marginal = findText(children, "marginalnote");
+  const t = findText(children, "text") || "";
+
+  // Handle paragraphs within subsections
+  const paragraphs = children
+    .filter(c => getTagName(c) === "paragraph")
+    .map(p => renderNode(p, ctx))
+    .join("");
+
+  const header = [lbl, marginal].filter(Boolean).join(" - ");
+  const mainText = header ? `**${header}** ${t}` : t;
+
+  // If we have paragraphs, add them after the main text
+  if (paragraphs) {
+    return `${mainText}\n${paragraphs}\n`;
+  }
+
+  return `${mainText}\n\n`;
 }
 
 function inline(nodes: NodeList, ctx: Ctx): string {

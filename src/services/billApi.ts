@@ -1,6 +1,7 @@
 import { xmlToMarkdown } from "@/utils/xml-to-md/xml-to-md.util";
 import { SUMMARY_AND_VOTE_PROMPT } from "@/prompt/summary-and-vote-prompt";
 import OpenAI from "openai";
+import { socialIssueGrader } from "@/services/social-issue-grader";
 
 
 export type ApiStage = { stage: string; state: string; house: string; date: string };
@@ -33,10 +34,14 @@ export type ApiBillDetail = {
 
 const CANADIAN_PARLIAMENT_NUMBER = 45;
 
-export async function getBillFromApi(billId: string): Promise<ApiBillDetail | null> {
+export async function getBillFromCivicsProjectApi(billId: string): Promise<ApiBillDetail | null> {
   const URL = `https://api.civicsproject.org/bills/canada/${billId.toLowerCase()}/${CANADIAN_PARLIAMENT_NUMBER}`;
   const response = await fetch(URL, {
-    cache: "no-store",
+    // Cache individual bills for 10 minutes in production
+    ...(process.env.NODE_ENV === 'production'
+      ? { next: { revalidate: 600 } }
+      : { cache: 'no-store' }
+    ),
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${process.env.CIVICS_PROJECT_API_KEY}`,
@@ -56,6 +61,7 @@ export async function getBillFromApi(billId: string): Promise<ApiBillDetail | nu
 
 export interface BillAnalysis {
   summary: string;
+  short_title?: string;
   tenet_evaluations: Array<{
     id: number;
     title: string;
@@ -67,6 +73,7 @@ export interface BillAnalysis {
   needs_more_info: boolean;
   missing_details: string[];
   steel_man: string;
+  question_period_questions?: Array<{ question: string }>;
 }
 
 export async function summarizeBillText(input: string): Promise<BillAnalysis> {
@@ -78,8 +85,9 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
 
     return {
       summary: truncatedSummary || "No bill text available for analysis.",
+      short_title: undefined,
       tenet_evaluations: [
-        { id: 1, title: "Canada should aim to be the world's richest country", alignment: "neutral", explanation: "Unable to analyze without AI" },
+        { id: 1, title: "Canada should aim to be the world's most prosperous country", alignment: "neutral", explanation: "Unable to analyze without AI" },
         { id: 2, title: "Promote economic freedom, ambition, and breaking from bureaucratic inertia", alignment: "neutral", explanation: "Unable to analyze without AI" },
         { id: 3, title: "Drive national productivity and global competitiveness", alignment: "neutral", explanation: "Unable to analyze without AI" },
         { id: 4, title: "Grow exports of Canadian products and resources", alignment: "neutral", explanation: "Unable to analyze without AI" },
@@ -92,26 +100,43 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
       rationale: "Analysis requires AI capabilities",
       needs_more_info: true,
       missing_details: ["AI analysis capabilities required"],
-      steel_man: "The steel man for this bill is the bill that aligns with the tenets of Build Canada."
+      steel_man: "The steel man for this bill is the bill that aligns with the tenets of Build Canada.",
+      question_period_questions: []
     };
   }
 
   try {
     console.log('Analyzing bill text with AI');
-    const client = new OpenAI();
+    const OpenAIClient = new OpenAI();
 
 
 
     const prompt = `${SUMMARY_AND_VOTE_PROMPT}\n\nBill Text:\n${input}`;
-    const response = await client.responses.create({
+    const response = await OpenAIClient.responses.create({
       model: "gpt-5",
-      input: prompt
+      input: prompt,
+      reasoning: {
+        effort: "high"
+      }
     });
     const responseText = response.output_text
 
     // Parse JSON response
     try {
-      const analysis = JSON.parse(responseText) as BillAnalysis;
+      const parsed = JSON.parse(responseText);
+      const analysis: BillAnalysis = {
+        summary: parsed.summary ?? "",
+        short_title: parsed.short_title ?? undefined,
+        tenet_evaluations: parsed.tenet_evaluations ?? [],
+        final_judgment: parsed.final_judgment ?? "no",
+        rationale: parsed.rationale ?? "",
+        needs_more_info: parsed.needs_more_info ?? false,
+        missing_details: parsed.missing_details ?? [],
+        steel_man: parsed.steel_man ?? "",
+        question_period_questions: Array.isArray(parsed.question_period_questions)
+          ? parsed.question_period_questions
+          : [],
+      };
       return analysis;
     } catch (parseError) {
       console.error("Failed to parse AI response as JSON:", parseError);
@@ -123,8 +148,9 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
 
       return {
         summary,
+        short_title: undefined,
         tenet_evaluations: [
-          { id: 1, title: "Canada should aim to be the world's richest country", alignment: "neutral", explanation: "JSON parse failed" },
+          { id: 1, title: "Canada should aim to be the world's most prosperous country", alignment: "neutral", explanation: "JSON parse failed" },
           { id: 2, title: "Promote economic freedom, ambition, and breaking from bureaucratic inertia", alignment: "neutral", explanation: "JSON parse failed" },
           { id: 3, title: "Drive national productivity and global competitiveness", alignment: "neutral", explanation: "JSON parse failed" },
           { id: 4, title: "Grow exports of Canadian products and resources", alignment: "neutral", explanation: "JSON parse failed" },
@@ -137,7 +163,8 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
         rationale: "Analysis parsing failed",
         needs_more_info: true,
         missing_details: ["Valid AI response format"],
-        steel_man: "Analysis parsing failed"
+        steel_man: "Analysis parsing failed",
+        question_period_questions: []
       };
     }
   } catch (error) {
@@ -148,8 +175,9 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
 
     return {
       summary: truncatedSummary || "Error occurred during analysis.",
+      short_title: undefined,
       tenet_evaluations: [
-        { id: 1, title: "Canada should aim to be the world's richest country", alignment: "neutral", explanation: "Analysis failed" },
+        { id: 1, title: "Canada should aim to be the world's most prosperous country", alignment: "neutral", explanation: "Analysis failed" },
         { id: 2, title: "Promote economic freedom, ambition, and breaking from bureaucratic inertia", alignment: "neutral", explanation: "Analysis failed" },
         { id: 3, title: "Drive national productivity and global competitiveness", alignment: "neutral", explanation: "Analysis failed" },
         { id: 4, title: "Grow exports of Canadian products and resources", alignment: "neutral", explanation: "Analysis failed" },
@@ -162,14 +190,21 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
       rationale: "Technical error during analysis",
       needs_more_info: true,
       missing_details: ["Technical issue resolution"],
-      steel_man: "Technical error during analysis"
+      steel_man: "Technical error during analysis",
+      question_period_questions: []
     };
   }
 }
 
 export async function fetchBillMarkdown(sourceUrl: string): Promise<string | null> {
   try {
-    const xmlResponse = await fetch(sourceUrl, { cache: "no-store" });
+    const xmlResponse = await fetch(sourceUrl, {
+      // Cache bill text for 1 hour in production since it rarely changes
+      ...(process.env.NODE_ENV === 'production'
+        ? { next: { revalidate: 3600 } }
+        : { cache: 'no-store' }
+      )
+    });
     if (xmlResponse.ok) {
       const xml = await xmlResponse.text();
       return xmlToMarkdown(xml);
@@ -187,6 +222,7 @@ export async function onBillNotInDatabase(params: {
   bill: ApiBillDetail;
   analysis: BillAnalysis;
   billTextsCount: number;
+  isSocialIssue: boolean;
 }): Promise<void> {
   console.log("Saving bill to database:", params.billId);
 
@@ -195,7 +231,8 @@ export async function onBillNotInDatabase(params: {
   const { Bill } = await import("@/models/Bill");
 
   try {
-    const uri = process.env.MONGO_URI || "";
+    const { env } = await import("@/env");
+    const uri = env.MONGO_URI || "";
     const hasValidMongoUri = uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
 
     if (!hasValidMongoUri) {
@@ -208,15 +245,29 @@ export async function onBillNotInDatabase(params: {
     // Check if bill already exists and if we need to update it
     const existing = (await Bill.findOne({ billId: params.billId }).lean().exec()) as any;
     if (existing) {
-      // Check if bill texts count has changed
-      if (existing.billTextsCount !== params.billTextsCount) {
-        console.log(`Updating bill ${params.billId} - billTexts count changed from ${existing.billTextsCount} to ${params.billTextsCount}`);
-        // Update the existing bill with new summary and count
+      const countChanged = existing.billTextsCount !== params.billTextsCount;
+      const sourceChanged = (existing.source || null) !== (params.source || null);
+      const existingQP = Array.isArray(existing.question_period_questions) ? existing.question_period_questions : [];
+      const newQP = Array.isArray(params.analysis.question_period_questions) ? params.analysis.question_period_questions : [];
+      const qpMissingOrDifferent = (existingQP.length === 0 && newQP.length > 0) || JSON.stringify(existingQP) !== JSON.stringify(newQP);
+      const shortTitleMissing = !existing.short_title && (params.bill.shortTitle || params.analysis.short_title);
+
+      if (sourceChanged || countChanged || qpMissingOrDifferent || shortTitleMissing) {
+        if (sourceChanged) {
+          console.log(`Updating bill ${params.billId} - source changed from ${existing.source || "<none>"} to ${params.source || "<none>"}`);
+        } else if (countChanged) {
+          console.log(`Updating bill ${params.billId} - billTexts count changed from ${existing.billTextsCount} to ${params.billTextsCount}`);
+        } else if (qpMissingOrDifferent) {
+          console.log(`Updating bill ${params.billId} - adding/updating Question Period questions (${existingQP.length} -> ${newQP.length})`);
+        } else if (shortTitleMissing) {
+          console.log(`Updating bill ${params.billId} - adding missing short_title`);
+        }
+
         await Bill.updateOne(
           { billId: params.billId },
           {
             title: params.bill.title,
-            short_title: params.bill.shortTitle,
+            short_title: params.bill.shortTitle || params.analysis.short_title,
             summary: params.analysis.summary,
             tenet_evaluations: params.analysis.tenet_evaluations,
             final_judgment: params.analysis.final_judgment,
@@ -229,10 +280,11 @@ export async function onBillNotInDatabase(params: {
             genres: params.bill.genres,
             billTextsCount: params.billTextsCount,
             lastUpdatedOn: new Date(),
+            isSocialIssue: params.isSocialIssue,
+            question_period_questions: newQP,
+            source: params.source,
           }
         );
-      } else {
-        console.log("Bill already exists with same billTexts count:", params.billId);
       }
       return;
     }
@@ -246,12 +298,14 @@ export async function onBillNotInDatabase(params: {
       ? params.bill.stages[params.bill.stages.length - 1].house
       : undefined;
 
+    const classifiedIsSocialIssue = params.isSocialIssue
+
     const billData = {
       billId: params.bill.billID,
       parliamentNumber: params.bill.parliamentNumber,
       sessionNumber: params.bill.sessionNumber,
       title: params.bill.title,
-      short_title: params.bill.shortTitle,
+      short_title: params.bill.shortTitle || params.analysis.short_title,
       summary: params.analysis.summary,
       tenet_evaluations: params.analysis.tenet_evaluations,
       final_judgment: params.analysis.final_judgment,
@@ -266,7 +320,7 @@ export async function onBillNotInDatabase(params: {
       supportedRegion: params.bill.supportedRegion,
       introducedOn: new Date(params.bill.date),
       lastUpdatedOn: new Date(latestStageDate),
-      source: params.bill.source,
+      source: params.source || params.bill.source,
       stages: params.bill.stages?.map(stage => ({
         stage: stage.stage,
         state: stage.state,
@@ -275,6 +329,8 @@ export async function onBillNotInDatabase(params: {
       })),
       votes: [], // API doesn't provide detailed vote records
       billTextsCount: params.billTextsCount,
+      isSocialIssue: classifiedIsSocialIssue,
+      question_period_questions: params.analysis.question_period_questions ?? [],
     };
 
     await Bill.create(billData);

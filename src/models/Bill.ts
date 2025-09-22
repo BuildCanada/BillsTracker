@@ -22,9 +22,9 @@ export interface VoteRecord {
 
 export interface StageRecord {
   stage: string; // e.g., "First Reading", "Committee", "Third Reading"
-  state?: string; // e.g., "Completed", "In Committee"
-  house?: string; // e.g., "House of Commons", "Senate"
-  date?: Date;
+  state: string; // e.g., "Completed", "In Committee"
+  house: string; // e.g., "House of Commons", "Senate"
+  date: Date;
 }
 
 // Updated main interface for the Bill document
@@ -45,6 +45,7 @@ export interface BillDocument extends mongoose.Document {
   steel_man: string;
 
   status: string;
+
   sponsorName?: string;
   sponsorParty?: string;
   chamber: string;
@@ -56,6 +57,8 @@ export interface BillDocument extends mongoose.Document {
   stages?: StageRecord[];
   votes?: VoteRecord[];
   billTextsCount?: number; // track number of bill texts to detect changes
+  isSocialIssue?: boolean;
+  question_period_questions?: Array<{ question: string }>;
 }
 
 // Schema for the Tenet Evaluation sub-document
@@ -115,6 +118,8 @@ const BillSchema = new Schema<BillDocument>(
     stages: { type: [StageSchema], default: [] },
     votes: { type: [VoteSchema], default: [] },
     billTextsCount: { type: Number },
+    isSocialIssue: { type: Boolean, default: false },
+    question_period_questions: { type: [{ question: { type: String, required: true } }], default: [] },
   },
   { timestamps: true }
 );

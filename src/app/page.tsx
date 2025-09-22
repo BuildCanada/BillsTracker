@@ -2,20 +2,31 @@ import { BillSummary } from "./types";
 import BillExplorer from "./BillExplorer";
 import FAQModalTrigger from "./FAQModalTrigger";
 import { getAllBillsFromDB } from "@/server/get-all-bills-from-db";
-import { fromDbBill } from "@/utils/billConverters";
+import { fromBuildCanadaDbBill } from "@/utils/billConverters";
 import { getParliament45Header } from "@/components/BillDetail/BillHeader";
 import Markdown from "react-markdown";
+import { env } from "@/env";
 
 
 const CANADIAN_PARLIAMENT_NUMBER = 45;
 
+// Force runtime generation (avoid build-time pre-render) and cache in-memory for 5 minutes
+export const dynamic = "force-dynamic";
+export const revalidate = 300;
+
+let mergedBillsCache: { data: BillSummary[]; expiresAt: number } | null = null;
 
 async function getApiBills(): Promise<BillSummary[]> {
   try {
     const response = await fetch(`https://api.civicsproject.org/bills/region/canada/${CANADIAN_PARLIAMENT_NUMBER}`, {
+      // Cache for 5 minutes in production, no cache in development
+      ...(process.env.NODE_ENV === 'production'
+        ? { next: { revalidate: 300 } }
+        : { cache: 'no-store' }
+      ),
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.CIVICS_PROJECT_API_KEY}`,
+        Authorization: env.CIVICS_PROJECT_API_KEY ? `Bearer ${env.CIVICS_PROJECT_API_KEY}` : "",
 
       },
     });
@@ -31,14 +42,15 @@ async function getApiBills(): Promise<BillSummary[]> {
 }
 
 async function getMergedBills(): Promise<BillSummary[]> {
-  const [apiBills, dbBills] = await Promise.all([
-    getApiBills(),
-    getAllBillsFromDB()
-  ]);
+  const apiBills = await getApiBills();
+  const uri = process.env.MONGO_URI || "";
+  console.log({ "THE MONGO URI IS": uri });
+  const hasValidMongoUri = uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
+  const dbBills = hasValidMongoUri ? await getAllBillsFromDB() : [];
 
 
   // Convert DB bills to UnifiedBill format first, then to BillSummary
-  const dbBillsAsUnified = dbBills.map(fromDbBill);
+  const dbBillsAsUnified = dbBills.map(fromBuildCanadaDbBill);
 
   // Create a map of DB bills by billId for quick lookup
   const dbBillsMap = new Map(dbBillsAsUnified.map(bill => [bill.billId, bill]));
@@ -55,6 +67,7 @@ async function getMergedBills(): Promise<BillSummary[]> {
         ...apiBill,
         shortTitle: dbBill.short_title || apiBill.shortTitle,
         summary: dbBill.summary,
+        isSocialIssue: dbBill.isSocialIssue,
         final_judgment: dbBill.final_judgment,
         rationale: dbBill.rationale,
         needs_more_info: dbBill.needs_more_info,
@@ -77,6 +90,7 @@ async function getMergedBills(): Promise<BillSummary[]> {
         billID: dbBill.billId,
         title: dbBill.title,
         shortTitle: dbBill.short_title,
+        stages: dbBill.stages || [],
         description: dbBill.summary || "",
         status: (dbBill.status as BillSummary["status"]) || "Introduced",
         sponsorParty: dbBill.sponsorParty || "Unknown",
@@ -85,6 +99,7 @@ async function getMergedBills(): Promise<BillSummary[]> {
         introducedOn: dbBill.introducedOn?.toISOString() || new Date().toISOString(),
         lastUpdatedOn: dbBill.lastUpdatedOn?.toISOString() || new Date().toISOString(),
         summary: dbBill.summary,
+        isSocialIssue: dbBill.isSocialIssue,
         final_judgment: dbBill.final_judgment,
         rationale: dbBill.rationale,
         needs_more_info: dbBill.needs_more_info,
@@ -97,12 +112,25 @@ async function getMergedBills(): Promise<BillSummary[]> {
     }
   }
 
-  console.log(`Merged ${mergedBills.length} bills (${apiBills.length} from API, ${dbBills.length} from DB)`);
+  console.log(
+    `Merged ${mergedBills.length} bills (${apiBills.length} from API, ${dbBills.length} from DB${hasValidMongoUri ? "" : " - Mongo disabled"})`
+  );
   return mergedBills;
 }
 
+async function getMergedBillsCached(): Promise<BillSummary[]> {
+  const now = Date.now();
+  const ttlMs = 300 * 1000; // 5 minutes
+  if (mergedBillsCache && mergedBillsCache.expiresAt > now) {
+    return mergedBillsCache.data;
+  }
+  const data = await getMergedBills();
+  mergedBillsCache = { data, expiresAt: now + ttlMs };
+  return data;
+}
+
 export default async function Home() {
-  const bills = await getMergedBills();
+  const bills = await getMergedBillsCached();
   return (
     <div className="min-h-screen">
       <div className="mx-auto max-w-[1120px] px-6 py-8  gap-8">

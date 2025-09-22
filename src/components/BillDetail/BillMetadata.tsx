@@ -1,5 +1,7 @@
 import type { UnifiedBill } from "@/utils/billConverters";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { getBillStageDates } from "@/utils/stages-to-dates/stages-to-dates";
+import dayjs from "dayjs";
 
 interface BillMetadataProps {
   bill: UnifiedBill;
@@ -15,6 +17,11 @@ const DataPoint = ({ label, value }: { label: string, value: string }) => {
 };
 
 export function BillMetadata({ bill }: BillMetadataProps) {
+  const billDates = getBillStageDates(bill.stages)
+  const lastUpdatedDate = billDates.lastUpdated
+    ? dayjs(billDates.lastUpdated).format('MMM D, YYYY')
+    : "N/A";
+
   return (
     <Card>
       <CardHeader>
@@ -33,17 +40,17 @@ export function BillMetadata({ bill }: BillMetadataProps) {
       <CardContent className="space-y-1">
         <DataPoint label="Party" value={bill.chamber === 'Senate' ? 'Senate' : bill.sponsorParty || 'Unknown'} />
         <DataPoint label="Status" value={bill.status} />
-        {bill.introducedOn && (
-          <DataPoint label="Introduced" value={bill.introducedOn.toLocaleDateString()} />
-        )}
+        {/* {bill.introducedOn && (
+          <DataPoint label="Introduced" value={introducedDate} />
+        )} */}
         {bill.lastUpdatedOn && (
-          <DataPoint label="Last updated" value={bill.lastUpdatedOn.toLocaleDateString()} />
+          <DataPoint label="Last updated" value={lastUpdatedDate} />
         )}
         {bill.genres && bill.genres.length > 0 && (
           <DataPoint label="Topics" value={bill.genres.join(", ")} />
         )}
         {bill.parliamentNumber && bill.sessionNumber && (
-          <DataPoint label="Parliament" value={`${bill.parliamentNumber}-${bill.sessionNumber}`} />
+          <DataPoint label="Parliament" value={`${bill.parliamentNumber}`} />
         )}
 
       </CardContent>
