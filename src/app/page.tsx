@@ -40,7 +40,8 @@ async function getApiBills(): Promise<BillSummary[]> {
 
 async function getMergedBills(): Promise<BillSummary[]> {
   const apiBills = await getApiBills();
-  const uri = env.MONGO_URI || "";
+  const uri = process.env.MONGO_URI || "";
+  console.log({ "THE MONGO URI IS": uri });
   const hasValidMongoUri = uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
   const dbBills = hasValidMongoUri ? await getAllBillsFromDB() : [];
 
