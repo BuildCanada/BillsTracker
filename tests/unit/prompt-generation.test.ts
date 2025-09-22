@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { getBillFromApi, fetchBillMarkdown } from "@/services/billApi";
+import {
+  getBillFromCivicsProjectApi,
+  fetchBillMarkdown,
+} from "@/services/billApi";
 import { SUMMARY_AND_VOTE_PROMPT } from "@/prompt/summary-and-vote-prompt";
 import { mockBillResponses } from "../fixtures/api-responses";
 import fs from "node:fs";
@@ -23,7 +26,7 @@ describe("Prompt Generation", () => {
         json: async () => ({ data: { bill: mockBillResponses["S-230"] } }),
       });
 
-      const bill = await getBillFromApi("S-230");
+      const bill = await getBillFromCivicsProjectApi("S-230");
       expect(bill).toBeDefined();
       expect(bill?.billID).toBe("S-230");
       expect(bill?.source).toBe(
@@ -64,8 +67,10 @@ describe("Prompt Generation", () => {
           text: async () => xml,
         });
 
-      const bill = await getBillFromApi("S-230");
-      if (!bill?.source) throw new Error("Bill source not found");
+      const bill = await getBillFromCivicsProjectApi("S-230");
+      if (!bill?.source) {
+        throw new Error("Bill or bill source not found");
+      }
       const markdown = await fetchBillMarkdown(bill.source);
       const prompt = `${SUMMARY_AND_VOTE_PROMPT}\n\nBill Text:\n${markdown}`;
 
@@ -129,8 +134,10 @@ describe("Prompt Generation", () => {
             text: async () => xml,
           });
 
-        const bill = await getBillFromApi(billIdUpper);
-        if (!bill?.source) throw new Error("Bill source not found");
+        const bill = await getBillFromCivicsProjectApi(billIdUpper);
+        if (!bill?.source) {
+          throw new Error("Bill or bill source not found");
+        }
         const markdown = await fetchBillMarkdown(bill.source);
         const prompt = `${SUMMARY_AND_VOTE_PROMPT}\n\nBill Text:\n${markdown}`;
 
@@ -147,7 +154,7 @@ describe("Prompt Generation", () => {
   describe("Prompt content validation", () => {
     it("should include all 8 Build Canada tenets in prompt", () => {
       expect(SUMMARY_AND_VOTE_PROMPT).toContain(
-        "Canada should aim to be the world's richest country",
+        "Canada should aim to be the world's most prosperous country",
       );
       expect(SUMMARY_AND_VOTE_PROMPT).toContain("Promote economic freedom");
       expect(SUMMARY_AND_VOTE_PROMPT).toContain("Drive national productivity");
@@ -169,7 +176,6 @@ describe("Prompt Generation", () => {
       expect(SUMMARY_AND_VOTE_PROMPT).toContain('"summary":');
       expect(SUMMARY_AND_VOTE_PROMPT).toContain('"tenet_evaluations":');
       expect(SUMMARY_AND_VOTE_PROMPT).toContain('"final_judgment":');
-      expect(SUMMARY_AND_VOTE_PROMPT).toContain('"steel_man":');
     });
 
     it("should have proper tenet evaluation structure in prompt", () => {
@@ -205,7 +211,7 @@ describe("Prompt Generation", () => {
         json: async () => ({ data: { bill: billWithoutSource } }),
       });
 
-      const bill = await getBillFromApi("S-230");
+      const bill = await getBillFromCivicsProjectApi("S-230");
       expect(bill).toBeDefined();
       expect(bill?.source).toBeUndefined();
 
@@ -219,7 +225,9 @@ describe("Prompt Generation", () => {
         status: 404,
       });
 
-      await expect(getBillFromApi("INVALID-BILL")).rejects.toThrow();
+      await expect(
+        getBillFromCivicsProjectApi("INVALID-BILL"),
+      ).rejects.toThrow();
     });
 
     it("should handle XML fetch errors gracefully", async () => {

@@ -20,12 +20,19 @@ export interface UnifiedBill {
   supportedRegion?: string;
   introducedOn?: Date;
   lastUpdatedOn?: Date;
+  stages: {
+    stage: string;
+    state: string;
+    house: string;
+    date: Date;
+  }[];
   genres?: string[];
   parliamentNumber?: number;
   sessionNumber?: number;
   votes?: Array<{ motion?: string; result: string }>;
   fullTextMarkdown?: string | null;
   isSocialIssue?: boolean;
+  question_period_questions?: Array<{ question: string }>;
   // Analysis data from AI
   tenet_evaluations?: Array<{
     id: number;
@@ -40,8 +47,8 @@ export interface UnifiedBill {
   steel_man?: string;
 }
 
-// Convert DB bill to unified format
-export function fromDbBill(bill: BillDocument): UnifiedBill {
+// Convert Build Canada DB bill to unified format
+export function fromBuildCanadaDbBill(bill: BillDocument): UnifiedBill {
   return {
     billId: bill.billId,
     title: bill.title,
@@ -53,24 +60,42 @@ export function fromDbBill(bill: BillDocument): UnifiedBill {
     supportedRegion: bill.supportedRegion,
     introducedOn: bill.introducedOn,
     lastUpdatedOn: bill.lastUpdatedOn,
-    genres: bill.genres,
+    stages: bill.stages ? [...bill.stages] : [],
+    genres: bill.genres ? [...bill.genres] : undefined,
     parliamentNumber: bill.parliamentNumber,
     sessionNumber: bill.sessionNumber,
-    votes: bill.votes?.map((v) => ({ motion: v.motion, result: v.result })),
+    votes: bill.votes?.map((v) => ({
+      motion: v.motion,
+      result: v.result,
+    })),
     isSocialIssue: bill.isSocialIssue,
-    // Include analysis data
-    tenet_evaluations: bill.tenet_evaluations,
+    // Properly serialize question_period_questions to remove MongoDB ObjectIds
+    question_period_questions: bill.question_period_questions?.map((q) => ({
+      question: q.question,
+    })),
+    // Include analysis data - ensure proper serialization
+    tenet_evaluations: bill.tenet_evaluations?.map((te) => ({
+      id: te.id,
+      title: te.title,
+      alignment: te.alignment,
+      explanation: te.explanation,
+    })),
     final_judgment: bill.final_judgment as "yes" | "no" | "neutral" | undefined,
     rationale: bill.rationale,
     needs_more_info: bill.needs_more_info,
-    missing_details: bill.missing_details,
+    missing_details: bill.missing_details
+      ? [...bill.missing_details]
+      : undefined,
     steel_man: bill.steel_man,
   };
 }
 
-// Convert API bill to unified format
-export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
-  const uri = process.env.MONGO_URI || "";
+// Convert Civics Project API bill to unified format
+export async function fromCivicsProjectApiBill(
+  bill: ApiBillDetail,
+): Promise<UnifiedBill> {
+  const { env } = await import("@/env");
+  const uri = env.MONGO_URI || "";
   const hasValidMongoUri =
     uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
   let existingBill: BillDocument | null = null;
@@ -88,16 +113,14 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
     billMarkdown = await fetchBillMarkdown(bill.source);
   }
 
-  // Check if we need to regenerate summary based on bill texts count
-  const currentBillTextsCount = Array.isArray(bill.billTexts)
-    ? bill.billTexts.length
-    : 0;
+  // Check if we need to regenerate summary based on source changes from Civics Project API
+  const currentSource = bill.source || null;
   let analysis: BillAnalysis = {
     summary: bill.header || "",
     tenet_evaluations: [
       {
         id: 1,
-        title: "Canada should aim to be the world's richest country",
+        title: "Canada should aim to be the world's most prosperous country",
         alignment: "neutral",
         explanation: "Not analyzed",
       },
@@ -154,7 +177,7 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
   };
   let shouldRegenerateSummary = true;
 
-  // Check existing bill in database to see if bill texts count changed
+  // Check existing bill in database to see if source changed
   try {
     const { connectToDatabase } = await import("@/lib/mongoose");
     const { Bill } = await import("@/models/Bill");
@@ -165,11 +188,8 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
         .lean()
         .exec()) as BillDocument | null;
 
-      if (
-        existingBill &&
-        existingBill.billTextsCount === currentBillTextsCount
-      ) {
-        // Bill texts count hasn't changed, use existing analysis
+      if (existingBill && existingBill.source === currentSource) {
+        // Source hasn't changed, use existing analysis
         analysis = {
           summary: existingBill.summary,
           tenet_evaluations:
@@ -186,7 +206,7 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
         };
         shouldRegenerateSummary = false;
         console.log(
-          `Using existing analysis for ${bill.billID} (billTexts count unchanged: ${currentBillTextsCount})`,
+          `Using existing analysis for ${bill.billID} (source unchanged)`,
         );
       }
     }
@@ -195,11 +215,9 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
     // Continue with regeneration if DB check fails
   }
 
-  if (shouldRegenerateSummary) {
-    console.log(
-      `Regenerating analysis for ${bill.billID} (billTexts count: ${currentBillTextsCount})`,
-    );
-    analysis = await summarizeBillText(billMarkdown || bill.header || "");
+  if (shouldRegenerateSummary && billMarkdown) {
+    console.log(`Regenerating analysis for ${bill.billID} (source changed)`);
+    analysis = await summarizeBillText(billMarkdown);
   }
 
   // Only classify if missing (new bill or classification absent). Avoid calling otherwise.
@@ -222,7 +240,7 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
     markdown: billMarkdown,
     bill,
     analysis,
-    billTextsCount: currentBillTextsCount,
+    billTextsCount: Array.isArray(bill.billTexts) ? bill.billTexts.length : 0,
     isSocialIssue: isSocialIssueFinal,
   });
 
@@ -232,6 +250,14 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
     short_title: bill.shortTitle,
     summary: analysis.summary,
     status: bill.status,
+    stages: bill.stages
+      ? bill.stages.map((stage) => ({
+          stage: stage.stage,
+          state: stage.state,
+          house: stage.house,
+          date: new Date(stage.date),
+        }))
+      : [],
     sponsorParty: bill.sponsorParty,
     chamber: house,
     supportedRegion: bill.supportedRegion,
@@ -241,6 +267,7 @@ export async function fromApiBill(bill: ApiBillDetail): Promise<UnifiedBill> {
     parliamentNumber: bill.parliamentNumber,
     sessionNumber: bill.sessionNumber,
     fullTextMarkdown: billMarkdown,
+    question_period_questions: analysis.question_period_questions,
     // Include analysis data
     tenet_evaluations: analysis.tenet_evaluations,
     final_judgment: analysis.final_judgment,

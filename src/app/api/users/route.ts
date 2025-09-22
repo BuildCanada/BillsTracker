@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/auth";
 import { connectToDatabase } from "@/lib/mongoose";
 import { User } from "@/models/User";
+import { authOptions } from "@/lib/auth";
 
 type CreateUserPayload = {
   email: string;

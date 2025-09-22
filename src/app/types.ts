@@ -29,5 +29,11 @@ export interface BillSummary {
   genres?: string[];
   parliamentNumber?: number;
   sessionNumber?: number;
+  stages: {
+    stage: string;
+    state: string;
+    house: string;
+    date: Date;
+  }[];
   isSocialIssue?: boolean;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback, memo } from "react";
 import { BillSummary } from "./types";
 import BillCard from "@/components/BillCard";
 import {
@@ -14,12 +14,12 @@ interface BillExplorerProps {
   bills: BillSummary[];
 }
 
-type GroupedBills = Array<{
-  statusLabel: string;
-  key: string; // normalized status key
-  rank: number;
-  items: BillSummary[];
-}>;
+// type GroupedBills = Array<{
+//   statusLabel: string;
+//   key: string; // normalized status key
+//   rank: number;
+//   items: BillSummary[];
+// }>;
 
 // --- helpers ---------------------------------------------------------
 
@@ -28,23 +28,23 @@ function normalizeStatus(s?: string) {
   return (s || "unknown").toLowerCase().replace(/\s+/g, " ").trim();
 }
 
-/** Pull a best-effort "updated at" date; fall back to introducedOn */
-function getUpdatedAt(b: any): number {
-  const candidates: Array<string | undefined> = [
-    b.updatedAt,
-    b.lastUpdated,
-    b.lastActionDate,
-    b.latestEventDate,
-    b.lastEventAt,
-    b.modifiedAt,
-    b.introducedOn,
-  ];
-  for (const d of candidates) {
-    const t = d ? new Date(d).getTime() : NaN;
-    if (!Number.isNaN(t)) return t;
-  }
-  return 0;
-}
+// /** Pull a best-effort "updated at" date; fall back to introducedOn */
+// function getUpdatedAt(b: any): number {
+//   const candidates: Array<string | undefined> = [
+//     b.updatedAt,
+//     b.lastUpdated,
+//     b.lastActionDate,
+//     b.latestEventDate,
+//     b.lastEventAt,
+//     b.modifiedAt,
+//     b.introducedOn,
+//   ];
+//   for (const d of candidates) {
+//     const t = d ? new Date(d).getTime() : NaN;
+//     if (!Number.isNaN(t)) return t;
+//   }
+//   return 0;
+// }
 
 /**
  * Assign an advancement rank (lower = more advanced).
@@ -78,17 +78,17 @@ function statusRank(statusKey: string): number {
   return 25; // unknown/misc middle bucket
 }
 
-/** Humanize a normalized status using the most common original label seen */
-function pickLabel(statusKey: string, originals: string[]) {
-  // choose the most frequent original label for prettier headings
-  const counts = new Map<string, number>();
-  for (const s of originals) counts.set(s, (counts.get(s) || 0) + 1);
-  return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || statusKey;
-}
+// /** Humanize a normalized status using the most common original label seen */
+// function pickLabel(statusKey: string, originals: string[]) {
+//   // choose the most frequent original label for prettier headings
+//   const counts = new Map<string, number>();
+//   for (const s of originals) counts.set(s, (counts.get(s) || 0) + 1);
+//   return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || statusKey;
+// }
 
 // --------------------------------------------------------------------
 
-export default function BillExplorer({ bills }: BillExplorerProps) {
+function BillExplorer({ bills }: BillExplorerProps) {
   const isMobile = useIsMobile();
   const [isFilterCollapsed, setIsFilterCollapsed] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
@@ -202,40 +202,40 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
     return filtered;
   }, [bills, filters]);
 
-  // Group + sort
-  const grouped: GroupedBills = useMemo(() => {
-    // collect originals per status for nicer headings
-    const originalsByKey = new Map<string, string[]>();
-    const groups = new Map<string, BillSummary[]>();
-
-    for (const b of filteredBills) {
-      const key = normalizeStatus(b.status);
-      if (!groups.has(key)) groups.set(key, []);
-      groups.get(key)?.push(b);
-
-      const origs = originalsByKey.get(key) || [];
-      origs.push(b.status || "Unknown");
-      originalsByKey.set(key, origs);
-    }
-
-    // build array with rank + sort items by updated desc
-    const arr: GroupedBills = [...groups.entries()].map(([key, items]) => {
-      const rank = statusRank(key);
-      items.sort((a, b) => getUpdatedAt(b) - getUpdatedAt(a));
-      const label = pickLabel(key, originalsByKey.get(key) || []);
-      return { statusLabel: label, key, rank, items };
-    });
-
-    // sort groups by advancement rank, then by most recent item in each group
-    arr.sort((g1, g2) => {
-      if (g1.rank !== g2.rank) return g1.rank - g2.rank;
-      const g1Latest = getUpdatedAt(g1.items[0]);
-      const g2Latest = getUpdatedAt(g2.items[0]);
-      return g2Latest - g1Latest;
-    });
-
-    return arr;
-  }, [filteredBills]);
+  // Grouping disabled for now
+  // const grouped: GroupedBills = useMemo(() => {
+  //   // collect originals per status for nicer headings
+  //   const originalsByKey = new Map<string, string[]>();
+  //   const groups = new Map<string, BillSummary[]>();
+  //
+  //   for (const b of filteredBills) {
+  //     const key = normalizeStatus(b.status);
+  //     if (!groups.has(key)) groups.set(key, []);
+  //     groups.get(key)!.push(b);
+  //
+  //     const origs = originalsByKey.get(key) || [];
+  //     origs.push(b.status || "Unknown");
+  //     originalsByKey.set(key, origs);
+  //   }
+  //
+  //   // build array with rank + sort items by updated desc
+  //   const arr: GroupedBills = [...groups.entries()].map(([key, items]) => {
+  //     const rank = statusRank(key);
+  //     items.sort((a, b) => getUpdatedAt(b) - getUpdatedAt(a));
+  //     const label = pickLabel(key, originalsByKey.get(key) || []);
+  //     return { statusLabel: label, key, rank, items };
+  //   });
+  //
+  //   // sort groups by advancement rank, then by most recent item in each group
+  //   arr.sort((g1, g2) => {
+  //     if (g1.rank !== g2.rank) return g1.rank - g2.rank;
+  //     const g1Latest = getUpdatedAt(g1.items[0]);
+  //     const g2Latest = getUpdatedAt(g2.items[0]);
+  //     return g2Latest - g1Latest;
+  //   });
+  //
+  //   return arr;
+  // }, [filteredBills]);
 
   // Sidebar filter options (normalize statuses for consistency)
   const filterOptions: FilterOptions = useMemo(() => {
@@ -292,7 +292,7 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
     setIsFilterCollapsed(isMobile);
   }, [isMobile]);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setFilters({
       search: "",
       status: [],
@@ -301,7 +301,7 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
       chamber: [],
       dateRange: "all",
     });
-  };
+  }, []);
 
   return (
     <div className="mx-auto max-w-7xl py-4 md:py-6">
@@ -321,28 +321,17 @@ export default function BillExplorer({ bills }: BillExplorerProps) {
           {filteredBills.length === 0 ? (
             <div className="text-sm">No bills match your filters.</div>
           ) : (
-            <div className="flex flex-col gap-6">
-              {grouped.map((group) => (
-                <section key={group.key} className="space-y-3 mb-4">
-                  <header className="sticky top-0 z-10 -mx-1 px-1 py-2 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-zinc-100">
-                    <h2 className="text-md font-semibold tracking-wide text-zinc-900">
-                      {group.statusLabel}{" "}
-                      <span className="text-zinc-500 font-normal">
-                        ({group.items.length})
-                      </span>
-                    </h2>
-                  </header>
-                  <ul className="flex flex-col gap-3">
-                    {group.items.map((bill) => (
-                      <BillCard key={bill.billID} bill={bill} />
-                    ))}
-                  </ul>
-                </section>
+            <ul className="flex flex-col gap-3">
+              {filteredBills.map((bill) => (
+                <BillCard key={bill.billID} bill={bill} />
               ))}
-            </div>
+            </ul>
           )}
         </main>
       </div>
     </div>
   );
 }
+
+// Memoize the component to prevent unnecessary re-renders
+export default memo(BillExplorer);

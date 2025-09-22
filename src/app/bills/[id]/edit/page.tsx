@@ -4,28 +4,25 @@ import { authOptions } from "@/auth";
 import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
 
 interface Params {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function EditBillPage({ params }: Params) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     redirect("/");
   }
 
-  const bill = await getBillByIdFromDB(params.id);
+  const bill = await getBillByIdFromDB(id);
   if (!bill) {
-    redirect(`/bills/${params.id}`);
+    redirect(`/bills/${id}`);
   }
 
   return (
     <div className="mx-auto max-w-[900px] px-6 py-8">
       <h1 className="text-xl font-semibold mb-6">Edit Bill</h1>
-      <form
-        className="space-y-6"
-        action={`/api/bills/${params.id}`}
-        method="post"
-      >
+      <form className="space-y-6" action={`/api/bills/${id}`} method="post">
         <div className="space-y-2">
           <label className="block text-sm font-medium" htmlFor="title">
             Title

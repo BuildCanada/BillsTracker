@@ -29,11 +29,19 @@ export const env = {
     "CIVICS_PROJECT_API_KEY",
     process.env.CIVICS_PROJECT_API_KEY,
   ),
-  MONGO_URI: optional("MONGO_URI", process.env.MONGO_URI),
+  MONGO_URI: optional(
+    "MONGO_URI",
+    (process.env.MONGO_URI || process.env.MONGODB_URI)?.trim(),
+  ),
+  NEXT_PUBLIC_APP_URL: optional(
+    "NEXT_PUBLIC_APP_URL",
+    process.env.NEXT_PUBLIC_APP_URL,
+  ),
 };
 
 export function assertServerEnv() {
   // Required for auth
+  required("NEXTAUTH_URL", env.NEXTAUTH_URL);
   required(
     "NEXTAUTH_SECRET or AUTH_SECRET",
     env.NEXTAUTH_SECRET || env.AUTH_SECRET,

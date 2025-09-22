@@ -93,7 +93,7 @@ export function FilterSidebar({
   const activeCount = getActiveFilterCount();
 
   return (
-    <Card className="h-fit sticky top-6">
+    <Card className="sticky top-6 max-h-[calc(100vh-2rem)] overflow-hidden flex flex-col">
       <CardHeader className="pb-0 pt-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -129,7 +129,7 @@ export function FilterSidebar({
       </CardHeader>
 
       {!isCollapsed && (
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 overflow-y-auto pr-2 flex-1">
           {/* Search */}
           <div className="space-y-2">
             <Label>Search</Label>
@@ -179,7 +179,7 @@ export function FilterSidebar({
           {/* Category */}
           <div className="space-y-3">
             <Label>Category</Label>
-            <div className="space-y-2 max-h-40 overflow-y-auto">
+            <div className="space-y-2">
               {(filterOptions?.categories || []).map((category) => (
                 <div key={category} className="flex items-center space-x-2">
                   <Checkbox

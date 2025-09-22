@@ -1,27 +1,26 @@
 import Link from "next/link";
+import { memo } from "react";
 import { BillSummary } from "@/app/types";
 import { Judgement } from "./Judgement/judgement.component";
 import { DynamicIcon } from "lucide-react/dynamic";
+import dayjs from "dayjs";
 
 import { getCategoryIcon } from "@/utils/bill-category-to-icon/bill-category-to-icon.util";
+import { getBillStageDates } from "@/utils/stages-to-dates/stages-to-dates";
 
 interface BillCardProps {
   bill: BillSummary;
 }
 
-export default function BillCard({ bill }: BillCardProps) {
-  const updatedAt = bill.lastUpdatedOn ? new Date(bill.lastUpdatedOn) : null;
-  const formattedDate =
-    updatedAt && !Number.isNaN(updatedAt.getTime())
-      ? updatedAt.toISOString().split("T")[0]
-      : null;
-  const dateDisplay = formattedDate
-    ? `Updated ${formattedDate}`
-    : "Bill not processed";
+function BillCard({ bill }: BillCardProps) {
+  const { lastUpdated } = getBillStageDates(bill.stages);
+  const dateDisplay = lastUpdated
+    ? dayjs(lastUpdated).format("MMM D, YYYY")
+    : "N/A";
 
   return (
     <li className="group rounded-lg border   bg-[var(--panel)] shadow-sm   duration-200 overflow-hidden">
-      <Link href={`/bills/${bill.billID}`} className="block">
+      <Link href={`/${bill.billID}`} className="block">
         <div className="p-5">
           {/* Header Section */}
           <div className="flex items-start md:flex-row flex-col-reverse  justify-between gap-4 mb-3">
@@ -115,3 +114,6 @@ export default function BillCard({ bill }: BillCardProps) {
     </li>
   );
 }
+
+// Memoize BillCard to prevent unnecessary re-renders when bill data hasn't changed
+export default memo(BillCard);

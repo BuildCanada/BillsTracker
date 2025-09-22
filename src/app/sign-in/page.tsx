@@ -1,10 +1,10 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { signIn } from "next-auth/react";
 
-export default function SignInPage() {
+function SignInContent() {
   const [loading, setLoading] = useState(false);
   const params = useSearchParams();
   const error = params.get("error");
@@ -38,5 +38,24 @@ export default function SignInPage() {
         </Button>
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[60vh] w-full flex items-center justify-center">
+          <div className="w-full max-w-sm space-y-4">
+            <h1 className="text-xl font-semibold">Sign in</h1>
+            <Button disabled className="w-full">
+              Loading...
+            </Button>
+          </div>
+        </div>
+      }
+    >
+      <SignInContent />
+    </Suspense>
   );
 }
