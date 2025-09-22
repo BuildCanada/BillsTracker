@@ -15,8 +15,8 @@ import { Separator } from "@/components/ui/separator";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-// Cache individual bill pages for 10 minutes
-export const revalidate = 600;
+// Cache individual bill pages for 2 minutes
+export const revalidate = 120;
 
 interface Params {
   params: Promise<any>;
