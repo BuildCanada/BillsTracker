@@ -50,7 +50,7 @@ const sizes: Record<Size, { pad: string; text: string; icon: string; gap: string
 
 function verdictCopy(j: JudgementValue, isSocialIssue?: boolean) {
   if (isSocialIssue) {
-    return "We are neutral on this bill.";
+    return "Neutral";
   }
   switch (j) {
     case "yes":

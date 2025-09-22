@@ -75,7 +75,7 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
             <CardHeader>
               <div className="flex md:items-center md:justify-between md:flex-row flex-col gap-4 ">
 
-                <CardTitle className="mb-2">Our Assessment</CardTitle>
+                <CardTitle className="mb-2">Builder Assessment</CardTitle>
                 <div>
                   <Judgement isSocialIssue={bill.isSocialIssue} judgement={bill.final_judgment as JudgementValue} />
                 </div>
@@ -93,7 +93,7 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
           {hasQP && (
             <Card>
               <CardHeader>
-                <CardTitle>What we would ask during Question Period</CardTitle>
+                <CardTitle>Question Period Cards</CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="list-disc pl-5 space-y-2">
@@ -111,7 +111,7 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
 
           <Card>
             <CardHeader>
-              <CardTitle>Tenet Analysis</CardTitle>
+              <CardTitle>Principles Analysis</CardTitle>
 
             </CardHeader>
             <CardContent className="space-y-4">
