@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export const revalidate = 120;
 
-export default async function QuestionSharePage({ params }: { params: { id: string, index: string } }) {
+export default async function QuestionSharePage({ params }: { params: Promise<{ id: string, index: string }> }) {
   const { id, index } = await params;
   const bill = await getUnifiedBillById(id);
   const idx = Number.parseInt(index, 10);
@@ -28,7 +28,7 @@ export default async function QuestionSharePage({ params }: { params: { id: stri
 }
 
 export async function generateMetadata(
-  { params }: { params: { id: string, index: string } },
+  { params }: { params: Promise<{ id: string, index: string }> },
   _parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const { id, index } = await params;
