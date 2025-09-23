@@ -7,7 +7,7 @@ import Link from "next/link";
 export const revalidate = 120;
 
 export default async function QuestionSharePage({ params }: { params: { id: string, index: string } }) {
-  const { id, index } = params;
+  const { id, index } = await params;
   const bill = await getUnifiedBillById(id);
   const idx = Number.parseInt(index, 10);
   const question = bill?.question_period_questions?.[idx - 1]?.question || "";
@@ -31,7 +31,7 @@ export async function generateMetadata(
   { params }: { params: { id: string, index: string } },
   _parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  const { id, index } = params;
+  const { id, index } = await params;
   const h = headers();
   const host = (await h).get("x-forwarded-host") || (await h).get("host") || "";
   const proto = ((await h).get("x-forwarded-proto") || "https").split(",")[0];
