@@ -6,15 +6,17 @@ import { Markdown } from "../Markdown/markdown";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
-import { Link as LinkIcon, Copy as CopyIcon, Share2 as ShareIcon, ExternalLink } from "lucide-react";
+import { Share2 as ShareIcon } from "lucide-react";
 
 
 export const BillQuestions = ({ bill }: { bill: UnifiedBill }) => {
   const [originAndPath, setOriginAndPath] = useState<string>("");
+  const [originOnly, setOriginOnly] = useState<string>("");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       setOriginAndPath(`${window.location.origin}${window.location.pathname}`);
+      setOriginOnly(window.location.origin);
     }
   }, []);
 
@@ -56,12 +58,12 @@ export const BillQuestions = ({ bill }: { bill: UnifiedBill }) => {
         <div className="flex flex-col gap-4">
           {questions.map((q, idx) => {
             const anchorId = `q-${idx + 1}`;
-            const shareUrl = originAndPath ? `${originAndPath}?q=${idx + 1}#${anchorId}` : `?q=${idx + 1}#${anchorId}`;
+            const shareUrl = originOnly && bill.billId ? `${originOnly}/${bill.billId}/q/${idx + 1}` : `/${bill.billId}/q/${idx + 1}`;
             const shareText = `Question for ${titleForShare}`;
             const composedCopy = `${q.question}\n\n${shareUrl}`;
             return (
-              <a href={`#${anchorId}`} className="text-xs text-muted-foreground inline-flex items-center gap-1">
-                <Card key={anchorId} id={anchorId} className="border-[var(--panel-border)]">
+              <a key={anchorId} href={`#${anchorId}`} className="text-xs text-muted-foreground inline-flex items-center gap-1">
+                <Card id={anchorId} className="border-[var(--panel-border)]">
                   <CardHeader className="border-b">
                     <div className="flex items-start justify-between gap-3">
                       <CardTitle className="text-base">Question {idx + 1}</CardTitle>
@@ -71,7 +73,7 @@ export const BillQuestions = ({ bill }: { bill: UnifiedBill }) => {
                           <Button
                             size="sm"
                             variant="secondary"
-                            onClick={() => handleShare({ text: shareText, url: shareUrl })}
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleShare({ text: shareText, url: shareUrl }); }}
                             aria-label="Share to social"
                           >
                             <ShareIcon className="size-4" />
