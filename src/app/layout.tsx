@@ -21,21 +21,23 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Build Canada Bills",
-    template: "%s · Build Canada Bills",
+    default: "Builder MP",
+    template: "%s · Builder MP",
   },
   description: "Understand Canadian Federal Bills",
   metadataBase: env.NEXT_PUBLIC_APP_URL ? new URL(env.NEXT_PUBLIC_APP_URL) : undefined,
   openGraph: {
     type: "website",
-    siteName: "Build Canada Bills",
-    title: "Build Canada Bills",
-    description: "Understand Canadian Federal Bills",
+    siteName: "Builder MP",
+    title: "Builder MP",
+    description: "Understand Canadian federal bills through a builder's lens",
     url: "/",
+    images: [{ url: "/builder-mp-seo-image.png", width: 1200, height: 630, alt: "Builder MP" }],
   },
   twitter: {
     card: "summary_large_image",
     site: "@buildcanada",
+    images: ["/builder-mp-seo-image.png"]
   },
 };
 
