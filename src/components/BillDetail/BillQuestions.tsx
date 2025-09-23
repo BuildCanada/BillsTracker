@@ -1,37 +1,27 @@
 "use client";
 
-import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardAction } from "../ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardAction } from "../ui/card";
 import { UnifiedBill } from "@/utils/billConverters";
 import { Markdown } from "../Markdown/markdown";
 import { Button } from "../ui/button";
-import { toast } from "sonner";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Share2 as ShareIcon } from "lucide-react";
 
 
-export const BillQuestions = ({ bill }: { bill: UnifiedBill }) => {
-  const [originAndPath, setOriginAndPath] = useState<string>("");
-  const [originOnly, setOriginOnly] = useState<string>("");
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setOriginAndPath(`${window.location.origin}${window.location.pathname}`);
-      setOriginOnly(window.location.origin);
-    }
-  }, []);
-
+export const BillQuestions = ({ bill, billSlug, origin }: { bill: UnifiedBill; billSlug: string; origin: string }) => {
   const titleForShare = useMemo(() => {
     return bill.short_title || bill.title || bill.billId || "Bill";
   }, [bill.short_title, bill.title, bill.billId]);
 
-  const handleCopyText = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast.success("Copied to clipboard");
-    } catch {
-      toast.error("Failed to copy");
+  const baseOrigin = useMemo(() => {
+    if (origin && origin.length > 0) {
+      return origin.replace(/\/$/, "");
     }
-  };
+    if (typeof window !== "undefined" && window.location?.origin) {
+      return window.location.origin;
+    }
+    return "";
+  }, [origin]);
 
   const handleShare = async (options: { text: string; url: string; }) => {
     const { text, url } = options;
@@ -58,9 +48,8 @@ export const BillQuestions = ({ bill }: { bill: UnifiedBill }) => {
         <div className="flex flex-col gap-4">
           {questions.map((q, idx) => {
             const anchorId = `q-${idx + 1}`;
-            const shareUrl = originOnly && bill.billId ? `${originOnly}/${bill.billId}/q/${idx + 1}` : `/${bill.billId}/q/${idx + 1}`;
-            const shareText = `Question for ${titleForShare}`;
-            const composedCopy = `${q.question}\n\n${shareUrl}`;
+            const shareUrlBase = `${baseOrigin}/${billSlug}/q/${idx + 1}`;
+            const shareText = `Question ${idx + 1} for ${titleForShare}`;
             return (
               <a key={anchorId} href={`#${anchorId}`} className="text-xs text-muted-foreground inline-flex items-center gap-1">
                 <Card id={anchorId} className="border-[var(--panel-border)]">
@@ -73,7 +62,11 @@ export const BillQuestions = ({ bill }: { bill: UnifiedBill }) => {
                           <Button
                             size="sm"
                             variant="secondary"
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleShare({ text: shareText, url: shareUrl }); }}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleShare({ text: shareText, url: shareUrlBase });
+                            }}
                             aria-label="Share to social"
                           >
                             <ShareIcon className="size-4" />

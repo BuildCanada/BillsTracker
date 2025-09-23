@@ -37,7 +37,7 @@ export async function generateMetadata(
   const proto = ((await h).get("x-forwarded-proto") || "https").split(",")[0];
   const baseUrl = env.NEXT_PUBLIC_APP_URL || (host ? `${proto}://${host}` : "");
   const pageUrl = baseUrl ? `${baseUrl}/${id}/q/${index}` : `/${id}/q/${index}`;
-  const ogImageUrl = baseUrl ? `${baseUrl}/${id}/questions-opengraph-image?index=${encodeURIComponent(index)}` : `/${id}/questions-opengraph-image?index=${encodeURIComponent(index)}`;
+  const ogImageUrl = baseUrl ? `${baseUrl}/${id}/q/${encodeURIComponent(index)}/opengraph-image` : `/${id}/q/${encodeURIComponent(index)}/opengraph-image`;
   const title = `Question ${index} · ${id}`;
   const description = `Question ${index} from ${id}`;
 

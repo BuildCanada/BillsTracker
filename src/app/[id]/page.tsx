@@ -5,18 +5,13 @@ import { fromBuildCanadaDbBill, fromCivicsProjectApiBill, type UnifiedBill } fro
 import type { Metadata, ResolvingMetadata } from "next";
 import { headers } from "next/headers";
 import { env } from "@/env";
-import {
-  BillHeader,
-  BillSummary,
-  BillMetadata,
-  BillAnalysis,
-} from "@/components/BillDetail";
+import { BillHeader, BillSummary, BillMetadata, BillAnalysis } from "@/components/BillDetail";
+import { BillQuestions } from "@/components/BillDetail/BillQuestions";
 import { Separator } from "@/components/ui/separator";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { BillTenets } from "@/components/BillDetail/BillTenets";
 import { JudgementValue } from "@/components/Judgement/judgement.component";
-import { BillQuestions } from "@/components/BillDetail/BillQuestions";
 
 // Cache individual bill pages for 2 minutes
 export const revalidate = 120;
@@ -31,6 +26,10 @@ export default async function BillDetail({ params }: Params) {
 
 
   const session = await getServerSession(authOptions);
+  const headerList = await headers();
+  const host = headerList.get("x-forwarded-host") || headerList.get("host") || "";
+  const proto = (headerList.get("x-forwarded-proto") || "https").split(",")[0];
+  const origin = env.NEXT_PUBLIC_APP_URL || (host ? `${proto}://${host}` : "");
   // Try database first, then fallback to API
   const dbBill = await getBillByIdFromDB(id);
   let unifiedBill: UnifiedBill | null = null;
@@ -92,11 +91,9 @@ export default async function BillDetail({ params }: Params) {
         <div className="flex gap-4 flex-col">
           <BillSummary bill={unifiedBill} />
           <BillAnalysis bill={unifiedBill} showAnalysis={showAnalysis} displayJudgement={displayJudgement} />
-          {
-            showAnalysis && (
-              <BillQuestions bill={unifiedBill} />
-            )
-          }
+          {showAnalysis && (
+            <BillQuestions bill={unifiedBill} billSlug={id} origin={origin} />
+          )}
           {
             showAnalysis && (
               <BillTenets bill={unifiedBill} />
@@ -128,7 +125,7 @@ export async function generateMetadata(
   const pageUrl = baseUrl ? `${baseUrl}/${id}` : `/${id}`;
   const pageUrlWithQuery = q ? `${pageUrl}?q=${encodeURIComponent(q)}` : pageUrl;
   const defaultOg = baseUrl ? `${baseUrl}/${id}/opengraph-image` : `/${id}/opengraph-image`;
-  const questionsOg = q ? `${baseUrl ? `${baseUrl}` : ""}/${id}/questions-opengraph-image?index=${encodeURIComponent(q)}` : undefined;
+  const questionsOg = q ? `${baseUrl}/${id}/q/${encodeURIComponent(q)}/opengraph-image` : undefined;
   const ogImageUrl = questionsOg || defaultOg;
 
   return {
