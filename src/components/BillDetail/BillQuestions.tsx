@@ -6,6 +6,7 @@ import { Markdown } from "../Markdown/markdown";
 import { Button } from "../ui/button";
 import { useMemo } from "react";
 import { Share2 as ShareIcon } from "lucide-react";
+import { buildAbsoluteUrl, buildRelativePath } from "@/utils/basePath";
 
 
 export const BillQuestions = ({ bill, billSlug, origin }: { bill: UnifiedBill; billSlug: string; origin: string }) => {
@@ -13,7 +14,7 @@ export const BillQuestions = ({ bill, billSlug, origin }: { bill: UnifiedBill; b
     return bill.short_title || bill.title || bill.billId || "Bill";
   }, [bill.short_title, bill.title, bill.billId]);
 
-  const baseOrigin = useMemo(() => {
+  const resolvedOrigin = useMemo(() => {
     if (origin && origin.length > 0) {
       return origin.replace(/\/$/, "");
     }
@@ -48,10 +49,11 @@ export const BillQuestions = ({ bill, billSlug, origin }: { bill: UnifiedBill; b
         <div className="flex flex-col gap-4">
           {questions.map((q, idx) => {
             const anchorId = `q-${idx + 1}`;
-            const shareUrlBase = `${baseOrigin}/${billSlug}/q/${idx + 1}`;
+            const shareUrl = buildAbsoluteUrl(resolvedOrigin, billSlug, "q", idx + 1);
+            const detailPath = `${buildRelativePath(billSlug)}?q=${idx + 1}#${anchorId}`;
             const shareText = `Question ${idx + 1} for ${titleForShare}`;
             return (
-              <a key={anchorId} href={`#${anchorId}`} className="text-xs text-muted-foreground inline-flex items-center gap-1">
+              <a key={anchorId} href={detailPath} className="text-xs text-muted-foreground inline-flex items-center gap-1">
                 <Card id={anchorId} className="border-[var(--panel-border)]">
                   <CardHeader className="border-b">
                     <div className="flex items-start justify-between gap-3">
@@ -65,7 +67,7 @@ export const BillQuestions = ({ bill, billSlug, origin }: { bill: UnifiedBill; b
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
-                              handleShare({ text: shareText, url: shareUrlBase });
+                              handleShare({ text: shareText, url: shareUrl });
                             }}
                             aria-label="Share to social"
                           >

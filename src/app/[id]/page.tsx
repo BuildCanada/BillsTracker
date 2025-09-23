@@ -12,6 +12,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { BillTenets } from "@/components/BillDetail/BillTenets";
 import { JudgementValue } from "@/components/Judgement/judgement.component";
+import { buildRelativePath } from "@/utils/basePath";
 
 // Cache individual bill pages for 2 minutes
 export const revalidate = 120;
@@ -122,10 +123,13 @@ export async function generateMetadata(
   const host = (await h).get("x-forwarded-host") || (await h).get("host") || "";
   const proto = ((await h).get("x-forwarded-proto") || "https").split(",")[0];
   const baseUrl = env.NEXT_PUBLIC_APP_URL || (host ? `${proto}://${host}` : "");
-  const pageUrl = baseUrl ? `${baseUrl}/${id}` : `/${id}`;
+  const pagePath = buildRelativePath(id);
+  const pageUrl = baseUrl ? `${baseUrl}${pagePath}` : pagePath;
   const pageUrlWithQuery = q ? `${pageUrl}?q=${encodeURIComponent(q)}` : pageUrl;
-  const defaultOg = baseUrl ? `${baseUrl}/${id}/opengraph-image` : `/${id}/opengraph-image`;
-  const questionsOg = q ? `${baseUrl}/${id}/q/${encodeURIComponent(q)}/opengraph-image` : undefined;
+  const defaultOgPath = buildRelativePath(id, "opengraph-image");
+  const defaultOg = baseUrl ? `${baseUrl}${defaultOgPath}` : defaultOgPath;
+  const questionsOgPath = q ? buildRelativePath(id, "q", encodeURIComponent(q), "opengraph-image") : undefined;
+  const questionsOg = questionsOgPath ? (baseUrl ? `${baseUrl}${questionsOgPath}` : questionsOgPath) : undefined;
   const ogImageUrl = questionsOg || defaultOg;
 
   return {

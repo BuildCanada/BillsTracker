@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { env } from "@/env";
 import { getUnifiedBillById } from "@/server/get-unified-bill-by-id";
 import Link from "next/link";
+import { buildRelativePath } from "@/utils/basePath";
 
 export const revalidate = 120;
 
@@ -21,7 +22,7 @@ export default async function QuestionSharePage({ params }: { params: Promise<{ 
         <p className="whitespace-pre-wrap">{question}</p>
       </div>
       <div className="mt-6">
-        <Link className="underline text-sm" href={`/${id}?q=${idx}#q-${idx}`}>View full bill and discussion →</Link>
+        <Link className="underline text-sm" href={buildRelativePath(id) + `?q=${idx}#q-${idx}`}>View full bill and discussion →</Link>
       </div>
     </div>
   );
@@ -36,8 +37,10 @@ export async function generateMetadata(
   const host = (await h).get("x-forwarded-host") || (await h).get("host") || "";
   const proto = ((await h).get("x-forwarded-proto") || "https").split(",")[0];
   const baseUrl = env.NEXT_PUBLIC_APP_URL || (host ? `${proto}://${host}` : "");
-  const pageUrl = baseUrl ? `${baseUrl}/${id}/q/${index}` : `/${id}/q/${index}`;
-  const ogImageUrl = baseUrl ? `${baseUrl}/${id}/q/${encodeURIComponent(index)}/opengraph-image` : `/${id}/q/${encodeURIComponent(index)}/opengraph-image`;
+  const pagePath = buildRelativePath(id, "q", index);
+  const pageUrl = baseUrl ? `${baseUrl}${pagePath}` : pagePath;
+  const ogImagePath = buildRelativePath(id, "q", index, "opengraph-image");
+  const ogImageUrl = baseUrl ? `${baseUrl}${ogImagePath}` : ogImagePath;
   const title = `Question ${index} · ${id}`;
   const description = `Question ${index} from ${id}`;
 
