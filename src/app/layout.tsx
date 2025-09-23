@@ -7,6 +7,7 @@ import { env } from "@/env";
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { GOOGLE_ANALYTICS_ID, } from "@/consts/general";
 import { Nav } from "@/components/Nav/nav.component";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,6 +55,7 @@ export default async function RootLayout({
           {children}
           <Footer />
         </SessionProvider>
+        <Toaster richColors position="top-center" />
         <GoogleAnalytics gaId={GOOGLE_ANALYTICS_ID} />
 
       </body>

@@ -14,6 +14,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { BillTenets } from "@/components/BillDetail/BillTenets";
+import { JudgementValue } from "@/components/Judgement/judgement.component";
+import { BillQuestions } from "@/components/BillDetail/BillQuestions";
 
 // Cache individual bill pages for 2 minutes
 export const revalidate = 120;
@@ -24,6 +27,8 @@ interface Params {
 
 export default async function BillDetail({ params }: Params) {
   const { id } = await params;
+
+
 
   const session = await getServerSession(authOptions);
   // Try database first, then fallback to API
@@ -41,6 +46,7 @@ export default async function BillDetail({ params }: Params) {
 
 
 
+
   if (!unifiedBill) {
     return (
       <div className="mx-auto max-w-[800px] px-6 py-10">
@@ -54,6 +60,16 @@ export default async function BillDetail({ params }: Params) {
       </div>
     );
   }
+
+  const isNeutral = unifiedBill.final_judgment === "neutral";
+  const isSocialIssue = unifiedBill.isSocialIssue;
+  const alignCount = (unifiedBill.tenet_evaluations ?? []).filter((t) => t.alignment === "aligns").length;
+  const conflictCount = (unifiedBill.tenet_evaluations ?? []).filter((t) => t.alignment === "conflicts").length;
+  const onlySingleIssueVarying = alignCount === 1 || conflictCount === 1;
+
+  const showAnalysis = !isNeutral && !isSocialIssue && !onlySingleIssueVarying;
+  const displayJudgement = (onlySingleIssueVarying ? "neutral" : (unifiedBill.final_judgment as JudgementValue)) as JudgementValue;
+
 
 
   return (
@@ -75,8 +91,17 @@ export default async function BillDetail({ params }: Params) {
       <section className="mt-6 grid gap-6 md:grid-cols-[1fr_280px] relative">
         <div className="flex gap-4 flex-col">
           <BillSummary bill={unifiedBill} />
-          <BillAnalysis bill={unifiedBill} />
-          {/* <BillTimeline bill={unifiedBill} /> */}
+          <BillAnalysis bill={unifiedBill} showAnalysis={showAnalysis} displayJudgement={displayJudgement} />
+          {
+            showAnalysis && (
+              <BillQuestions bill={unifiedBill} />
+            )
+          }
+          {
+            showAnalysis && (
+              <BillTenets bill={unifiedBill} />
+            )
+          }
         </div>
         <div className="space-y-6">
           <BillMetadata bill={unifiedBill} />
@@ -88,10 +113,12 @@ export default async function BillDetail({ params }: Params) {
 }
 
 export async function generateMetadata(
-  { params }: Params,
+  { params, searchParams }: { params: Promise<any>, searchParams: Promise<{ q?: string }> },
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { id } = await params;
+  const sp = await searchParams;
+  const q = sp?.q;
   const title = id;
   const description = `Bill ${id} analysis and judgement`;
   const h = headers();
@@ -99,7 +126,10 @@ export async function generateMetadata(
   const proto = ((await h).get("x-forwarded-proto") || "https").split(",")[0];
   const baseUrl = env.NEXT_PUBLIC_APP_URL || (host ? `${proto}://${host}` : "");
   const pageUrl = baseUrl ? `${baseUrl}/${id}` : `/${id}`;
-  const ogImageUrl = baseUrl ? `${baseUrl}/${id}/opengraph-image` : `/${id}/opengraph-image`;
+  const pageUrlWithQuery = q ? `${pageUrl}?q=${encodeURIComponent(q)}` : pageUrl;
+  const defaultOg = baseUrl ? `${baseUrl}/${id}/opengraph-image` : `/${id}/opengraph-image`;
+  const questionsOg = q ? `${baseUrl ? `${baseUrl}` : ""}/${id}/questions-opengraph-image?index=${encodeURIComponent(q)}` : undefined;
+  const ogImageUrl = questionsOg || defaultOg;
 
   return {
     title,
@@ -108,7 +138,7 @@ export async function generateMetadata(
     openGraph: {
       title,
       description,
-      url: pageUrl,
+      url: pageUrlWithQuery,
       type: "article",
       images: [{ url: ogImageUrl, width: 1200, height: 630, alt: title }],
     },
