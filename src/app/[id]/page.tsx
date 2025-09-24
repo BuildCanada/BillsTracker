@@ -12,7 +12,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { BillTenets } from "@/components/BillDetail/BillTenets";
 import { JudgementValue } from "@/components/Judgement/judgement.component";
-import { buildRelativePath } from "@/utils/basePath";
+import { buildAbsoluteUrl, buildRelativePath } from "@/utils/basePath";
+import { BillShare } from "@/components/BillDetail/BillShare";
 
 // Cache individual bill pages for 2 minutes
 export const revalidate = 120;
@@ -88,12 +89,15 @@ export default async function BillDetail({ params }: Params) {
       <BillHeader bill={unifiedBill} />
 
       <Separator />
+      <div className="mt-4 md:hidden">
+        <BillShare bill={unifiedBill} shareUrl={buildAbsoluteUrl(origin, id)} variant="compact" />
+      </div>
       <section className="mt-6 grid gap-6 md:grid-cols-[1fr_280px] relative">
         <div className="flex gap-4 flex-col">
           <BillSummary bill={unifiedBill} />
           <BillAnalysis bill={unifiedBill} showAnalysis={showAnalysis} displayJudgement={displayJudgement} />
           {showAnalysis && (
-            <BillQuestions bill={unifiedBill} billSlug={id} origin={origin} />
+            <BillQuestions bill={unifiedBill} />
           )}
           {
             showAnalysis && (
@@ -103,6 +107,11 @@ export default async function BillDetail({ params }: Params) {
         </div>
         <div className="space-y-6">
           <BillMetadata bill={unifiedBill} />
+          <BillShare
+            bill={unifiedBill}
+            shareUrl={buildAbsoluteUrl(origin, id)}
+            className="hidden md:block"
+          />
         </div>
 
       </section>
