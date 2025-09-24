@@ -11,6 +11,9 @@ export const size = {
 
 export const contentType = "image/png";
 
+// Cache for 1 hour to improve performance for social media crawlers
+export const revalidate = 3600;
+
 export default async function QuestionsOpengraphImage({ params, searchParams }: { params: { id: string }, searchParams: { index?: string } }) {
   const bill = await getUnifiedBillById(params.id);
   const indexParam = typeof searchParams?.index === "string" ? parseInt(searchParams.index, 10) : 1;
@@ -32,6 +35,12 @@ export default async function QuestionsOpengraphImage({ params, searchParams }: 
     ),
     {
       ...size,
+      headers: {
+        'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
     }
   );
 }

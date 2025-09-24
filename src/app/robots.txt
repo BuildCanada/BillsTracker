@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+Sitemap: https://buildcanada.com/sitemap.xml

@@ -127,14 +127,15 @@ export async function generateMetadata(
   const h = headers();
   const host = (await h).get("x-forwarded-host") || (await h).get("host") || "";
   const proto = ((await h).get("x-forwarded-proto") || "https").split(",")[0];
-  const baseUrl = env.NEXT_PUBLIC_APP_URL || (host ? `${proto}://${host}` : "");
+  // Ensure we always have a base URL for absolute image URLs (required for Twitter Cards)
+  const baseUrl = env.NEXT_PUBLIC_APP_URL || (host ? `${proto}://${host}` : "http://localhost:3000");
   const pagePath = buildRelativePath(id);
-  const pageUrl = baseUrl ? `${baseUrl}${pagePath}` : pagePath;
+  const pageUrl = `${baseUrl}${pagePath}`;
   const pageUrlWithQuery = q ? `${pageUrl}?q=${encodeURIComponent(q)}` : pageUrl;
   const defaultOgPath = buildRelativePath(id, "opengraph-image");
-  const defaultOg = baseUrl ? `${baseUrl}${defaultOgPath}` : defaultOgPath;
+  const defaultOg = `${baseUrl}${defaultOgPath}`;
   const questionsOgPath = q ? buildRelativePath(id, "q", encodeURIComponent(q), "opengraph-image") : undefined;
-  const questionsOg = questionsOgPath ? (baseUrl ? `${baseUrl}${questionsOgPath}` : questionsOgPath) : undefined;
+  const questionsOg = questionsOgPath ? `${baseUrl}${questionsOgPath}` : undefined;
   const ogImageUrl = questionsOg || defaultOg;
 
   return {
@@ -161,6 +162,7 @@ export async function generateMetadata(
       "twitter:title": title,
       "twitter:description": description,
       "twitter:image": ogImageUrl,
+      "twitter:image:alt": `Analysis card for Bill ${title}`,
       "twitter:creator": BUILD_CANADA_TWITTER_HANDLE,
       "twitter:site": BUILD_CANADA_TWITTER_HANDLE,
       "twitter:url": pageUrlWithQuery,

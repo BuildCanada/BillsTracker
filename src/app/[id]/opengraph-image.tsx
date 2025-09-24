@@ -12,6 +12,9 @@ export const size = {
 
 export const contentType = "image/png";
 
+// Cache for 1 hour to improve performance for social media crawlers
+export const revalidate = 3600;
+
 async function loadGoogleFont(font: string, weight: number, text: string) {
   const params = new URLSearchParams({
     family: `${font}:wght@${weight}`,
@@ -63,6 +66,12 @@ export default async function OpengraphImage({ params }: { params: { id: string 
         { name: "Inter", data: interRegular, weight: 400, style: "normal" },
         { name: "Inter", data: interBold, weight: 700, style: "normal" },
       ] : undefined,
+      headers: {
+        'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
     }
   );
 }
