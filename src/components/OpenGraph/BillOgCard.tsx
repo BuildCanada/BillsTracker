@@ -42,7 +42,7 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
           height: "100%",
           background: "#efe6dd",
           border: "6px solid #e6ded6",
-          padding: 32,
+          padding: "96px 56px 48px 48px",
           color: "#1f2937",
           fontFamily:
             "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
@@ -51,8 +51,8 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
         <div
           style={{
             position: "absolute",
-            top: 24,
-            right: 24,
+            top: 32,
+            right: 32,
             background: "#932f2f",
             color: "#ffffff",
             padding: "12px 16px",
@@ -77,12 +77,12 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
             flexDirection: "column",
             justifyContent: "flex-start",
             alignItems: "flex-start",
-            gap: 20,
+            gap: 24,
           }}
         >
           <div
             style={{
-              maxWidth: 980,
+              maxWidth: 860,
               fontSize: 64,
               fontWeight: 800,
               lineHeight: 1.02,
@@ -95,7 +95,7 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {summaryText ? (
-              <div style={{ maxWidth: 980, fontSize: 26, color: "#334155", lineHeight: 1.35, marginBottom: 24 }}>{summaryText}</div>
+              <div style={{ maxWidth: 860, fontSize: 26, color: "#334155", lineHeight: 1.35, marginBottom: 24 }}>{summaryText}</div>
             ) : null}
             <div
               style={{
