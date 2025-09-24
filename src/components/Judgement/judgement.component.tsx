@@ -48,9 +48,16 @@ const sizes: Record<
   md: { pad: "p-3", text: "text-base", icon: "h-5 w-5", gap: "gap-3" },
 };
 
-function verdictCopy(j: JudgementValue, isSocialIssue?: boolean) {
+function verdictCopy(
+  j: JudgementValue,
+  isSocialIssue?: boolean,
+  onlySingleIssueVarying?: boolean,
+) {
   if (isSocialIssue) {
-    return "We are neutral on this bill.";
+    return "Neutral";
+  }
+  if (onlySingleIssueVarying) {
+    return "Neutral";
   }
   switch (j) {
     case "yes":
@@ -67,15 +74,18 @@ export function Judgement({
   size = "sm",
   className,
   isSocialIssue,
+  onlySingleIssueVarying,
 }: {
   judgement: JudgementValue;
   size?: Size;
   className?: string;
   isSocialIssue?: boolean;
+  onlySingleIssueVarying?: boolean;
 }) {
-  const s = isSocialIssue
-    ? stylesByJudgement.neutral
-    : stylesByJudgement[judgement];
+  const s =
+    isSocialIssue || onlySingleIssueVarying
+      ? stylesByJudgement.neutral
+      : stylesByJudgement[judgement];
   const sz = sizes[size];
 
   const Icon = isSocialIssue
@@ -120,7 +130,7 @@ export function Judgement({
         </span>
 
         <span className={`font-medium leading-none ${sz.text}`}>
-          {verdictCopy(judgement, isSocialIssue)}
+          {verdictCopy(judgement, isSocialIssue, onlySingleIssueVarying)}
         </span>
         {/* <div className="flex flex-col">
           {showLabel && (

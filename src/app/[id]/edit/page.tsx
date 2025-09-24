@@ -144,7 +144,7 @@ export default async function EditBillPage({ params }: Params) {
           />
         </div>
         <div className="space-y-4">
-          <h2 className="text-lg font-medium">Tenet Analysis</h2>
+          <h2 className="text-lg font-medium">Principles Analysis</h2>
           {(bill.tenet_evaluations || []).map((tenet, index) => {
             const idSuffix = String(index);
             return (

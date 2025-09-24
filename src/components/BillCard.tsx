@@ -7,9 +7,10 @@ import dayjs from "dayjs";
 
 import { getCategoryIcon } from "@/utils/bill-category-to-icon/bill-category-to-icon.util";
 import { getBillStageDates } from "@/utils/stages-to-dates/stages-to-dates";
+import { TenetEvaluation } from "@/models/Bill";
 
 interface BillCardProps {
-  bill: BillSummary;
+  bill: BillSummary & { tenet_evaluations?: TenetEvaluation[] };
 }
 
 function BillCard({ bill }: BillCardProps) {
@@ -17,6 +18,16 @@ function BillCard({ bill }: BillCardProps) {
   const dateDisplay = lastUpdated
     ? dayjs(lastUpdated).format("MMM D, YYYY")
     : "N/A";
+
+  const alignCount = (bill.tenet_evaluations ?? []).filter(
+    (t) => t.alignment === "aligns",
+  ).length;
+  const conflictCount = (bill.tenet_evaluations ?? []).filter(
+    (t) => t.alignment === "conflicts",
+  ).length;
+  const onlySingleIssueVarying = alignCount === 1 || conflictCount === 1;
+
+  console.log({ bill, onlySingleIssueVarying });
 
   return (
     <li className="group rounded-lg border   bg-[var(--panel)] shadow-sm   duration-200 overflow-hidden">
@@ -35,6 +46,7 @@ function BillCard({ bill }: BillCardProps) {
               <Judgement
                 judgement={bill?.final_judgment}
                 isSocialIssue={bill.isSocialIssue}
+                onlySingleIssueVarying={onlySingleIssueVarying}
               />
             )}
           </div>
