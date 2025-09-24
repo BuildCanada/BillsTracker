@@ -101,17 +101,28 @@ function BillExplorer({ bills }: BillExplorerProps) {
   const filteredBills = useMemo(() => {
     const filtered = bills.filter((bill) => {
       // Search
-      if (filters.search) {
-        const q = filters.search.toLowerCase();
-        const hay = [
+      if (filters.search.trim()) {
+        const q = filters.search.trim().toLowerCase();
+        const qNormalized = q.replace(/[\s-]/g, "");
+
+        const haystack = [
+          bill.billID,
           bill.title,
           bill.description,
           bill.summary || "",
           bill.shortTitle || "",
         ]
-          .join(" ")
-          .toLowerCase();
-        if (!hay.includes(q)) return false;
+          .filter(Boolean)
+          .map((value) => value.toLowerCase());
+
+        const hayJoined = haystack.join(" ");
+        const hayNormalized = haystack.map((value) => value.replace(/[\s-]/g, ""));
+
+        const matchesSearch =
+          hayJoined.includes(q) ||
+          (qNormalized !== "" && hayNormalized.some((value) => value.includes(qNormalized)));
+
+        if (!matchesSearch) return false;
       }
 
       // Status (normalize both sides)

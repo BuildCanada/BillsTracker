@@ -4,12 +4,15 @@ import { TENETS } from "@/prompt/summary-and-vote-prompt";
 import { Markdown } from '../Markdown/markdown';
 import { Judgement, JudgementValue } from "../Judgement/judgement.component";
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { BillTenets } from "./BillTenets";
 
 interface BillAnalysisProps {
   bill: UnifiedBill;
+  showAnalysis: boolean;
+  displayJudgement: JudgementValue;
 }
 
-function getAlignmentColor(alignment: "aligns" | "conflicts" | "neutral"): string {
+export function getAlignmentColor(alignment: "aligns" | "conflicts" | "neutral"): string {
   switch (alignment) {
     case "aligns":
       return "text-emerald-700 bg-emerald-50 border-emerald-200";
@@ -22,7 +25,7 @@ function getAlignmentColor(alignment: "aligns" | "conflicts" | "neutral"): strin
   }
 }
 
-function getAlignmentIcon(alignment: "aligns" | "conflicts" | "neutral"): string {
+export function getAlignmentIcon(alignment: "aligns" | "conflicts" | "neutral"): string {
   switch (alignment) {
     case "aligns":
       return "✓";
@@ -37,32 +40,23 @@ function getAlignmentIcon(alignment: "aligns" | "conflicts" | "neutral"): string
 
 
 
-export function BillAnalysis({ bill }: BillAnalysisProps) {
-  const hasTenets = bill.tenet_evaluations && bill.tenet_evaluations.length > 0;
-  const hasQP = bill.question_period_questions && bill.question_period_questions.length > 0;
-  const isNeutral = bill.final_judgment === "neutral";
-  const isSocialIssue = bill.isSocialIssue;
-  const alignCount = (bill.tenet_evaluations ?? []).filter((t) => t.alignment === "aligns").length;
-  const conflictCount = (bill.tenet_evaluations ?? []).filter((t) => t.alignment === "conflicts").length;
-  const onlySingleIssueVarying = alignCount === 1 || conflictCount === 1;
-
-  const showAnalysis = !isNeutral && !isSocialIssue && !onlySingleIssueVarying;
-  const displayJudgement = (onlySingleIssueVarying ? "neutral" : (bill.final_judgment as JudgementValue)) as JudgementValue;
-
-
-
-  if (!hasTenets && !hasQP) {
-    return null;
-  }
+export function BillAnalysis({ bill, showAnalysis, displayJudgement }: BillAnalysisProps) {
 
 
   if (!showAnalysis) {
     return (
       <Card>
+        <CardHeader>
+          <div className="flex md:items-center md:justify-between md:flex-row flex-col gap-4 ">
 
-        <CardContent className="mt-6">
-          <Judgement isSocialIssue={bill.isSocialIssue} judgement={displayJudgement} />
+            <CardTitle className="mb-2">Builder Assessment</CardTitle>
 
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div>
+            <Judgement isSocialIssue={bill.isSocialIssue} judgement={displayJudgement} />
+          </div>
         </CardContent>
       </Card>
     )
@@ -73,7 +67,7 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
     <div className="relative flex gap-4 flex-col">
 
 
-      {hasTenets && (
+      {showAnalysis && (
         <>
           <Card>
             <CardHeader>
@@ -94,49 +88,6 @@ export function BillAnalysis({ bill }: BillAnalysisProps) {
             </CardContent>
           </Card>
 
-          {hasQP && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Question Period Cards</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="list-disc pl-5 space-y-2">
-                  {bill.question_period_questions?.map((q, idx) => (
-                    <li key={idx} className=" marker:text-sm marker:pr-1" >
-                      <div className="text-sm" >
-                        {q.question}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          )}
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Principles Analysis</CardTitle>
-
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {(bill.tenet_evaluations ?? []).map((tenet) => (
-                <div key={tenet.id} className="border-l-4 border-slate-200 pl-4">
-                  <div className="flex items-start gap-3">
-                    <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${getAlignmentColor(tenet.alignment)}`}>
-                      {getAlignmentIcon(tenet.alignment)}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="  font-medium text-[var(--foreground)] mb-1">
-                        {TENETS?.[tenet.id as keyof typeof TENETS] || "Unknown"}
-                      </h3>
-                      <p className="text-sm text-[ leading-5">{tenet.explanation}</p>
-
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
         </>
       )}
 

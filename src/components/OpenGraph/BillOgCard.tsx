@@ -21,7 +21,17 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
   const splitProjectTitle = PROJECT_NAME.split(" ");
 
   return (
-    <div style={{ width: 1200, height: 630, display: "flex", background: "#f5f3ef" }}>
+    <div
+      style={{
+        width: 1200,
+        height: 630,
+        display: "flex",
+        background: "#f5f3ef",
+        boxSizing: "border-box",
+        alignItems: "flex-start",
+        justifyContent: "flex-start",
+      }}
+    >
       <div
         style={{
           position: "relative",
@@ -31,7 +41,7 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
           height: "100%",
           background: "#efe6dd",
           border: "6px solid #e6ded6",
-          padding: 24,
+          padding: "48px",
           color: "#1f2937",
           fontFamily:
             "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
@@ -40,11 +50,11 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
         <div
           style={{
             position: "absolute",
-            top: 24,
-            right: 24,
+            top: 56,
+            right: 56,
             background: "#932f2f",
             color: "#ffffff",
-            padding: "12px 16px",
+            padding: "8px 16px",
             fontWeight: 300,
             display: "flex",
             flexDirection: "column",
@@ -59,10 +69,19 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
         </div>
 
 
-        <div style={{ display: "flex", flex: 1, flexDirection: "column", justifyContent: "space-between", gap: 16 }}>
+        <div
+          style={{
+            display: "flex",
+            flex: 1,
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "flex-start",
+            gap: 24,
+          }}
+        >
           <div
             style={{
-              maxWidth: 980,
+              maxWidth: 860,
               fontSize: 64,
               fontWeight: 800,
               lineHeight: 1.02,
@@ -75,7 +94,7 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {summaryText ? (
-              <div style={{ maxWidth: 980, fontSize: 26, color: "#334155", lineHeight: 1.35, marginBottom: 24 }}>{summaryText}</div>
+              <div style={{ maxWidth: 860, fontSize: 26, color: "#334155", lineHeight: 1.35, marginBottom: 24 }}>{summaryText}</div>
             ) : null}
             <div
               style={{
