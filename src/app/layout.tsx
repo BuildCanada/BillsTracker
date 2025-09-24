@@ -11,6 +11,7 @@ import {
   PROJECT_NAME,
 } from "@/consts/general";
 import { Nav } from "@/components/Nav/nav.component";
+import { SimpleAnalytics } from "@/components/SimpleAnalytics";
 import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
@@ -36,8 +37,9 @@ export const metadata: Metadata = {
     type: "website",
     siteName: PROJECT_NAME,
     title: PROJECT_NAME,
-    description: "Understand Canadian Federal Bills",
+    description: "Understand Canadian federal bills through a builder's lens",
     url: "/",
+    images: [{ url: "/builder-mp-seo-image.png", width: 1200, height: 630, alt: "Builder MP" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -45,6 +47,7 @@ export const metadata: Metadata = {
     creator: BUILD_CANADA_TWITTER_HANDLE,
     title: PROJECT_NAME,
     description: "Understand Canadian Federal Bills",
+    images: ["/builder-mp-seo-image.png"]
   },
   other: {
     "twitter:card": "summary_large_image",
@@ -70,6 +73,7 @@ export default async function RootLayout({
         </SessionProvider>
         <Toaster richColors position="top-center" />
         <GoogleAnalytics gaId={GOOGLE_ANALYTICS_ID} />
+        <SimpleAnalytics />
       </body>
     </html>
   );
