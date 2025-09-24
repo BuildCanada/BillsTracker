@@ -38,11 +38,6 @@ export default async function BillDetail({ params }: Params) {
 
   if (dbBill) {
     unifiedBill = fromBuildCanadaDbBill(dbBill);
-  } else {
-    const apiBill = await getBillFromCivicsProjectApi(id);
-    if (apiBill) {
-      unifiedBill = await fromCivicsProjectApiBill(apiBill);
-    }
   }
 
 

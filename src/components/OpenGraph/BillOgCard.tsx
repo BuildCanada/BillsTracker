@@ -21,7 +21,18 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
   const splitProjectTitle = PROJECT_NAME.split(" ");
 
   return (
-    <div style={{ width: 1200, height: 630, display: "flex", background: "#f5f3ef" }}>
+    <div
+      style={{
+        width: 1200,
+        height: 630,
+        display: "flex",
+        background: "#f5f3ef",
+        padding: 48,
+        boxSizing: "border-box",
+        alignItems: "flex-start",
+        justifyContent: "flex-start",
+      }}
+    >
       <div
         style={{
           position: "relative",
@@ -31,7 +42,7 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
           height: "100%",
           background: "#efe6dd",
           border: "6px solid #e6ded6",
-          padding: 24,
+          padding: 32,
           color: "#1f2937",
           fontFamily:
             "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
@@ -59,7 +70,16 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
         </div>
 
 
-        <div style={{ display: "flex", flex: 1, flexDirection: "column", justifyContent: "space-between", gap: 16 }}>
+        <div
+          style={{
+            display: "flex",
+            flex: 1,
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "flex-start",
+            gap: 20,
+          }}
+        >
           <div
             style={{
               maxWidth: 980,
