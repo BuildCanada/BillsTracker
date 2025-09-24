@@ -4,8 +4,8 @@ import "./globals.css";
 import { Footer } from "@/components/Footer/footer.component";
 import { SessionProvider } from "@/components/SessionProvider";
 import { env } from "@/env";
-import { GoogleAnalytics } from '@next/third-parties/google'
-import { GOOGLE_ANALYTICS_ID, } from "@/consts/general";
+import { GoogleAnalytics } from "@next/third-parties/google";
+import { BUILD_CANADA_TWITTER_HANDLE, GOOGLE_ANALYTICS_ID, PROJECT_NAME } from "@/consts/general";
 import { Nav } from "@/components/Nav/nav.component";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -21,21 +21,29 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Build Canada Bills",
-    template: "%s · Build Canada Bills",
+    default: PROJECT_NAME,
+    template: `%s · ${PROJECT_NAME}`,
   },
   description: "Understand Canadian Federal Bills",
   metadataBase: env.NEXT_PUBLIC_APP_URL ? new URL(env.NEXT_PUBLIC_APP_URL) : undefined,
   openGraph: {
     type: "website",
-    siteName: "Build Canada Bills",
-    title: "Build Canada Bills",
+    siteName: PROJECT_NAME,
+    title: PROJECT_NAME,
     description: "Understand Canadian Federal Bills",
     url: "/",
   },
   twitter: {
     card: "summary_large_image",
-    site: "@buildcanada",
+    site: BUILD_CANADA_TWITTER_HANDLE,
+    creator: BUILD_CANADA_TWITTER_HANDLE,
+    title: PROJECT_NAME,
+    description: "Understand Canadian Federal Bills",
+  },
+  other: {
+    "twitter:card": "summary_large_image",
+    "twitter:site": BUILD_CANADA_TWITTER_HANDLE,
+    "twitter:creator": BUILD_CANADA_TWITTER_HANDLE,
   },
 };
 

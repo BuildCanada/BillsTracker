@@ -13,6 +13,7 @@ import { authOptions } from "@/lib/auth";
 import { BillTenets } from "@/components/BillDetail/BillTenets";
 import { JudgementValue } from "@/components/Judgement/judgement.component";
 import { buildAbsoluteUrl, buildRelativePath } from "@/utils/basePath";
+import { BUILD_CANADA_TWITTER_HANDLE } from "@/consts/general";
 import { BillShare } from "@/components/BillDetail/BillShare";
 
 // Cache individual bill pages for 2 minutes
@@ -151,7 +152,18 @@ export async function generateMetadata(
       card: "summary_large_image",
       title,
       description,
+      creator: BUILD_CANADA_TWITTER_HANDLE,
+      site: BUILD_CANADA_TWITTER_HANDLE,
       images: [ogImageUrl],
+    },
+    other: {
+      "twitter:card": "summary_large_image",
+      "twitter:title": title,
+      "twitter:description": description,
+      "twitter:image": ogImageUrl,
+      "twitter:creator": BUILD_CANADA_TWITTER_HANDLE,
+      "twitter:site": BUILD_CANADA_TWITTER_HANDLE,
+      "twitter:url": pageUrlWithQuery,
     },
   };
 }
