@@ -28,7 +28,6 @@ Output exactly this JSON:
   "is_social_issue": "yes|no"
 }`;
 
-
 // This defaults to false and a verdict will present to the user
 export const socialIssueGrader = async (text: string): Promise<boolean> => {
   // Fast path when no API key
@@ -51,8 +50,7 @@ export const socialIssueGrader = async (text: string): Promise<boolean> => {
       if (yes || no) return yes;
       return false;
     }
-  } catch (err) {
+  } catch (_err) {
     return false;
   }
-}
-
+};

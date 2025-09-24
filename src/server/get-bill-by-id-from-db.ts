@@ -4,14 +4,17 @@ import { Bill } from "@/models/Bill";
 import type { BillDocument } from "@/models/Bill";
 import { env } from "@/env";
 
-export async function getBillByIdFromDB(billId: string): Promise<BillDocument | null> {
+export async function getBillByIdFromDB(
+  billId: string,
+): Promise<BillDocument | null> {
   const uri = env.MONGO_URI || "";
-  const hasValidMongoUri = uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
+  const hasValidMongoUri =
+    uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
   if (!hasValidMongoUri) return null;
 
   await connectToDatabase();
-  const existing = (await Bill.findOne({ billId }).lean().exec()) as BillDocument | null;
+  const existing = (await Bill.findOne({ billId })
+    .lean()
+    .exec()) as BillDocument | null;
   return existing;
 }
-
-

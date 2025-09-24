@@ -7,7 +7,7 @@ import { authOptions } from "@/lib/auth";
 
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
@@ -17,7 +17,9 @@ export async function POST(
   await connectToDatabase();
 
   // Verify user exists in DB; do not create
-  const dbUser = await User.findOne({ emailLower: session.user.email.toLowerCase() });
+  const dbUser = await User.findOne({
+    emailLower: session.user.email.toLowerCase(),
+  });
   if (!dbUser) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -49,7 +51,8 @@ export async function POST(
     steel_man = params.get("steel_man") || undefined;
     missing_details_raw = params.get("missing_details") || "";
     genres_raw = params.get("genres") || "";
-    question_period_questions_raw = params.get("question_period_questions") || "";
+    question_period_questions_raw =
+      params.get("question_period_questions") || "";
     tenet_ids = params.getAll("tenet_id");
     tenet_titles = params.getAll("tenet_title");
     tenet_alignments = params.getAll("tenet_alignment");
@@ -66,11 +69,20 @@ export async function POST(
     steel_man = asString(json.steel_man);
     missing_details_raw = asString(json.missing_details) || "";
     genres_raw = asString(json.genres) || "";
-    question_period_questions_raw = asString(json.question_period_questions) || "";
-    tenet_ids = Array.isArray((json as any).tenet_id) ? ((json as any).tenet_id as unknown[]).map(String) : [];
-    tenet_titles = Array.isArray((json as any).tenet_title) ? ((json as any).tenet_title as unknown[]).map(String) : [];
-    tenet_alignments = Array.isArray((json as any).tenet_alignment) ? ((json as any).tenet_alignment as unknown[]).map(String) : [];
-    tenet_explanations = Array.isArray((json as any).tenet_explanation) ? ((json as any).tenet_explanation as unknown[]).map(String) : [];
+    question_period_questions_raw =
+      asString(json.question_period_questions) || "";
+    tenet_ids = Array.isArray((json as any).tenet_id)
+      ? ((json as any).tenet_id as unknown[]).map(String)
+      : [];
+    tenet_titles = Array.isArray((json as any).tenet_title)
+      ? ((json as any).tenet_title as unknown[]).map(String)
+      : [];
+    tenet_alignments = Array.isArray((json as any).tenet_alignment)
+      ? ((json as any).tenet_alignment as unknown[]).map(String)
+      : [];
+    tenet_explanations = Array.isArray((json as any).tenet_explanation)
+      ? ((json as any).tenet_explanation as unknown[]).map(String)
+      : [];
   } else {
     // Fallback: try formData if available at runtime
     try {
@@ -78,16 +90,21 @@ export async function POST(
       title = (form.get("title") as string | null) || undefined;
       short_title = (form.get("short_title") as string | null) || undefined;
       summary = (form.get("summary") as string | null) || undefined;
-      final_judgment = (form.get("final_judgment") as string | null) || undefined;
+      final_judgment =
+        (form.get("final_judgment") as string | null) || undefined;
       rationale = (form.get("rationale") as string | null) || undefined;
       steel_man = (form.get("steel_man") as string | null) || undefined;
-      missing_details_raw = (form.get("missing_details") as string | null) || "";
+      missing_details_raw =
+        (form.get("missing_details") as string | null) || "";
       genres_raw = (form.get("genres") as string | null) || "";
-      question_period_questions_raw = (form.get("question_period_questions") as string | null) || "";
+      question_period_questions_raw =
+        (form.get("question_period_questions") as string | null) || "";
       tenet_ids = (form.getAll as any)("tenet_id").map(String);
       tenet_titles = (form.getAll as any)("tenet_title").map(String);
       tenet_alignments = (form.getAll as any)("tenet_alignment").map(String);
-      tenet_explanations = (form.getAll as any)("tenet_explanation").map(String);
+      tenet_explanations = (form.getAll as any)("tenet_explanation").map(
+        String,
+      );
     } catch {
       // no-op
     }
@@ -135,5 +152,3 @@ export async function POST(
 
   return NextResponse.redirect(new URL(`/bills/${id}`, request.url));
 }
-
-

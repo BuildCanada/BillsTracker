@@ -3,13 +3,12 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   basePath: "/bills",
 
-
   /* config options here */
   output: "standalone",
 
   // Performance optimizations
   experimental: {
-    optimizePackageImports: ['lucide-react', 'react-markdown'],
+    optimizePackageImports: ["lucide-react", "react-markdown"],
   },
 
   // Enable compression
@@ -17,7 +16,7 @@ const nextConfig: NextConfig = {
 
   // Optimize images
   images: {
-    formats: ['image/webp', 'image/avif'],
+    formats: ["image/webp", "image/avif"],
     minimumCacheTTL: 60,
   },
 };

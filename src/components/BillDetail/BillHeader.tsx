@@ -4,12 +4,13 @@ interface BillHeaderProps {
   bill: UnifiedBill;
 }
 
-
 export function getParliament45Header() {
   const termStart = new Date("2025-05-26T00:00:00-04:00"); // Opening of the 45th Parliament (1st session)
   const today = new Date();
   const msPerDay = 24 * 60 * 60 * 1000;
-  const daysSinceStart = Math.floor((today.getTime() - termStart.getTime()) / msPerDay);
+  const _daysSinceStart = Math.floor(
+    (today.getTime() - termStart.getTime()) / msPerDay,
+  );
   // const daySinceStartSuffix =
 
   // const primeMinister = "Mark Carney";        // PM since Mar 14, 2025
@@ -28,12 +29,11 @@ export function getParliament45Header() {
   //   .map(([party, count]) => `${party} ${count}`)
   //   .join(" • ");
 
-  // return `It's is the 
+  // return `It's is the
   // **${daysSinceStart}**${daySinceStartSuffix}
   // day of the 45th Canadian Parliament began.
   //  `;
 }
-
 
 export function BillHeader({ bill }: BillHeaderProps) {
   return (
@@ -41,9 +41,7 @@ export function BillHeader({ bill }: BillHeaderProps) {
       <h1 className="mb-6 md:text-[48px] text-[32px] leading-8 md:leading-14 font-bold">
         {bill.short_title}
       </h1>
-      <p className="mt-2 text-sm  md:w-1/2">
-        {bill.title}
-      </p>
+      <p className="mt-2 text-sm  md:w-1/2">{bill.title}</p>
     </header>
   );
 }

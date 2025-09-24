@@ -12,8 +12,8 @@ export type NodeList = XMLNode[];
 export function xmlToMarkdown(xmlString: string): string {
   const parser = new XMLParser({
     ignoreAttributes: false,
-    attributeNamePrefix: "@",   // attributes look like "@level", "@href", etc (inside :@)
-    preserveOrder: true,        // we need ordering and mixed content
+    attributeNamePrefix: "@", // attributes look like "@level", "@href", etc (inside :@)
+    preserveOrder: true, // we need ordering and mixed content
     trimValues: false,
   });
 
@@ -21,8 +21,10 @@ export function xmlToMarkdown(xmlString: string): string {
   const cleaned = xmlString.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
   const ast = parser.parse(cleaned) as NodeList;
 
-  const md = renderNodes(ast).replace(/\n{3,}/g, "\n\n").trim();
-  return md.length ? md + "\n" : md;
+  const md = renderNodes(ast)
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+  return md.length ? `${md}\n` : md;
 }
 
 /* ============================ Rendering Core ============================ */
@@ -31,7 +33,7 @@ type Ctx = { olDepth: number; listMode: "none" | "ul" | "ol" };
 const defaultCtx = (): Ctx => ({ olDepth: 0, listMode: "none" });
 
 function renderNodes(nodes: NodeList, ctx: Ctx = defaultCtx()): string {
-  return nodes.map(n => renderNode(n, ctx)).join("");
+  return nodes.map((n) => renderNode(n, ctx)).join("");
 }
 
 function renderNode(node: XMLNode, ctx: Ctx): string {
@@ -49,19 +51,30 @@ function renderNode(node: XMLNode, ctx: Ctx): string {
     case "bill": {
       // Build a compact header from <Identification>
       const identification = findChild(children, "identification");
-      const billNo = identification ? findText(identification, "billnumber") : "";
-      const longTitle = identification ? findText(identification, "longtitle") : "";
-      const sponsor = identification ? findText(identification, "billsponsor") : "";
+      const billNo = identification
+        ? findText(identification, "billnumber")
+        : "";
+      const longTitle = identification
+        ? findText(identification, "longtitle")
+        : "";
+      const sponsor = identification
+        ? findText(identification, "billsponsor")
+        : "";
       const dateStr = extractFirstReadingDate(identification);
 
       const headerLines: string[] = [];
-      if (billNo || longTitle) headerLines.push(`# ${[billNo, longTitle].filter(Boolean).join(" — ")}`);
+      if (billNo || longTitle)
+        headerLines.push(
+          `# ${[billNo, longTitle].filter(Boolean).join(" — ")}`,
+        );
       if (sponsor) headerLines.push(`**Sponsor:** ${sponsor}`);
       if (dateStr) headerLines.push(`**Introduced:** ${dateStr}`);
 
       // Render everything except <Identification> (to avoid duplication)
-      const rest = children.filter(c => getTagName(c) !== "identification");
-      return [headerLines.join("\n"), renderNodes(rest, ctx)].filter(Boolean).join("\n\n") + "\n";
+      const rest = children.filter((c) => getTagName(c) !== "identification");
+      return `${[headerLines.join("\n"), renderNodes(rest, ctx)]
+        .filter(Boolean)
+        .join("\n\n")}\n`;
     }
 
     /* ===== Structural containers ===== */
@@ -73,7 +86,10 @@ function renderNode(node: XMLNode, ctx: Ctx): string {
       return renderNodes(children, ctx);
     case "summary": {
       // Show a Summary section; skip TitleText="SUMMARY" heading duplicate
-      const body = renderNodes(children.filter(c => getTagName(c) !== "titletext"), ctx);
+      const body = renderNodes(
+        children.filter((c) => getTagName(c) !== "titletext"),
+        ctx,
+      );
       return `\n## Summary\n\n${body}\n`;
     }
     case "preamble": {
@@ -98,28 +114,41 @@ function renderNode(node: XMLNode, ctx: Ctx): string {
     case "section": {
       const label = findText(children, "label");
       const marginal = findText(children, "marginalnote");
-      const head = (label || marginal)
-        ? `\n### ${[label, marginal].filter(Boolean).join(". ")}\n\n`
-        : "";
+      const head =
+        label || marginal
+          ? `\n### ${[label, marginal].filter(Boolean).join(". ")}\n\n`
+          : "";
 
-      const textBlocks = collectAll(children, "text").map(t => `${t}\n\n`).join("");
+      const textBlocks = collectAll(children, "text")
+        .map((t) => `${t}\n\n`)
+        .join("");
 
       // Subsections
       const subSecs = children
-        .filter(c => getTagName(c) === "subsection")
-        .map(ss => renderSubsection(getChildren(ss, "subsection"), ctx))
+        .filter((c) => getTagName(c) === "subsection")
+        .map((ss) => renderSubsection(getChildren(ss, "subsection"), ctx))
         .join("");
 
       // Amended text / nested content
       const amended = children
-        .filter(c => getTagName(c) === "amendedtext" || getTagName(c) === "sectionpiece")
-        .map(n => renderNodes([n], ctx))
+        .filter(
+          (c) =>
+            getTagName(c) === "amendedtext" || getTagName(c) === "sectionpiece",
+        )
+        .map((n) => renderNodes([n], ctx))
         .join("");
 
       // Other children (excluding the ones we handled) to avoid duplication
-      const leftovers = children.filter(c => {
+      const leftovers = children.filter((c) => {
         const t = getTagName(c);
-        return t !== "label" && t !== "marginalnote" && t !== "text" && t !== "subsection" && t !== "amendedtext" && t !== "sectionpiece";
+        return (
+          t !== "label" &&
+          t !== "marginalnote" &&
+          t !== "text" &&
+          t !== "subsection" &&
+          t !== "amendedtext" &&
+          t !== "sectionpiece"
+        );
       });
 
       return `${head}${textBlocks}${subSecs}${renderNodes(leftovers, ctx)}${amended}`;
@@ -137,8 +166,8 @@ function renderNode(node: XMLNode, ctx: Ctx): string {
 
       // Handle subparagraphs if present
       const subParas = children
-        .filter(c => getTagName(c) === "subparagraph")
-        .map(sp => {
+        .filter((c) => getTagName(c) === "subparagraph")
+        .map((sp) => {
           const spChildren = getChildren(sp, "subparagraph");
           const spLbl = findText(spChildren, "label") || "";
           const spText = findText(spChildren, "text") || "";
@@ -189,7 +218,7 @@ function renderNode(node: XMLNode, ctx: Ctx): string {
     case "em":
       return `*${inline(children, ctx)}*`;
     case "code":
-      return "`" + inline(children, ctx) + "`";
+      return `\`${inline(children, ctx)}\``;
     case "a": {
       const href = (attrs.href || attrs.url || "").toString();
       const txt = inline(children, ctx) || href;
@@ -211,8 +240,8 @@ function renderSubsection(children: NodeList, ctx: Ctx): string {
 
   // Handle paragraphs within subsections
   const paragraphs = children
-    .filter(c => getTagName(c) === "paragraph")
-    .map(p => renderNode(p, ctx))
+    .filter((c) => getTagName(c) === "paragraph")
+    .map((p) => renderNode(p, ctx))
     .join("");
 
   const header = [lbl, marginal].filter(Boolean).join(" - ");
@@ -227,7 +256,10 @@ function renderSubsection(children: NodeList, ctx: Ctx): string {
 }
 
 function inline(nodes: NodeList, ctx: Ctx): string {
-  return renderNodes(nodes, ctx).replace(/\n+/g, " ").replace(/\s{2,}/g, " ").trim();
+  return renderNodes(nodes, ctx)
+    .replace(/\n+/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 }
 
 function collectAll(nodes: NodeList, tag: string): string[] {
@@ -256,7 +288,9 @@ function getTagName(node: XMLNode): string | null {
 }
 
 function getChildren(node: XMLNode, tagName: string): NodeList {
-  const v = (node as any)[Object.keys(node).find(k => k.toLowerCase() === tagName)!];
+  const key = Object.keys(node).find((k) => k.toLowerCase() === tagName);
+  if (!key) return [];
+  const v = (node as any)[key];
   return Array.isArray(v) ? (v as NodeList) : [];
 }
 
