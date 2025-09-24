@@ -56,26 +56,13 @@ export function BillShare({ bill, shareUrl, className, variant = "card" }: BillS
   }, [shareUrl]);
 
   const shareTitle = bill.short_title || bill.title;
-  const shareSummary = useMemo(() => {
-    if (!bill.summary) return "";
-    const plain = bill.summary.replace(/\s+/g, " ").trim();
-    return plain.slice(0, 140);
-  }, [bill.summary]);
-
   const xShareUrl = useMemo(() => {
     if (!resolvedUrl) return "";
-    const textParts = [`${shareTitle} — Analysis on Build Canada Bills`];
-    if (shareSummary) {
-      textParts.push(shareSummary);
-    }
     const params = new URLSearchParams({
-      text: textParts.join("\n\n"),
-      url: resolvedUrl,
+      text: resolvedUrl,
     });
-    params.set("via", "buildcanadabills");
-
     return `https://x.com/intent/post?${params.toString()}`;
-  }, [resolvedUrl, shareTitle, shareSummary]);
+  }, [resolvedUrl]);
 
   const facebookShareUrl = useMemo(() => {
     if (!resolvedUrl) return "";
@@ -85,10 +72,9 @@ export function BillShare({ bill, shareUrl, className, variant = "card" }: BillS
 
   const whatsappShareUrl = useMemo(() => {
     if (!resolvedUrl) return "";
-    const params = new URLSearchParams();
-    params.set("text", `${shareTitle}\n${resolvedUrl}`);
+    const params = new URLSearchParams({ text: resolvedUrl });
     return `https://wa.me/?${params.toString()}`;
-  }, [resolvedUrl, shareTitle]);
+  }, [resolvedUrl]);
 
   useEffect(() => {
     if (!copied) return;
