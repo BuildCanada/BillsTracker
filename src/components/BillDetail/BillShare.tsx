@@ -188,17 +188,6 @@ export function BillShare({ bill, shareUrl, className, variant = "card" }: BillS
             </Button>
           ))}
         </div>
-
-        {resolvedUrl && (
-          <div className="rounded-md border border-dashed border-muted p-3 text-xs text-muted-foreground break-all">
-            {resolvedUrl}
-          </div>
-        )}
-        <span className="sr-only" role="status" aria-live="polite">
-          {copied ? "Share link copied to clipboard" : ""}
-        </span>
-
-
       </CardContent>
     </Card>
   );
