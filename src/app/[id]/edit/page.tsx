@@ -6,7 +6,7 @@ import { connectToDatabase } from "@/lib/mongoose";
 import { User } from "@/models/User";
 
 interface Params {
-  params: Promise<any>;
+  params: Promise<{ id: string }>;
 }
 
 export default async function EditBillPage({ params }: Params) {
@@ -19,7 +19,9 @@ export default async function EditBillPage({ params }: Params) {
 
   // Verify the signed-in user exists in DB; do not create
   await connectToDatabase();
-  const dbUser = await User.findOne({ emailLower: session.user.email.toLowerCase() });
+  const dbUser = await User.findOne({
+    emailLower: session.user.email.toLowerCase(),
+  });
   if (!dbUser) {
     redirect(`/unauthorized`);
   }
@@ -32,11 +34,7 @@ export default async function EditBillPage({ params }: Params) {
   return (
     <div className="mx-auto max-w-[900px] px-6 py-8">
       <h1 className="text-xl font-semibold mb-6">Edit Bill</h1>
-      <form
-        className="space-y-6"
-        action={`/bills/api/${id}`}
-        method="post"
-      >
+      <form className="space-y-6" action={`/bills/api/${id}`} method="post">
         <div className="space-y-2">
           <label className="block text-sm font-medium" htmlFor="title">
             Title
@@ -129,13 +127,18 @@ export default async function EditBillPage({ params }: Params) {
           />
         </div>
         <div className="space-y-2">
-          <label className="block text-sm font-medium" htmlFor="question_period_questions">
+          <label
+            className="block text-sm font-medium"
+            htmlFor="question_period_questions"
+          >
             Question Period Questions (one per line)
           </label>
           <textarea
             id="question_period_questions"
             name="question_period_questions"
-            defaultValue={(bill.question_period_questions || []).map(q => q.question).join('\n')}
+            defaultValue={(bill.question_period_questions || [])
+              .map((q) => q.question)
+              .join("\n")}
             className="w-full min-h-32 border rounded p-2"
             placeholder="Enter each question on a new line..."
           />

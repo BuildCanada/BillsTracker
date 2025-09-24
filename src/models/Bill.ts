@@ -62,16 +62,27 @@ export interface BillDocument extends mongoose.Document {
 }
 
 // Schema for the Tenet Evaluation sub-document
-const TenetEvaluationSchema = new Schema<TenetEvaluation>({
-  id: { type: Number, required: true },
-  title: { type: String, required: true },
-  alignment: { type: String, enum: ["conflicts", "aligns", "neutral"], required: true },
-  explanation: { type: String, required: true },
-}, { _id: false }); // _id: false prevents Mongoose from adding an _id to each sub-document
+const TenetEvaluationSchema = new Schema<TenetEvaluation>(
+  {
+    id: { type: Number, required: true },
+    title: { type: String, required: true },
+    alignment: {
+      type: String,
+      enum: ["conflicts", "aligns", "neutral"],
+      required: true,
+    },
+    explanation: { type: String, required: true },
+  },
+  { _id: false },
+); // _id: false prevents Mongoose from adding an _id to each sub-document
 
 // Existing schemas for vote and stage records
 const VoteSchema = new Schema<VoteRecord>({
-  chamber: { type: String, enum: ["House of Commons", "Senate"], required: true },
+  chamber: {
+    type: String,
+    enum: ["House of Commons", "Senate"],
+    required: true,
+  },
   date: { type: Date, required: true },
   motion: { type: String },
   result: { type: String, required: true },
@@ -119,12 +130,18 @@ const BillSchema = new Schema<BillDocument>(
     votes: { type: [VoteSchema], default: [] },
     billTextsCount: { type: Number },
     isSocialIssue: { type: Boolean, default: false },
-    question_period_questions: { type: [{ question: { type: String, required: true } }], default: [] },
+    question_period_questions: {
+      type: [{ question: { type: String, required: true } }],
+      default: [],
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-BillSchema.index({ billId: 1, parliamentNumber: 1 }, { unique: true, sparse: true });
+BillSchema.index(
+  { billId: 1, parliamentNumber: 1 },
+  { unique: true, sparse: true },
+);
 BillSchema.index({ title: "text", short_title: "text", summary: "text" });
 
 export const Bill = models.Bill || model<BillDocument>("Bill", BillSchema);

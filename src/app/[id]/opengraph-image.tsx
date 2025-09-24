@@ -22,7 +22,9 @@ async function loadGoogleFont(font: string, weight: number, text: string) {
   });
   const cssUrl = `https://fonts.googleapis.com/css2?${params.toString()}`;
   const css = await (await fetch(cssUrl)).text();
-  const resource = css.match(/src: url\((.+?)\) format\('(opentype|truetype|woff2)'\)/);
+  const resource = css.match(
+    /src: url\((.+?)\) format\('(opentype|truetype|woff2)'\)/,
+  );
   if (resource) {
     const res = await fetch(resource[1]);
     if (res.status === 200) {
@@ -32,24 +34,33 @@ async function loadGoogleFont(font: string, weight: number, text: string) {
   throw new Error("failed to load font data");
 }
 
-export default async function OpengraphImage({ params }: { params: { id: string } }) {
+export default async function OpengraphImage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const bill = await getUnifiedBillById(params.id);
-  const voteText = bill?.final_judgment === "yes" ? "Vote: Yes" : bill?.final_judgment === "no" ? "Vote: No" : "Vote: Neutral";
+  const voteText =
+    bill?.final_judgment === "yes"
+      ? "Vote: Yes"
+      : bill?.final_judgment === "no"
+        ? "Vote: No"
+        : "Vote: Neutral";
   const textForFont = `${bill?.short_title || bill?.title || params.id} ${voteText} ${PROJECT_NAME} Build Canada Policy Tracker Powered by The Civics Project`;
   let interRegular: ArrayBuffer | undefined;
   let interBold: ArrayBuffer | undefined;
   try {
     interRegular = await loadGoogleFont("Inter", 400, textForFont);
     interBold = await loadGoogleFont("Inter", 700, textForFont);
-  } catch (e) {
+  } catch (_e) {
     // Fallback to system fonts if remote font fetch fails in production
     interRegular = undefined;
     interBold = undefined;
   }
 
   return new ImageResponse(
-    (
-      <BillOgCard bill={{
+    <BillOgCard
+      bill={{
         billId: bill?.billId || "",
         title: bill?.title || "",
         short_title: bill?.short_title,
@@ -58,22 +69,28 @@ export default async function OpengraphImage({ params }: { params: { id: string 
         rationale: bill?.rationale,
         genres: bill?.genres,
         fallbackId: params.id,
-      }} />
-    ),
+      }}
+    />,
     {
       ...size,
-      fonts: interRegular && interBold ? [
-        { name: "Inter", data: interRegular, weight: 400, style: "normal" },
-        { name: "Inter", data: interBold, weight: 700, style: "normal" },
-      ] : undefined,
+      fonts:
+        interRegular && interBold
+          ? [
+              {
+                name: "Inter",
+                data: interRegular,
+                weight: 400,
+                style: "normal",
+              },
+              { name: "Inter", data: interBold, weight: 700, style: "normal" },
+            ]
+          : undefined,
       headers: {
-        'Cache-Control': 'public, max-age=3600, s-maxage=3600',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        "Cache-Control": "public, max-age=3600, s-maxage=3600",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Headers": "Content-Type",
       },
-    }
+    },
   );
 }
-
-

@@ -1,10 +1,7 @@
-
 import type { UnifiedBill } from "@/utils/billConverters";
-import { TENETS } from "@/prompt/summary-and-vote-prompt";
-import { Markdown } from '../Markdown/markdown';
+import { Markdown } from "../Markdown/markdown";
 import { Judgement, JudgementValue } from "../Judgement/judgement.component";
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { BillTenets } from "./BillTenets";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 interface BillAnalysisProps {
   bill: UnifiedBill;
@@ -12,7 +9,9 @@ interface BillAnalysisProps {
   displayJudgement: JudgementValue;
 }
 
-export function getAlignmentColor(alignment: "aligns" | "conflicts" | "neutral"): string {
+export function getAlignmentColor(
+  alignment: "aligns" | "conflicts" | "neutral",
+): string {
   switch (alignment) {
     case "aligns":
       return "text-emerald-700 bg-emerald-50 border-emerald-200";
@@ -25,7 +24,9 @@ export function getAlignmentColor(alignment: "aligns" | "conflicts" | "neutral")
   }
 }
 
-export function getAlignmentIcon(alignment: "aligns" | "conflicts" | "neutral"): string {
+export function getAlignmentIcon(
+  alignment: "aligns" | "conflicts" | "neutral",
+): string {
   switch (alignment) {
     case "aligns":
       return "✓";
@@ -38,61 +39,55 @@ export function getAlignmentIcon(alignment: "aligns" | "conflicts" | "neutral"):
   }
 }
 
-
-
-export function BillAnalysis({ bill, showAnalysis, displayJudgement }: BillAnalysisProps) {
-
-
+export function BillAnalysis({
+  bill,
+  showAnalysis,
+  displayJudgement,
+}: BillAnalysisProps) {
   if (!showAnalysis) {
     return (
       <Card>
         <CardHeader>
           <div className="flex md:items-center md:justify-between md:flex-row flex-col gap-4 ">
-
             <CardTitle className="mb-2">Builder Assessment</CardTitle>
-
           </div>
         </CardHeader>
         <CardContent>
           <div>
-            <Judgement isSocialIssue={bill.isSocialIssue} judgement={displayJudgement} />
+            <Judgement
+              isSocialIssue={bill.isSocialIssue}
+              judgement={displayJudgement}
+            />
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
-
 
   return (
     <div className="relative flex gap-4 flex-col">
-
-
       {showAnalysis && (
-        <>
-          <Card>
-            <CardHeader>
-              <div className="flex md:items-center md:justify-between md:flex-row flex-col gap-4 ">
-
-                <CardTitle className="mb-2">Builder Assessment</CardTitle>
-                <div>
-                  <Judgement isSocialIssue={bill.isSocialIssue} judgement={displayJudgement} />
-                </div>
+        <Card>
+          <CardHeader>
+            <div className="flex md:items-center md:justify-between md:flex-row flex-col gap-4 ">
+              <CardTitle className="mb-2">Builder Assessment</CardTitle>
+              <div>
+                <Judgement
+                  isSocialIssue={bill.isSocialIssue}
+                  judgement={displayJudgement}
+                />
               </div>
-            </CardHeader>
-            <CardContent>
-              {bill.rationale && (
-                <div className="text-sm  leading-6 prose prose-sm max-w-none ">
-                  <Markdown>{bill.rationale}</Markdown>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-        </>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {bill.rationale && (
+              <div className="text-sm  leading-6 prose prose-sm max-w-none ">
+                <Markdown>{bill.rationale}</Markdown>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       )}
-
-
-
     </div>
   );
 }

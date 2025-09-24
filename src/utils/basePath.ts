@@ -1,4 +1,5 @@
-const RAW_BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || process.env.NEXT_BASE_PATH || "/bills";
+const RAW_BASE_PATH =
+  process.env.NEXT_PUBLIC_BASE_PATH || process.env.NEXT_BASE_PATH || "/bills";
 
 const normalizedBasePath = (() => {
   let path = RAW_BASE_PATH || "";
@@ -34,9 +35,14 @@ function normalizeSegment(segment: string): string {
   return segment.replace(/^\/+|\/+$/g, "");
 }
 
-export function buildRelativePath(...segments: Array<string | number | undefined | null>): string {
+export function buildRelativePath(
+  ...segments: Array<string | number | undefined | null>
+): string {
   const parts = [normalizedBasePath, ...segments]
-    .filter((segment): segment is string | number => segment !== undefined && segment !== null)
+    .filter(
+      (segment): segment is string | number =>
+        segment !== undefined && segment !== null,
+    )
     .map((segment) => normalizeSegment(String(segment)))
     .filter(Boolean);
 
@@ -47,7 +53,10 @@ export function buildRelativePath(...segments: Array<string | number | undefined
   return `/${parts.join("/")}`;
 }
 
-export function buildAbsoluteUrl(origin: string | undefined, ...segments: Array<string | number | undefined | null>): string {
+export function buildAbsoluteUrl(
+  origin: string | undefined,
+  ...segments: Array<string | number | undefined | null>
+): string {
   const relative = buildRelativePath(...segments);
   if (!origin) {
     return relative;
@@ -55,5 +64,3 @@ export function buildAbsoluteUrl(origin: string | undefined, ...segments: Array<
   const trimmedOrigin = origin.replace(/\/$/, "");
   return `${trimmedOrigin}${relative}`;
 }
-
-

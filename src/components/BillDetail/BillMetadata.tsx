@@ -7,7 +7,7 @@ interface BillMetadataProps {
   bill: UnifiedBill;
 }
 
-const DataPoint = ({ label, value }: { label: string, value: string }) => {
+const DataPoint = ({ label, value }: { label: string; value: string }) => {
   return (
     <div className="flex text-sm items-start justify-between py-1">
       <span className="">{label}</span>
@@ -17,9 +17,9 @@ const DataPoint = ({ label, value }: { label: string, value: string }) => {
 };
 
 export function BillMetadata({ bill }: BillMetadataProps) {
-  const billDates = getBillStageDates(bill.stages)
+  const billDates = getBillStageDates(bill.stages);
   const lastUpdatedDate = billDates.lastUpdated
-    ? dayjs(billDates.lastUpdated).format('MMM D, YYYY')
+    ? dayjs(billDates.lastUpdated).format("MMM D, YYYY")
     : "N/A";
 
   return (
@@ -29,7 +29,6 @@ export function BillMetadata({ bill }: BillMetadataProps) {
           <a
             href={`https://www.parl.ca/LegisInfo/en/bill/45-1/${bill.billId}`}
             target="_blank"
-
             rel="noopener noreferrer"
             className="text-md font-bold underline text-["
           >
@@ -38,7 +37,14 @@ export function BillMetadata({ bill }: BillMetadataProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-1">
-        <DataPoint label="Party" value={bill.chamber === 'Senate' ? 'Senate' : bill.sponsorParty || 'Unknown'} />
+        <DataPoint
+          label="Party"
+          value={
+            bill.chamber === "Senate"
+              ? "Senate"
+              : bill.sponsorParty || "Unknown"
+          }
+        />
         <DataPoint label="Status" value={bill.status} />
         {/* {bill.introducedOn && (
           <DataPoint label="Introduced" value={introducedDate} />
@@ -52,7 +58,6 @@ export function BillMetadata({ bill }: BillMetadataProps) {
         {bill.parliamentNumber && bill.sessionNumber && (
           <DataPoint label="Parliament" value={`${bill.parliamentNumber}`} />
         )}
-
       </CardContent>
     </Card>
   );

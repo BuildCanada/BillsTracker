@@ -5,7 +5,11 @@ import { Footer } from "@/components/Footer/footer.component";
 import { SessionProvider } from "@/components/SessionProvider";
 import { env } from "@/env";
 import { GoogleAnalytics } from "@next/third-parties/google";
-import { BUILD_CANADA_TWITTER_HANDLE, GOOGLE_ANALYTICS_ID, PROJECT_NAME } from "@/consts/general";
+import {
+  BUILD_CANADA_TWITTER_HANDLE,
+  GOOGLE_ANALYTICS_ID,
+  PROJECT_NAME,
+} from "@/consts/general";
 import { Nav } from "@/components/Nav/nav.component";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -25,7 +29,9 @@ export const metadata: Metadata = {
     template: `%s · ${PROJECT_NAME}`,
   },
   description: "Understand Canadian Federal Bills",
-  metadataBase: env.NEXT_PUBLIC_APP_URL ? new URL(env.NEXT_PUBLIC_APP_URL) : undefined,
+  metadataBase: env.NEXT_PUBLIC_APP_URL
+    ? new URL(env.NEXT_PUBLIC_APP_URL)
+    : undefined,
   openGraph: {
     type: "website",
     siteName: PROJECT_NAME,
@@ -52,7 +58,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   return (
     <html lang="en" className="light">
       <body
@@ -65,7 +70,6 @@ export default async function RootLayout({
         </SessionProvider>
         <Toaster richColors position="top-center" />
         <GoogleAnalytics gaId={GOOGLE_ANALYTICS_ID} />
-
       </body>
     </html>
   );

@@ -2,10 +2,6 @@ import { PROJECT_NAME } from "@/consts/general";
 import { SignIn } from "../SignIn/sign-in.component";
 
 export function Footer() {
-
-
-
-
   return (
     <footer className="mt-16 border-t border-[var(--panel-border)] bg-white">
       <div className="mx-auto max-w-[1120px] px-6 py-12">
@@ -19,37 +15,43 @@ export function Footer() {
                 className="bg-[#932f2f] h-10 w-auto p-2 rounded"
               />
               <div className="flex flex-col items-start -mt-1 ">
-
-                <span className="font-semibold text-lg mb-0">{PROJECT_NAME}</span>
+                <span className="font-semibold text-lg mb-0">
+                  {PROJECT_NAME}
+                </span>
                 <div className="text-xs">
-
-                  Powered by {' '}
-                  <a href="https://civicsproject.org" target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--muted-foreground)] underline">
+                  Powered by{" "}
+                  <a
+                    href="https://civicsproject.org"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-[var(--muted-foreground)] underline"
+                  >
                     The Civics Project
                   </a>
                 </div>
               </div>
             </div>
-
           </div>
 
           {/* Navigation Links */}
-
         </div>
 
         {/* Bottom Bar */}
         <div className="mt-8 pt-8 border-t border-[var(--panel-border)] flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs text-[var(--muted-foreground)]">
-            © {new Date().getFullYear()} Build Canada Bills. All rights reserved.
-            A Project of {' '}
-            <a href="https://buildcanada.com" target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--muted-foreground)] underline">
+            © {new Date().getFullYear()} Build Canada Bills. All rights
+            reserved. A Project of{" "}
+            <a
+              href="https://buildcanada.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-[var(--muted-foreground)] underline"
+            >
               Build Canada
             </a>
-
           </p>
 
           <SignIn />
-
         </div>
       </div>
     </footer>

@@ -1,25 +1,25 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/mongoose";
-import { User } from "@/models/User";
-import { env } from "@/env";
+// import { connectToDatabase } from "@/lib/mongoose";
+// import { User } from "@/models/User";
+// import { env } from "@/env";
 
 export const runtime = "nodejs";
 
-type CreateUserPayload = {
-  email: string;
-  name?: string | null;
-  image?: string | null;
-  allowed?: boolean;
-};
+// type CreateUserPayload = {
+//   email: string;
+//   name?: string | null;
+//   image?: string | null;
+//   allowed?: boolean;
+// };
 
-function normalizeEmail(email: unknown): string | null {
-  if (typeof email !== "string") return null;
-  const trimmed = email.trim();
-  if (!trimmed) return null;
-  return trimmed.toLowerCase();
-}
+// function normalizeEmail(email: unknown): string | null {
+//   if (typeof email !== "string") return null;
+//   const trimmed = email.trim();
+//   if (!trimmed) return null;
+//   return trimmed.toLowerCase();
+// }
 
-export async function POST(request: Request) {
+export async function POST(_request: Request) {
   // if (env.NODE_ENV !== "development") {
   return NextResponse.json({ error: "Not found" }, { status: 404 });
   // }
@@ -75,5 +75,3 @@ export async function POST(request: Request) {
 
   // return NextResponse.json({ ok: true, user: created, created: true });
 }
-
-

@@ -29,7 +29,12 @@ const XLogo = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-export function BillShare({ bill, shareUrl, className, variant = "card" }: BillShareProps) {
+export function BillShare({
+  bill,
+  shareUrl,
+  className,
+  variant = "card",
+}: BillShareProps) {
   const [copied, setCopied] = useState(false);
   const [resolvedUrl, setResolvedUrl] = useState(shareUrl);
 
@@ -86,7 +91,10 @@ export function BillShare({ bill, shareUrl, className, variant = "card" }: BillS
     if (!resolvedUrl) return;
 
     try {
-      const canUseClipboard = typeof navigator !== "undefined" && "clipboard" in navigator && window.isSecureContext;
+      const canUseClipboard =
+        typeof navigator !== "undefined" &&
+        "clipboard" in navigator &&
+        window.isSecureContext;
       if (canUseClipboard) {
         await navigator.clipboard.writeText(resolvedUrl);
       } else {
@@ -172,7 +180,8 @@ export function BillShare({ bill, shareUrl, className, variant = "card" }: BillS
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
-          Spread the word about {shareTitle} and help more Canadians stay informed.
+          Spread the word about {shareTitle} and help more Canadians stay
+          informed.
         </p>
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           {actions.map((action) => (
