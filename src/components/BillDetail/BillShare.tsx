@@ -64,15 +64,17 @@ export function BillShare({ bill, shareUrl, className, variant = "card" }: BillS
 
   const xShareUrl = useMemo(() => {
     if (!resolvedUrl) return "";
-    const snippet = shareSummary ? `\n\n${shareSummary}` : "";
-    const text = `${shareTitle} — Analysis on Build Canada Bills${snippet}`;
+    const textParts = [`${shareTitle} — Analysis on Build Canada Bills`];
+    if (shareSummary) {
+      textParts.push(shareSummary);
+    }
     const params = new URLSearchParams({
+      text: textParts.join("\n\n"),
       url: resolvedUrl,
-      text,
     });
     params.set("via", "buildcanadabills");
 
-    return `https://twitter.com/intent/tweet?${params.toString()}`;
+    return `https://x.com/intent/post?${params.toString()}`;
   }, [resolvedUrl, shareTitle, shareSummary]);
 
   const facebookShareUrl = useMemo(() => {
