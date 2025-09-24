@@ -13,7 +13,7 @@ import { authOptions } from "@/lib/auth";
 import { BillTenets } from "@/components/BillDetail/BillTenets";
 import { JudgementValue } from "@/components/Judgement/judgement.component";
 import { buildAbsoluteUrl, buildRelativePath } from "@/utils/basePath";
-import { BUILD_CANADA_TWITTER_HANDLE } from "@/consts/general";
+import { BUILD_CANADA_TWITTER_HANDLE, BUILD_CANADA_URL } from "@/consts/general";
 import { BillShare } from "@/components/BillDetail/BillShare";
 
 // Cache individual bill pages for 2 minutes
@@ -32,7 +32,9 @@ export default async function BillDetail({ params }: Params) {
   const headerList = await headers();
   const host = headerList.get("x-forwarded-host") || headerList.get("host") || "";
   const proto = (headerList.get("x-forwarded-proto") || "https").split(",")[0];
-  const origin = env.NEXT_PUBLIC_APP_URL || (host ? `${proto}://${host}` : "");
+  const requestOrigin = host ? `${proto}://${host}` : "";
+  const origin = env.NEXT_PUBLIC_APP_URL || requestOrigin;
+  const shareOrigin = env.NODE_ENV === "production" ? BUILD_CANADA_URL : origin || BUILD_CANADA_URL;
   // Try database first, then fallback to API
   const dbBill = await getBillByIdFromDB(id);
   let unifiedBill: UnifiedBill | null = null;
@@ -92,7 +94,7 @@ export default async function BillDetail({ params }: Params) {
 
       <Separator />
       <div className="mt-4 md:hidden">
-        <BillShare bill={unifiedBill} shareUrl={buildAbsoluteUrl(origin, id)} variant="compact" />
+        <BillShare bill={unifiedBill} shareUrl={buildAbsoluteUrl(shareOrigin, id)} variant="compact" />
       </div>
       <section className="mt-6 grid gap-6 md:grid-cols-[1fr_280px] relative">
         <div className="flex gap-4 flex-col">
@@ -110,7 +112,7 @@ export default async function BillDetail({ params }: Params) {
           <BillMetadata bill={unifiedBill} />
           <BillShare
             bill={unifiedBill}
-            shareUrl={buildAbsoluteUrl(origin, id)}
+            shareUrl={buildAbsoluteUrl(shareOrigin, id)}
             className="hidden md:block"
           />
           <BillContact className="hidden md:block" />

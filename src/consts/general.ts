@@ -1,6 +1,6 @@
 
 
-export const BUILD_CANADA_URL = "https://buildcanada.com";
+export const BUILD_CANADA_URL = "https://www.buildcanada.com";
 
 export const PROJECT_NAME = 'Builder MP';
 
