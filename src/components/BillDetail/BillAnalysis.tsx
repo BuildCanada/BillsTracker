@@ -46,10 +46,17 @@ export function BillAnalysis({ bill, showAnalysis, displayJudgement }: BillAnaly
   if (!showAnalysis) {
     return (
       <Card>
+        <CardHeader>
+          <div className="flex md:items-center md:justify-between md:flex-row flex-col gap-4 ">
 
-        <CardContent className="mt-6">
-          <Judgement isSocialIssue={bill.isSocialIssue} judgement={displayJudgement} />
+            <CardTitle className="mb-2">Builder Assessment</CardTitle>
 
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div>
+            <Judgement isSocialIssue={bill.isSocialIssue} judgement={displayJudgement} />
+          </div>
         </CardContent>
       </Card>
     )

@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
-import { getBillFromCivicsProjectApi } from "@/services/billApi";
+import { getBillFromCivicsProjectApi, onBillNotInDatabase } from "@/services/billApi";
 import { fromBuildCanadaDbBill, fromCivicsProjectApiBill, type UnifiedBill } from "@/utils/billConverters";
 import type { Metadata, ResolvingMetadata } from "next";
 import { headers } from "next/headers";
 import { env } from "@/env";
-import { BillHeader, BillSummary, BillMetadata, BillAnalysis } from "@/components/BillDetail";
+import { BillHeader, BillSummary, BillMetadata, BillAnalysis, BillContact } from "@/components/BillDetail";
 import { BillQuestions } from "@/components/BillDetail/BillQuestions";
 import { Separator } from "@/components/ui/separator";
 import { getServerSession } from "next-auth";
@@ -39,8 +39,12 @@ export default async function BillDetail({ params }: Params) {
 
   if (dbBill) {
     unifiedBill = fromBuildCanadaDbBill(dbBill);
+  } else {
+    const apiBill = await getBillFromCivicsProjectApi(id);
+    if (apiBill) {
+      unifiedBill = await fromCivicsProjectApiBill(apiBill);
+    }
   }
-
 
 
 
@@ -66,6 +70,8 @@ export default async function BillDetail({ params }: Params) {
 
   const showAnalysis = !isNeutral && !isSocialIssue && !onlySingleIssueVarying;
   const displayJudgement = (onlySingleIssueVarying ? "neutral" : (unifiedBill.final_judgment as JudgementValue)) as JudgementValue;
+
+
 
 
 
@@ -95,11 +101,10 @@ export default async function BillDetail({ params }: Params) {
           {showAnalysis && (
             <BillQuestions bill={unifiedBill} />
           )}
-          {
-            showAnalysis && (
-              <BillTenets bill={unifiedBill} />
-            )
-          }
+
+          <BillTenets bill={unifiedBill} />
+          <BillContact className="md:hidden" />
+
         </div>
         <div className="space-y-6">
           <BillMetadata bill={unifiedBill} />
@@ -108,6 +113,7 @@ export default async function BillDetail({ params }: Params) {
             shareUrl={buildAbsoluteUrl(origin, id)}
             className="hidden md:block"
           />
+          <BillContact className="hidden md:block" />
         </div>
 
       </section>
