@@ -34,7 +34,7 @@ const buildXShareText = ({
 
   const prefixes: string[] = [];
   if (sanitizedTitle) {
-    prefixes.push(`Builder Question: ${sanitizedTitle}`);
+    prefixes.push(`Builder Question for ${sanitizedTitle}:`);
   }
   prefixes.push("Builder Question:");
   prefixes.push("");
