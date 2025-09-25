@@ -10,7 +10,7 @@ export function BillContact({ className }: BillContactProps) {
     <Card className={cn("bg-white", className)}>
       <CardContent className="space-y-2 text-sm p-4 md:p-6">
         <p className="font-medium text-[var(--foreground)]">
-          Questions or concerns?
+          Did we get the builder vote wrong?
         </p>
         <p className="text-[var(--muted-foreground)]">
           Email{" "}
