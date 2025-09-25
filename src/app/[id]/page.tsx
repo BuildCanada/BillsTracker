@@ -124,7 +124,12 @@ export default async function BillDetail({ params }: Params) {
             showAnalysis={showAnalysis}
             displayJudgement={displayJudgement}
           />
-          {showAnalysis && <BillQuestions bill={unifiedBill} billUrl={buildAbsoluteUrl(shareOrigin, id)} />}
+          {showAnalysis && (
+            <BillQuestions
+              bill={unifiedBill}
+              billUrl={buildAbsoluteUrl(shareOrigin, id)}
+            />
+          )}
 
           <BillTenets bill={unifiedBill} />
           <BillContact className="md:hidden" />
