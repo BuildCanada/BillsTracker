@@ -4,13 +4,65 @@ import { getAllBillsFromDB } from "@/server/get-all-bills-from-db";
 import { fromBuildCanadaDbBill } from "@/utils/billConverters";
 import { getParliament45Header } from "@/components/BillDetail/BillHeader";
 import Markdown from "react-markdown";
+import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { env } from "@/env";
+import { buildRelativePath } from "@/utils/basePath";
+import { BUILD_CANADA_TWITTER_HANDLE, PROJECT_NAME } from "@/consts/general";
 
 const CANADIAN_PARLIAMENT_NUMBER = 45;
 
 // Force runtime generation (avoid build-time pre-render) and cache in-memory for 5 minutes
 export const dynamic = "force-dynamic";
 export const revalidate = 300;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const title = "Home";
+  const description =
+    "Understand Canadian federal bills with builder-first analysis.";
+  const h = headers();
+  const headerList = await h;
+  const host = headerList.get("x-forwarded-host") || headerList.get("host") || "";
+  const proto = (headerList.get("x-forwarded-proto") || "https").split(",")[0];
+  const baseUrl =
+    env.NEXT_PUBLIC_APP_URL || (host ? `${proto}://${host}` : "http://localhost:3000");
+  const pagePath = buildRelativePath();
+  const pageUrl = `${baseUrl}${pagePath}`;
+  const ogPath = buildRelativePath("opengraph-image");
+  const ogImageUrl = `${baseUrl}${ogPath}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: pageUrl },
+    openGraph: {
+      title: PROJECT_NAME,
+      description,
+      url: pageUrl,
+      siteName: PROJECT_NAME,
+      type: "website",
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: PROJECT_NAME }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: PROJECT_NAME,
+      description,
+      creator: BUILD_CANADA_TWITTER_HANDLE,
+      site: BUILD_CANADA_TWITTER_HANDLE,
+      images: [ogImageUrl],
+    },
+    other: {
+      "twitter:card": "summary_large_image",
+      "twitter:title": PROJECT_NAME,
+      "twitter:description": description,
+      "twitter:image": ogImageUrl,
+      "twitter:image:alt": PROJECT_NAME,
+      "twitter:creator": BUILD_CANADA_TWITTER_HANDLE,
+      "twitter:site": BUILD_CANADA_TWITTER_HANDLE,
+      "twitter:url": pageUrl,
+    },
+  };
+}
 
 let mergedBillsCache: { data: BillSummary[]; expiresAt: number } | null = null;
 
