@@ -26,11 +26,12 @@ import { buildAbsoluteUrl, buildRelativePath } from "@/utils/basePath";
 import {
   BUILD_CANADA_TWITTER_HANDLE,
   BUILD_CANADA_URL,
+  REVALIDATE_INTERVAL,
 } from "@/consts/general";
 import { BillShare } from "@/components/BillDetail/BillShare";
 
 // Cache individual bill pages for 2 minutes
-export const revalidate = 120;
+export const revalidate = REVALIDATE_INTERVAL;
 
 interface Params {
   params: Promise<any>;

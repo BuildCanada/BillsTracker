@@ -9,8 +9,8 @@ import { env } from "@/env";
 const CANADIAN_PARLIAMENT_NUMBER = 45;
 
 // Force runtime generation (avoid build-time pre-render) and cache in-memory for 5 minutes
-export const dynamic = "force-dynamic";
-export const revalidate = 300;
+export const dynamic = "auto";
+export const revalidate = 120;
 
 let mergedBillsCache: { data: BillSummary[]; expiresAt: number } | null = null;
 
