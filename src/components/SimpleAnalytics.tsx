@@ -1,12 +1,9 @@
-'use client';
+"use client";
 
-import Script from 'next/script';
+import Script from "next/script";
 
 export function SimpleAnalytics() {
   return (
-    <Script
-      async
-      src="https://scripts.simpleanalyticscdn.com/latest.js"
-    />
+    <Script async src="https://scripts.simpleanalyticscdn.com/latest.js" />
   );
 }
