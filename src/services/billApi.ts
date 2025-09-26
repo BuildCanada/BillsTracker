@@ -1,6 +1,7 @@
 import { xmlToMarkdown } from "@/utils/xml-to-md/xml-to-md.util";
-import { SUMMARY_AND_VOTE_PROMPT } from "@/prompt/summary-and-vote-prompt";
+import generateSummaryAndVotePrompt from "@/prompt/summary-and-vote-prompt";
 import OpenAI from "openai";
+import { buildTenetEvaluations } from "@/utils/constants";
 
 export type ApiStage = {
   stage: string;
@@ -96,59 +97,9 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
     return {
       summary: truncatedSummary || "No bill text available for analysis.",
       short_title: undefined,
-      tenet_evaluations: [
-        {
-          id: 1,
-          title: "Canada should aim to be the world's most prosperous country",
-          alignment: "neutral",
-          explanation: "Unable to analyze without AI",
-        },
-        {
-          id: 2,
-          title:
-            "Promote economic freedom, ambition, and breaking from bureaucratic inertia",
-          alignment: "neutral",
-          explanation: "Unable to analyze without AI",
-        },
-        {
-          id: 3,
-          title: "Drive national productivity and global competitiveness",
-          alignment: "neutral",
-          explanation: "Unable to analyze without AI",
-        },
-        {
-          id: 4,
-          title: "Grow exports of Canadian products and resources",
-          alignment: "neutral",
-          explanation: "Unable to analyze without AI",
-        },
-        {
-          id: 5,
-          title: "Encourage investment, innovation, and resource development",
-          alignment: "neutral",
-          explanation: "Unable to analyze without AI",
-        },
-        {
-          id: 6,
-          title:
-            "Deliver better public services at lower cost (government efficiency)",
-          alignment: "neutral",
-          explanation: "Unable to analyze without AI",
-        },
-        {
-          id: 7,
-          title:
-            "Reform taxes to incentivize work, risk-taking, and innovation",
-          alignment: "neutral",
-          explanation: "Unable to analyze without AI",
-        },
-        {
-          id: 8,
-          title: "Focus on large-scale prosperity, not incrementalism",
-          alignment: "neutral",
-          explanation: "Unable to analyze without AI",
-        },
-      ],
+      tenet_evaluations: buildTenetEvaluations({
+        explanation: "Unable to analyze without AI",
+      }),
       final_judgment: "no",
       rationale: "Analysis requires AI capabilities",
       needs_more_info: true,
@@ -163,7 +114,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
     console.log("Analyzing bill text with AI");
     const OpenAIClient = new OpenAI();
 
-    const prompt = `${SUMMARY_AND_VOTE_PROMPT}\n\nBill Text:\n${input}`;
+    const prompt = `${generateSummaryAndVotePrompt()}\n\nBill Text:\n${input}`;
     const response = await OpenAIClient.responses.create({
       model: "gpt-5",
       input: prompt,
@@ -279,59 +230,9 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
     return {
       summary: truncatedSummary || "Error occurred during analysis.",
       short_title: undefined,
-      tenet_evaluations: [
-        {
-          id: 1,
-          title: "Canada should aim to be the world's most prosperous country",
-          alignment: "neutral",
-          explanation: "Analysis failed",
-        },
-        {
-          id: 2,
-          title:
-            "Promote economic freedom, ambition, and breaking from bureaucratic inertia",
-          alignment: "neutral",
-          explanation: "Analysis failed",
-        },
-        {
-          id: 3,
-          title: "Drive national productivity and global competitiveness",
-          alignment: "neutral",
-          explanation: "Analysis failed",
-        },
-        {
-          id: 4,
-          title: "Grow exports of Canadian products and resources",
-          alignment: "neutral",
-          explanation: "Analysis failed",
-        },
-        {
-          id: 5,
-          title: "Encourage investment, innovation, and resource development",
-          alignment: "neutral",
-          explanation: "Analysis failed",
-        },
-        {
-          id: 6,
-          title:
-            "Deliver better public services at lower cost (government efficiency)",
-          alignment: "neutral",
-          explanation: "Analysis failed",
-        },
-        {
-          id: 7,
-          title:
-            "Reform taxes to incentivize work, risk-taking, and innovation",
-          alignment: "neutral",
-          explanation: "Analysis failed",
-        },
-        {
-          id: 8,
-          title: "Focus on large-scale prosperity, not incrementalism",
-          alignment: "neutral",
-          explanation: "Analysis failed",
-        },
-      ],
+      tenet_evaluations: buildTenetEvaluations({
+        explanation: "Analysis failed",
+      }),
       final_judgment: "no",
       rationale: "Technical error during analysis",
       needs_more_info: true,

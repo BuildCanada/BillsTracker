@@ -3,7 +3,8 @@ import {
   getBillFromCivicsProjectApi,
   fetchBillMarkdown,
 } from "@/services/billApi";
-import { SUMMARY_AND_VOTE_PROMPT } from "@/prompt/summary-and-vote-prompt";
+import { generateSummaryAndVotePrompt } from "@/prompt/summary-and-vote-prompt";
+import { TENETS_LIST } from "@/utils/constants";
 import { mockBillResponses } from "../fixtures/api-responses";
 import fs from "node:fs";
 import path from "node:path";
@@ -72,7 +73,7 @@ describe("Prompt Generation", () => {
         throw new Error("Bill or bill source not found");
       }
       const markdown = await fetchBillMarkdown(bill.source);
-      const prompt = `${SUMMARY_AND_VOTE_PROMPT}\n\nBill Text:\n${markdown}`;
+      const prompt = `${generateSummaryAndVotePrompt()}\n\nBill Text:\n${markdown}`;
 
       // Check prompt structure
       expect(prompt).toContain("You are analyzing Canadian legislation");
@@ -139,7 +140,7 @@ describe("Prompt Generation", () => {
           throw new Error("Bill or bill source not found");
         }
         const markdown = await fetchBillMarkdown(bill.source);
-        const prompt = `${SUMMARY_AND_VOTE_PROMPT}\n\nBill Text:\n${markdown}`;
+        const prompt = `${generateSummaryAndVotePrompt()}\n\nBill Text:\n${markdown}`;
 
         // Basic validations
         expect(prompt).toBeDefined();
@@ -153,38 +154,27 @@ describe("Prompt Generation", () => {
 
   describe("Prompt content validation", () => {
     it("should include all 8 Build Canada tenets in prompt", () => {
-      expect(SUMMARY_AND_VOTE_PROMPT).toContain(
-        "Canada should aim to be the world's most prosperous country",
-      );
-      expect(SUMMARY_AND_VOTE_PROMPT).toContain("Promote economic freedom");
-      expect(SUMMARY_AND_VOTE_PROMPT).toContain("Drive national productivity");
-      expect(SUMMARY_AND_VOTE_PROMPT).toContain("Grow exports");
-      expect(SUMMARY_AND_VOTE_PROMPT).toContain("Encourage investment");
-      expect(SUMMARY_AND_VOTE_PROMPT).toContain(
-        "Deliver better public services",
-      );
-      expect(SUMMARY_AND_VOTE_PROMPT).toContain("Reform taxes");
-      expect(SUMMARY_AND_VOTE_PROMPT).toContain(
-        "Focus on large-scale prosperity",
-      );
+      const prompt = generateSummaryAndVotePrompt();
+      TENETS_LIST.forEach(({ title }) => {
+        expect(prompt).toContain(title);
+      });
     });
 
     it("should include JSON output format specification", () => {
-      expect(SUMMARY_AND_VOTE_PROMPT).toContain(
-        "Output format (return valid JSON only)",
-      );
-      expect(SUMMARY_AND_VOTE_PROMPT).toContain('"summary":');
-      expect(SUMMARY_AND_VOTE_PROMPT).toContain('"tenet_evaluations":');
-      expect(SUMMARY_AND_VOTE_PROMPT).toContain('"final_judgment":');
+      const prompt = generateSummaryAndVotePrompt();
+      expect(prompt).toContain("Output format (return valid JSON only)");
+      expect(prompt).toContain('"summary":');
+      expect(prompt).toContain('"tenet_evaluations":');
+      expect(prompt).toContain('"final_judgment":');
     });
 
     it("should have proper tenet evaluation structure in prompt", () => {
-      expect(SUMMARY_AND_VOTE_PROMPT).toContain(
-        '"alignment": "aligns|conflicts|neutral"',
-      );
-      expect(SUMMARY_AND_VOTE_PROMPT).toContain('"explanation":');
-      expect(SUMMARY_AND_VOTE_PROMPT).toContain('"id": 1');
-      expect(SUMMARY_AND_VOTE_PROMPT).toContain('"id": 8');
+      const prompt = generateSummaryAndVotePrompt();
+      expect(prompt).toContain('"alignment": "aligns|conflicts|neutral"');
+      expect(prompt).toContain('"explanation":');
+      TENETS_LIST.forEach(({ id }) => {
+        expect(prompt).toContain(`"id": ${id}`);
+      });
     });
   });
 
