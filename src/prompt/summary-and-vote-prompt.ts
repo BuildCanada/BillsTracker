@@ -1,6 +1,6 @@
 export const TENETS = {
   1: "Canada should aim to be the world's most prosperous country.",
-  2: "Promote economic freedom, ambition, and breaking from bureaucratic inertia.",
+  2: "Promote economic freedom, ambition, and breaking from bureaucratic inertia (reduce red tape).",
   3: "Drive national productivity and global competitiveness.",
   4: "Grow exports of Canadian products and resources.",
   5: "Encourage investment, innovation, and resource development.",
