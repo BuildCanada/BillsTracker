@@ -2,28 +2,6 @@ import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { UnifiedBill } from "@/utils/billConverters";
 import { Markdown } from "../Markdown/markdown";
 
-// Function to strip basic markdown formatting from text
-const stripMarkdown = (text: string): string => {
-  return text
-    // Remove bold formatting: **text** or __text__
-    .replace(/\*\*(.*?)\*\*/g, '$1')
-    .replace(/__(.*?)__/g, '$1')
-    // Remove italic formatting: *text* or _text_
-    .replace(/\*(.*?)\*/g, '$1')
-    .replace(/_(.*?)_/g, '$1')
-    // Remove links: [text](url)
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    // Remove inline code: `code`
-    .replace(/`([^`]+)`/g, '$1')
-    // Remove headers: # ## ###
-    .replace(/^#{1,6}\s+/gm, '')
-    // Remove strikethrough: ~~text~~
-    .replace(/~~(.*?)~~/g, '$1')
-    // Clean up extra whitespace
-    .replace(/\s+/g, ' ')
-    .trim();
-};
-
 const XLogo = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     viewBox="0 0 24 24"
@@ -96,10 +74,10 @@ export const BillQuestions = ({
             {questions.map((q, idx) => {
               const rawQuestion = q.question ?? "";
               // stripMarkdown already handles trimming, so we can use it for both display and sharing
-              const cleanQuestion = stripMarkdown(rawQuestion);
+              const trimmedQuestion = rawQuestion.trim();
               const shareText = buildXShareText({
                 title: shareTitle,
-                question: cleanQuestion,
+                question: trimmedQuestion,
                 url: billUrl,
               });
               const xShareUrl = `https://x.com/intent/post?${new URLSearchParams({ text: shareText }).toString()}`;
@@ -108,7 +86,7 @@ export const BillQuestions = ({
                 <Card key={idx} className="flex h-full flex-col">
                   <CardContent className="flex h-full flex-col justify-between gap-2">
                     <div className="prose prose-sm mt-4 flex-1 text-sm leading-6">
-                      <Markdown>{cleanQuestion}</Markdown>
+                      <Markdown>{trimmedQuestion}</Markdown>
                     </div>
                     <div className="flex flex-col justify-end gap-2 text-sm">
                       <a
