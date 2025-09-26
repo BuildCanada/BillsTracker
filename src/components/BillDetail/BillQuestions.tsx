@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { UnifiedBill } from "@/utils/billConverters";
 import { Markdown } from "../Markdown/markdown";
@@ -104,6 +106,13 @@ export const BillQuestions = ({
   const questions = bill.question_period_questions ?? [];
   const shareTitle = bill.short_title || bill.title;
 
+  const handleShareClick = (url: string) => {
+    if (typeof window !== "undefined" && window.sa_event) {
+      window.sa_event("share_question_clicked_x");
+    }
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   if (questions.length === 0) {
     return null;
   }
@@ -133,14 +142,12 @@ export const BillQuestions = ({
                       <Markdown>{trimmedQuestion}</Markdown>
                     </div>
                     <div className="flex flex-col justify-end gap-2 text-sm">
-                      <a
-                        href={xShareUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-end gap-1 text-sm font-medium text-primary hover:text-primary/80"
+                      <button
+                        onClick={() => handleShareClick(xShareUrl)}
+                        className="inline-flex items-center justify-end gap-1 text-sm font-medium text-primary hover:text-primary/80 cursor-pointer"
                       >
                         Share on <XLogo className="size-4" />
-                      </a>
+                      </button>
                     </div>
                   </CardContent>
                 </Card>
