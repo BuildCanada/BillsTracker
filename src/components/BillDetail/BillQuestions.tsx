@@ -2,8 +2,6 @@ import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { UnifiedBill } from "@/utils/billConverters";
 import { Markdown } from "../Markdown/markdown";
 
-const MAX_X_CHAR_COUNT = 278;
-
 // Function to strip basic markdown formatting from text
 const stripMarkdown = (text: string): string => {
   return text
@@ -96,12 +94,12 @@ export const BillQuestions = ({
         <CardContent>
           <div className="flex flex-col gap-4">
             {questions.map((q, idx) => {
-              const trimmedQuestion = q.question?.trim() ?? "";
-              // Use stripped markdown text for sharing to avoid clipping issues
-              const strippedQuestion = stripMarkdown(trimmedQuestion);
+              const rawQuestion = q.question ?? "";
+              // stripMarkdown already handles trimming, so we can use it for both display and sharing
+              const cleanQuestion = stripMarkdown(rawQuestion);
               const shareText = buildXShareText({
                 title: shareTitle,
-                question: strippedQuestion,
+                question: cleanQuestion,
                 url: billUrl,
               });
               const xShareUrl = `https://x.com/intent/post?${new URLSearchParams({ text: shareText }).toString()}`;
@@ -110,7 +108,7 @@ export const BillQuestions = ({
                 <Card key={idx} className="flex h-full flex-col">
                   <CardContent className="flex h-full flex-col justify-between gap-2">
                     <div className="prose prose-sm mt-4 flex-1 text-sm leading-6">
-                      <Markdown>{strippedQuestion}</Markdown>
+                      <Markdown>{cleanQuestion}</Markdown>
                     </div>
                     <div className="flex flex-col justify-end gap-2 text-sm">
                       <a
