@@ -1,6 +1,7 @@
 "use client";
 
 import { PROJECT_NAME } from "@/consts/general";
+import { BASE_PATH } from "@/utils/basePath";
 import { Session } from "next-auth";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -10,7 +11,8 @@ export const Nav = () => {
   const { data: session }: { data: Session | null } = useSession();
 
   const handleSignOut = () => {
-    signOut({ callbackUrl: "/bills" });
+    const redirect = BASE_PATH || "/";
+    signOut({ callbackUrl: redirect });
   };
 
   return (
