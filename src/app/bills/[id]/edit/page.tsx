@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
+import { BASE_PATH } from "@/utils/basePath";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -16,7 +17,7 @@ export default async function EditBillPage({ params }: Params) {
 
   const bill = await getBillByIdFromDB(id);
   if (!bill) {
-    redirect(`/bills/${id}`);
+    redirect(`${BASE_PATH || ""}/${id}`.replace(/\/+/g, "/"));
   }
 
   return (

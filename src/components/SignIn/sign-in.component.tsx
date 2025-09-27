@@ -1,9 +1,10 @@
 "use client";
 import { signIn } from "next-auth/react";
+import { BASE_PATH } from "@/utils/basePath";
 
 export const SignIn = () => {
   const handleSignInClick = () => {
-    signIn("google");
+    signIn("google", { callbackUrl: BASE_PATH || "/" });
   };
   return (
     <div>
