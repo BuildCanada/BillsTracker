@@ -103,7 +103,9 @@ export const BillQuestions = ({
   bill: UnifiedBill;
   billUrl: string;
 }) => {
-  const questions = bill.question_period_questions ?? [];
+  const questions = (bill.question_period_questions ?? [])
+    .map((q) => ({ question: q.question?.trim() ?? "" }))
+    .filter((q) => q.question.length);
   const shareTitle = bill.short_title || bill.title;
 
   const handleShareClick = (url: string) => {
@@ -113,10 +115,6 @@ export const BillQuestions = ({
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  if (questions.length === 0) {
-    return null;
-  }
-
   return (
     <div className="flex flex-col gap-4">
       <Card>
@@ -125,35 +123,41 @@ export const BillQuestions = ({
         </CardHeader>
 
         <CardContent>
-          <div className="flex flex-col gap-4">
-            {questions.map((q, idx) => {
-              const trimmedQuestion = q.question?.trim() ?? "";
-              const shareText = buildXShareText({
-                title: shareTitle,
-                question: trimmedQuestion,
-                url: billUrl,
-              });
-              const xShareUrl = `https://x.com/intent/post?${new URLSearchParams({ text: shareText }).toString()}`;
+          {questions.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No question period cards yet.
+            </p>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {questions.map((q, idx) => {
+                const trimmedQuestion = q.question;
+                const shareText = buildXShareText({
+                  title: shareTitle,
+                  question: trimmedQuestion,
+                  url: billUrl,
+                });
+                const xShareUrl = `https://x.com/intent/post?${new URLSearchParams({ text: shareText }).toString()}`;
 
-              return (
-                <Card key={idx} className="flex h-full flex-col">
-                  <CardContent className="flex h-full flex-col justify-between gap-2">
-                    <div className="prose prose-sm mt-4 flex-1 text-sm leading-6">
-                      <Markdown>{trimmedQuestion}</Markdown>
-                    </div>
-                    <div className="flex flex-col justify-end gap-2 text-sm">
-                      <button
-                        onClick={() => handleShareClick(xShareUrl)}
-                        className="inline-flex items-center justify-end gap-1 text-sm font-medium text-primary hover:text-primary/80 cursor-pointer"
-                      >
-                        Share on <XLogo className="size-4" />
-                      </button>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                return (
+                  <Card key={idx} className="flex h-full flex-col">
+                    <CardContent className="flex h-full flex-col justify-between gap-2">
+                      <div className="prose prose-sm mt-4 flex-1 text-sm leading-6">
+                        <Markdown>{trimmedQuestion}</Markdown>
+                      </div>
+                      <div className="flex flex-col justify-end gap-2 text-sm">
+                        <button
+                          onClick={() => handleShareClick(xShareUrl)}
+                          className="inline-flex items-center justify-end gap-1 text-sm font-medium text-primary hover:text-primary/80 cursor-pointer"
+                        >
+                          Share on <XLogo className="size-4" />
+                        </button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

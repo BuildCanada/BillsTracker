@@ -28,6 +28,7 @@ import {
   BUILD_CANADA_URL,
 } from "@/consts/general";
 import { BillShare } from "@/components/BillDetail/BillShare";
+import { shouldForceNeutral } from "@/utils/vote-display";
 
 // Cache individual bill pages for 2 minutes
 export const revalidate = 120;
@@ -77,19 +78,15 @@ export default async function BillDetail({ params }: Params) {
     );
   }
 
-  const isNeutral = unifiedBill.final_judgment === "neutral";
   const isSocialIssue = unifiedBill.isSocialIssue;
-  const alignCount = (unifiedBill.tenet_evaluations ?? []).filter(
-    (t) => t.alignment === "aligns",
-  ).length;
-  const conflictCount = (unifiedBill.tenet_evaluations ?? []).filter(
-    (t) => t.alignment === "conflicts",
-  ).length;
-  const onlySingleIssueVarying = alignCount === 1 || conflictCount === 1;
+  const shouldForceNeutralVote = shouldForceNeutral(unifiedBill.tenet_evaluations ?? []);
+  const isNeutral = unifiedBill.final_judgment === "neutral" || shouldForceNeutralVote;
 
-  const showAnalysis = !isNeutral && !isSocialIssue && !onlySingleIssueVarying;
+
+  const showAnalysis = !isNeutral || !isSocialIssue || !shouldForceNeutralVote;
+  console.log({ shouldForceNeutralVote, isNeutral, isSocialIssue, showAnalysis });
   const displayJudgement = (
-    onlySingleIssueVarying
+    shouldForceNeutralVote
       ? "neutral"
       : (unifiedBill.final_judgment as JudgementValue)
   ) as JudgementValue;
