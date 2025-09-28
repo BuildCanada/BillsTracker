@@ -32,9 +32,12 @@ export async function POST(
   let final_judgment: string | undefined;
   let rationale: string | undefined;
   let steel_man: string | undefined;
-  let missing_details_raw = "";
-  let genres_raw = "";
-  let question_period_questions_raw = "";
+  let missing_details_input: unknown;
+  let genres_input: unknown;
+  let question_period_questions_input: unknown;
+  let hasMissingDetails = false;
+  let hasGenres = false;
+  let hasQuestionPeriodQuestions = false;
   let tenet_ids: string[] = [];
   let tenet_titles: string[] = [];
   let tenet_alignments: string[] = [];
@@ -49,10 +52,19 @@ export async function POST(
     final_judgment = params.get("final_judgment") || undefined;
     rationale = params.get("rationale") || undefined;
     steel_man = params.get("steel_man") || undefined;
-    missing_details_raw = params.get("missing_details") || "";
-    genres_raw = params.get("genres") || "";
-    question_period_questions_raw =
-      params.get("question_period_questions") || "";
+    if (params.has("missing_details")) {
+      hasMissingDetails = true;
+      missing_details_input = params.get("missing_details") || "";
+    }
+    if (params.has("genres")) {
+      hasGenres = true;
+      genres_input = params.get("genres") || "";
+    }
+    const questionPeriodValues = params.getAll("question_period_questions");
+    if (questionPeriodValues.length > 0) {
+      hasQuestionPeriodQuestions = true;
+      question_period_questions_input = questionPeriodValues;
+    }
     tenet_ids = params.getAll("tenet_id");
     tenet_titles = params.getAll("tenet_title");
     tenet_alignments = params.getAll("tenet_alignment");
@@ -67,10 +79,18 @@ export async function POST(
     final_judgment = asString(json.final_judgment);
     rationale = asString(json.rationale);
     steel_man = asString(json.steel_man);
-    missing_details_raw = asString(json.missing_details) || "";
-    genres_raw = asString(json.genres) || "";
-    question_period_questions_raw =
-      asString(json.question_period_questions) || "";
+    if ("missing_details" in json) {
+      hasMissingDetails = true;
+      missing_details_input = (json as any).missing_details;
+    }
+    if ("genres" in json) {
+      hasGenres = true;
+      genres_input = (json as any).genres;
+    }
+    if ("question_period_questions" in json) {
+      hasQuestionPeriodQuestions = true;
+      question_period_questions_input = (json as any).question_period_questions;
+    }
     tenet_ids = Array.isArray((json as any).tenet_id)
       ? ((json as any).tenet_id as unknown[]).map(String)
       : [];
@@ -94,11 +114,22 @@ export async function POST(
         (form.get("final_judgment") as string | null) || undefined;
       rationale = (form.get("rationale") as string | null) || undefined;
       steel_man = (form.get("steel_man") as string | null) || undefined;
-      missing_details_raw =
-        (form.get("missing_details") as string | null) || "";
-      genres_raw = (form.get("genres") as string | null) || "";
-      question_period_questions_raw =
-        (form.get("question_period_questions") as string | null) || "";
+      if (typeof form.has === "function" && form.has("missing_details")) {
+        hasMissingDetails = true;
+        missing_details_input =
+          (form.get("missing_details") as string | null) || "";
+      }
+      if (typeof form.has === "function" && form.has("genres")) {
+        hasGenres = true;
+        genres_input = (form.get("genres") as string | null) || "";
+      }
+      const questionPeriodValues = (form.getAll as any)(
+        "question_period_questions",
+      );
+      if (Array.isArray(questionPeriodValues) && questionPeriodValues.length > 0) {
+        hasQuestionPeriodQuestions = true;
+        question_period_questions_input = questionPeriodValues;
+      }
       tenet_ids = (form.getAll as any)("tenet_id").map(String);
       tenet_titles = (form.getAll as any)("tenet_title").map(String);
       tenet_alignments = (form.getAll as any)("tenet_alignment").map(String);
@@ -110,20 +141,138 @@ export async function POST(
     }
   }
 
-  const missing_details = missing_details_raw
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const genres = genres_raw
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
+  const parseCommaSeparated = (value: unknown): string[] => {
+    const segments: string[] = [];
+    const addFromString = (input: string) => {
+      input
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .forEach((segment) => segments.push(segment));
+    };
 
-  const question_period_questions = question_period_questions_raw
-    .split("\n")
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .map((question) => ({ question }));
+    const handle = (input: unknown): void => {
+      if (input == null) return;
+      if (Array.isArray(input)) {
+        input.forEach(handle);
+        return;
+      }
+      if (typeof input === "object") {
+        return;
+      }
+      addFromString(String(input));
+    };
+
+    handle(value);
+    return segments;
+  };
+
+  const parseQuestionPeriodQuestions = (
+    value: unknown,
+  ): Array<{ question: string }> => {
+    const questions: string[] = [];
+
+    const addGroupedLines = (input: string) => {
+      const trimmedInput = input.trim();
+      if (!trimmedInput) return;
+
+      // Try to parse JSON if provided as string
+      if (
+        (trimmedInput.startsWith("[") && trimmedInput.endsWith("]")) ||
+        (trimmedInput.startsWith("{") && trimmedInput.endsWith("}"))
+      ) {
+        try {
+          const parsed = JSON.parse(trimmedInput);
+          handle(parsed);
+          return;
+        } catch {
+          // fall through to text handling
+        }
+      }
+
+      const lines = trimmedInput.split(/\r?\n/);
+
+      if (
+        lines.length > 1 &&
+        lines.every((line) => line.trim() && /\?$/.test(line.trim()))
+      ) {
+        lines
+          .map((line) => line.trim())
+          .filter(Boolean)
+          .forEach((line) => questions.push(line));
+        return;
+      }
+
+      const grouped: string[] = [];
+      let buffer: string[] = [];
+
+      const flush = () => {
+        if (buffer.length === 0) return;
+        const candidate = buffer.join("\n").trim();
+        if (candidate) {
+          grouped.push(candidate);
+        }
+        buffer = [];
+      };
+
+      for (const rawLine of lines) {
+        const line = rawLine.trim();
+        if (line.length === 0) {
+          flush();
+        } else {
+          buffer.push(line);
+        }
+      }
+      flush();
+
+      if (grouped.length === 0) {
+        grouped.push(trimmedInput);
+      }
+
+      grouped.forEach((segment) => {
+        if (segment) {
+          questions.push(segment);
+        }
+      });
+    };
+
+    const handle = (input: unknown): void => {
+      if (input == null) return;
+      if (Array.isArray(input)) {
+        input.forEach(handle);
+        return;
+      }
+      if (typeof input === "object") {
+        const maybeQuestion = (input as any).question;
+        if (typeof maybeQuestion === "string") {
+          addGroupedLines(maybeQuestion);
+        }
+        return;
+      }
+      addGroupedLines(String(input));
+    };
+
+    handle(value);
+
+    return questions.map((question) => ({ question }));
+  };
+
+  let missing_details: string[] | undefined;
+  if (hasMissingDetails) {
+    missing_details = parseCommaSeparated(missing_details_input);
+  }
+
+  let genres: string[] | undefined;
+  if (hasGenres) {
+    genres = parseCommaSeparated(genres_input);
+  }
+
+  let question_period_questions: Array<{ question: string }> | undefined;
+  if (hasQuestionPeriodQuestions) {
+    question_period_questions = parseQuestionPeriodQuestions(
+      question_period_questions_input,
+    );
+  }
 
   const update: Record<string, unknown> = {
     lastUpdatedOn: new Date(),
@@ -134,9 +283,15 @@ export async function POST(
   if (final_judgment !== undefined) update.final_judgment = final_judgment;
   if (rationale !== undefined) update.rationale = rationale;
   if (steel_man !== undefined) update.steel_man = steel_man;
-  update.missing_details = missing_details;
-  update.genres = genres;
-  update.question_period_questions = question_period_questions;
+  if (missing_details !== undefined) {
+    update.missing_details = missing_details;
+  }
+  if (genres !== undefined) {
+    update.genres = genres;
+  }
+  if (question_period_questions !== undefined) {
+    update.question_period_questions = question_period_questions;
+  }
   const tenet_evaluations = tenet_titles.map((title, idx) => ({
     id: Number(tenet_ids[idx] ?? idx + 1),
     title,
