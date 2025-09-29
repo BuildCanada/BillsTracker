@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { UnifiedBill } from "@/utils/billConverters";
 import { Markdown } from "../Markdown/markdown";
@@ -55,12 +57,17 @@ export const BillQuestions = ({
   bill: UnifiedBill;
   billUrl: string;
 }) => {
-  const questions = bill.question_period_questions ?? [];
+  const questions = (bill.question_period_questions ?? [])
+    .map((q) => ({ question: q.question?.trim() ?? "" }))
+    .filter((q) => q.question.length);
   const shareTitle = bill.short_title || bill.title;
 
-  if (questions.length === 0) {
-    return null;
-  }
+  const handleShareClick = (url: string) => {
+    if (typeof window !== "undefined" && window.sa_event) {
+      window.sa_event("share_question_clicked_x");
+    }
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -70,7 +77,12 @@ export const BillQuestions = ({
         </CardHeader>
 
         <CardContent>
-          <div className="flex flex-col gap-4">
+          {questions.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No question period cards yet.
+            </p>
+          ) : (
+                      <div className="flex flex-col gap-4">
             {questions.map((q, idx) => {
               const rawQuestion = q.question ?? "";
               // stripMarkdown already handles trimming, so we can use it for both display and sharing
@@ -103,6 +115,7 @@ export const BillQuestions = ({
               );
             })}
           </div>
+          )}
         </CardContent>
       </Card>
     </div>
