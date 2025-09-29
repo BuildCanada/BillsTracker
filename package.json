@@ -17,10 +17,13 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "prompt": "tsx src/scripts/copy-bill-prompt.ts"
+    "prompt": "tsx src/scripts/copy-bill-prompt.ts",
+    "opt:prompt": "tsx src/prompt/dspy/ax/train.ts",
+    "get-parl-bills": "tsx src/scripts/get-parl-bills.ts"
   },
   "dependencies": {
     "@auth/core": "0.34.2",
+    "@ax-llm/ax": "^14.0.28",
     "@google/genai": "^1.15.0",
     "@google/generative-ai": "^0.24.1",
     "@next/third-parties": "^15.5.3",
@@ -81,6 +84,7 @@
     "@types/react-dom": "^19",
     "@vitest/ui": "^3.2.4",
     "daisyui": "^5.1.7",
+    "dotenv": "^17.2.2",
     "happy-dom": "^18.0.1",
     "husky": "^9.1.7",
     "tailwindcss": "^4",

@@ -1,0 +1,62 @@
+[
+  {
+    "bill_number": "C-4",
+    "final_judgment": "yes",
+    "is_social_issue": "no",
+    "rationale": "The bill materially reduces tax burdens and regulatory costs and introduces measures likely to stimulate work, housing construction, and resource-sector activity. Reducing the lowest bracket directly improves work incentives at the margin and increases after-tax returns to effort for millions of workers. Across-the-board rate cuts and phased repeal of the fuel charge are sizable policy shifts with economy-wide effects, not minor tweaks."
+  },
+  {
+    "bill_number": "C-5",
+    "final_judgment": "yes",
+    "is_social_issue": "no",
+    "rationale": "The bill materially reduces internal barriers and accelerates major projects with a single-window authorization. Internal trade liberalization and expedited approvals for critical infrastructure can raise productivity, reduce time-to-build, and enhance competitiveness. It focuses on nationally significant projects rather than minor tweaks."
+  },
+  {
+    "bill_number": "C-2",
+    "final_judgment": "yes",
+    "is_social_issue": "no",
+    "rationale": "This bill looks to enhance security measures and tighten asylum and immigration controls. It streamlines information‑sharing, modernizes investigative tools, clarifies asylum processing, and reduces procedural delays through standardized orders and forms, delivering better public service. It disincentives fraudulent behaviour, leading to a higher-quality immigration system."
+  },
+  {
+    "bill_number": "C-235",
+    "final_judgment": "neutral",
+    "is_social_issue": "yes",
+    "rationale": "The bill prioritizes denunciation and incapacitation for the most extreme crimes but does not advance prosperity, productivity, or competitiveness. There is no direct link to trade, exports, taxation, highly-skilled workers, or capital formation. As a justice and values-focused measure, classify as a social issue and apply a neutral vote."
+  },
+  {
+    "bill_number": "C-242",
+    "final_judgment": "yes",
+    "is_social_issue": "no",
+    "rationale": "Improved public safety and reduced crime can support economic activity and aid productivity. While this bill increases remand, court burdens, and correctional costs, it reasonably targets these provisions at high-risk, repeat violent offenders."
+  },
+  {
+    "bill_number": "C-233",
+    "final_judgment": "no",
+    "is_social_issue": "no",
+    "rationale": "While the bill advances human-rights safeguards and transparency, it imposes substantial new friction on a key export ecosystem tightly integrated with U.S. and allied supply chains. On balance, it likely reduces exports, investment, and productivity without offsetting measures to drive growth or efficiency."
+  },
+  {
+    "bill_number": "C-227",
+    "final_judgment": "no",
+    "is_social_issue": "no",
+    "rationale": "The bill addresses an urgent barrier to opportunity—housing affordability for young Canadians—but it is a process bill that adds planning and reporting without implementing concrete supply, permitting, or tax changes. It risks more bureaucracy and delay with uncertain economic impact."
+  },
+  {
+    "bill_number": "C-218",
+    "final_judgment": "neutral",
+    "is_social_issue": "yes",
+    "rationale": "This issue has no impact on economic growth, innovation, competition, talent flow, or fiscal sustainability. It is focused on human rights, therefore should be classified as a social issue."
+  },
+  {
+    "bill_number": "C-209",
+    "final_judgment": "neutral",
+    "is_social_issue": "yes",
+    "rationale": "The bill is primarily recognition/commemoration (heritage month), which is symbolic and values-oriented. It does not materially affect growth, competitiveness, taxation, or productivity; classify as a social issue and apply a neutral vote."
+  },
+  {
+    "bill_number": "C-202",
+    "final_judgment": "no",
+    "is_social_issue": "no",
+    "rationale": "The bill hard-codes a ban on market-access concessions for supply-managed sectors, reducing negotiating flexibility and likely increasing consumer costs, which undermines prosperity, competitiveness, and export growth. Protecting a small segment through statutory rigidity conflicts with an ambitious, pro-trade, pro-productivity agenda."
+  }
+]

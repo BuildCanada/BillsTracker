@@ -2,6 +2,9 @@ import { xmlToMarkdown } from "@/utils/xml-to-md/xml-to-md.util";
 import generateSummaryAndVotePrompt from "@/prompt/summary-and-vote-prompt";
 import OpenAI from "openai";
 import { buildTenetEvaluations } from "@/utils/constants";
+import { summarizeAndVote } from "@/prompt/dspy/ax/signature";
+import { loadOptimizationIfAny } from "@/prompt/dspy/ax/runtime";
+import { AxAIOpenAI, AxAIOpenAIModel } from "@ax-llm/ax";
 
 export type ApiStage = {
   stage: string;
@@ -37,6 +40,14 @@ export type ApiBillDetail = {
 };
 
 const CANADIAN_PARLIAMENT_NUMBER = 45;
+let axInitPromise: Promise<boolean> | null = null;
+
+async function ensureAxReady(): Promise<boolean> {
+  if (!axInitPromise) {
+    axInitPromise = loadOptimizationIfAny().catch(() => false);
+  }
+  return axInitPromise;
+}
 
 export async function getBillFromCivicsProjectApi(
   billId: string,
@@ -108,6 +119,80 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
         "The steel man for this bill is the bill that aligns with the tenets of Build Canada.",
       question_period_questions: [],
     };
+  }
+
+  try {
+    await ensureAxReady();
+
+    const billText = (input ?? "").slice(0, 8000);
+
+    // Create AI service for inference
+    const aiService = new AxAIOpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+      config: {
+        model: AxAIOpenAIModel.GPT4OMini, // Or GPT4O, GPT4, etc.
+      },
+    });
+
+    // Use forward method to run the signature
+    const pred = await summarizeAndVote.forward(aiService, { billText });
+
+    const rawTenets: unknown = (pred as any)?.tenetEvaluations;
+    const tenet_evaluations = Array.isArray(rawTenets)
+      ? (rawTenets as any[]).map((t) => {
+          const alignmentRaw = String(
+            (t as any)?.alignment ?? "",
+          ).toLowerCase();
+          const alignment: "aligns" | "conflicts" | "neutral" =
+            alignmentRaw === "aligns" || alignmentRaw === "conflicts"
+              ? (alignmentRaw as "aligns" | "conflicts")
+              : "neutral";
+          return {
+            id: Number((t as any)?.id) || 0,
+            title: String((t as any)?.title ?? ""),
+            alignment,
+            explanation: String((t as any)?.explanation ?? ""),
+          };
+        })
+      : buildTenetEvaluations({
+          explanation: "Ax returned no tenet evaluations",
+        });
+
+    const qpRaw: unknown = (pred as any)?.questionPeriodQuestions;
+    const question_period_questions = Array.isArray(qpRaw)
+      ? (qpRaw as any[])
+          .map((q) =>
+            typeof q === "string"
+              ? { question: q }
+              : { question: String((q as any)?.question ?? "") },
+          )
+          .filter((q) => q.question.length > 0)
+      : [];
+
+    const fjRaw = String((pred as any)?.finalJudgment ?? "").toLowerCase();
+    const final_judgment: "yes" | "no" | "neutral" =
+      fjRaw === "yes" || fjRaw === "no" || fjRaw === "neutral"
+        ? (fjRaw as any)
+        : "no";
+
+    const analysis: BillAnalysis = {
+      summary: String((pred as any)?.summary ?? ""),
+      short_title:
+        typeof (pred as any)?.shortTitle === "string"
+          ? (pred as any).shortTitle
+          : undefined,
+      tenet_evaluations,
+      final_judgment,
+      rationale: String((pred as any)?.rationale ?? ""),
+      needs_more_info: false,
+      missing_details: [],
+      steel_man: "",
+      question_period_questions,
+    };
+
+    return analysis;
+  } catch (axError) {
+    console.warn("Ax inference failed; falling back to OpenAI path:", axError);
   }
 
   try {

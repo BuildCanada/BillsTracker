@@ -1,25 +1,5 @@
 import { TENETS, TENETS_LIST } from "../utils/constants";
 
-const SOCIAL_ISSUE_GRADING = `
-For social issue grading:
-  Positive signals (any one can qualify if it is the main focus):
-  - Recognition/commemoration: heritage months/days, awareness days, honorary observances, national symbols (e.g., national bird/anthem/flag changes).
-  - Rights & identity: assisted dying, abortion, marriage/family status, gender identity/expression, LGBTQ+ rights, indigenous rights, disability rights, hate speech/hate crimes, religious freedoms.
-  - Culture & language: multiculturalism, official languages, curriculum content on culture/history, media/broadcast standards on content/morality.
-  - Civil liberties & expression: protests/assembly, press/speech regulations primarily about expression or social values.
-
-  Negative/Non-social (unless rights/identity are the central focus):
-  - Core economics/fiscal: budgets, taxation, appropriations, trade, monetary policy.
-  - Infrastructure/operations: transportation, energy, housing supply mechanics, procurement, zoning mechanics.
-  - Technical/administrative: agency powers, forms, reporting, definitions not tied to values/identity.
-  - Environmental/health/safety mainly as regulation/operations (e.g., emissions standards, workplace safety), unless framed around rights/identity or moral controversy.
-
-  Tie-breakers:
-  - Classify based on primary purpose, not incidental mentions.
-  - If the bill materially creates or changes an observance/day/month or declares a national symbol, classify as social issue = yes.
-  - If mixed, choose "no".
-`;
-
 export function generateSummaryAndVotePrompt(
   tenets: Readonly<Record<number, string>> = TENETS,
 ): string {
@@ -50,7 +30,26 @@ export function generateSummaryAndVotePrompt(
 You are analyzing Canadian legislation. You must assess whether the bill aligns with Build Canada's Core Tenets:
 ${tenetListLines}
 
-  ${SOCIAL_ISSUE_GRADING}
+## Social Issue Grading
+
+  For social issue grading:
+  
+  Positive signals (any one can qualify if it is the main focus):
+  - Recognition/commemoration: heritage months/days, awareness days, honorary observances, national symbols (e.g., national bird/anthem/flag changes).
+  - Rights & identity: assisted dying, abortion, marriage/family status, gender identity/expression, LGBTQ+ rights, indigenous rights, disability rights, hate speech/hate crimes, religious freedoms.
+  - Culture & language: multiculturalism, official languages, curriculum content on culture/history, media/broadcast standards on content/morality.
+  - Civil liberties & expression: protests/assembly, press/speech regulations primarily about expression or social values.
+
+  Negative/Non-social (unless rights/identity are the central focus):
+  - Core economics/fiscal: budgets, taxation, appropriations, trade, monetary policy.
+  - Infrastructure/operations: transportation, energy, housing supply mechanics, procurement, zoning mechanics.
+  - Technical/administrative: agency powers, forms, reporting, definitions not tied to values/identity.
+  - Environmental/health/safety mainly as regulation/operations (e.g., emissions standards, workplace safety), unless framed around rights/identity or moral controversy.
+
+  Tie-breakers:
+  - Classify based on primary purpose, not incidental mentions.
+  - If the bill materially creates or changes an observance/day/month or declares a national symbol, classify as social issue = yes.
+  - If mixed, choose "no".
 
   For general guidelines:
   - Be critical.

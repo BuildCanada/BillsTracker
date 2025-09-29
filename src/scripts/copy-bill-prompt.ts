@@ -13,6 +13,7 @@ import {
   fetchBillMarkdown,
 } from "@/services/billApi";
 import { SUMMARY_AND_VOTE_PROMPT } from "@/prompt/summary-and-vote-prompt";
+import loadOptimizationIfAny from "@/prompt/dspy/ax/runtime";
 
 async function main() {
   const args = process.argv.slice(2);
@@ -28,6 +29,12 @@ async function main() {
   }
 
   try {
+    // Try to load dspy optimization if available
+    const optimizationLoaded = await loadOptimizationIfAny();
+    if (!outputFlag && optimizationLoaded) {
+      console.log("✓ Loaded dspy optimization (few-shot examples)");
+    }
+
     if (!outputFlag) {
       console.log(`Fetching bill ${billId}...`);
     }
@@ -49,8 +56,12 @@ async function main() {
       billMarkdown = await fetchBillMarkdown(bill.source);
     }
 
-    // Build the prompt text (same as in billApi.ts line 105)
+    // Build the prompt text
     const billText = billMarkdown || bill.header || "";
+
+    // For now, use the base prompt. The dspy optimization would be used
+    // when actually calling the summarizeAndVote signature function, not here.
+    // This script is for copying the prompt text, not executing the AI call.
     const prompt = `${SUMMARY_AND_VOTE_PROMPT}\n\nBill Text:\n${billText}`;
 
     if (outputFlag) {

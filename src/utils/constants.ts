@@ -16,6 +16,11 @@ export const TENETS = Object.freeze({
   6: "Deliver better public services at lower cost (government efficiency).",
   7: "Reform taxes to incentivize work, risk-taking, and innovation.",
   8: "Focus on large-scale prosperity, not incrementalism.",
+  9: "Protect freedom of expression and due process; favour content-neutral rules.",
+  10: "Strengthen rule of law, predictable regulation, and property rights.",
+  11: "Prefer competition and market dynamism over administrative control.",
+  12: "Attract and retain global talent and capital; cut brain drain.",
+  13: "Ensure fiscal sustainability; avoid unfunded mandates and hidden taxes.",
 }) as Readonly<Record<number, string>>;
 
 /**
