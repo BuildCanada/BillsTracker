@@ -11,6 +11,7 @@ import {
 import { useIsMobile } from "@/components/ui/use-mobile";
 import { shouldShowDetermination } from "@/utils/should-show-determination/should-show-determination.util";
 import type { JudgementValue } from "@/components/Judgement/judgement.component";
+import { TenetEvaluation } from "@/models/Bill";
 
 interface BillExplorerProps {
   bills: BillSummary[];
@@ -106,11 +107,13 @@ function BillExplorer({ bills }: BillExplorerProps) {
   // Filter bills
   const filteredBills = useMemo(() => {
     const filtered = bills.filter((bill) => {
-      const judgementParams = {
+      const judgementParams: Parameters<
+        typeof shouldShowDetermination
+      >[0] = {
         vote: bill.final_judgment,
         isSocialIssue: bill.isSocialIssue,
         tenetEvaluations: bill.tenet_evaluations,
-      } as const;
+      };
 
       const shouldDisplayDetermination = shouldShowDetermination(judgementParams);
       const normalizedFinalJudgement: JudgementValue =
@@ -361,7 +364,7 @@ function BillExplorer({ bills }: BillExplorerProps) {
           ) : (
             <ul className="flex flex-col gap-3">
               {filteredBills.map((bill) => (
-                <BillCard key={bill.billID} bill={bill} />
+                <BillCard key={bill.billID} bill={bill as BillSummary & { tenet_evaluations?: TenetEvaluation[] }} />
               ))}
             </ul>
           )}
