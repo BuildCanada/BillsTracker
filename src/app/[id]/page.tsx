@@ -79,17 +79,24 @@ export default async function BillDetail({ params }: Params) {
   }
 
   const isSocialIssue = unifiedBill.isSocialIssue;
-  const judgementParams = {
-    vote: unifiedBill.final_judgment,
+  const shouldForceNeutralVote = shouldForceNeutral(
+    unifiedBill.tenet_evaluations ?? [],
+  );
+  const isNeutral =
+    unifiedBill.final_judgment === "neutral" || shouldForceNeutralVote;
+
+  const showAnalysis = !isNeutral || !isSocialIssue || !shouldForceNeutralVote;
+  console.log({
+    shouldForceNeutralVote,
+    isNeutral,
     isSocialIssue,
-    tenetEvaluations: unifiedBill.tenet_evaluations,
-  } as const;
-  const shouldDisplayDetermination = shouldShowDetermination(judgementParams);
-  const normalizedFinalJudgement: JudgementValue =
-    judgementParams.vote === "yes" || judgementParams.vote === "no"
-      ? judgementParams.vote
-      : "neutral";
-  const showAnalysis = shouldDisplayDetermination;
+    showAnalysis,
+  });
+  const displayJudgement = (
+    shouldForceNeutralVote
+      ? "neutral"
+      : (unifiedBill.final_judgment as JudgementValue)
+  ) as JudgementValue;
 
   return (
     <div className="mx-auto max-w-[1100px] px-6 py-8">
