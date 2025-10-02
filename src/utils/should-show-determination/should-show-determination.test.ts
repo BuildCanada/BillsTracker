@@ -6,6 +6,7 @@ const CONFLICT = { alignment: "conflicts" as const };
 const NEUTRAL = { alignment: "neutral" as const };
 const UNSET = { alignment: undefined };
 const NULL_ALIGNMENT = { alignment: null };
+const NO_ALIGNMENT = {} as const;
 
 describe("shouldShowDetermination", () => {
   it("returns true when vote is yes and not a social issue", () => {
@@ -128,4 +129,73 @@ describe("shouldShowDetermination", () => {
     expect(result).toBe(true);
   });
 
+  it("returns true when tenet evaluations is undefined", () => {
+    const result = shouldShowDetermination({
+      vote: "yes",
+      isSocialIssue: false,
+      tenetEvaluations: undefined,
+    });
+
+    expect(result).toBe(true);
+  });
+
+  it("returns true when tenet evaluations is null", () => {
+    const result = shouldShowDetermination({
+      vote: "yes",
+      isSocialIssue: false,
+      tenetEvaluations: null,
+    });
+
+    expect(result).toBe(true);
+  });
+
+  it("returns true when vote is undefined and not forced neutral", () => {
+    const result = shouldShowDetermination({
+      vote: undefined,
+      isSocialIssue: false,
+      tenetEvaluations: [ALIGN, CONFLICT],
+    });
+
+    expect(result).toBe(true);
+  });
+
+  it("returns true when vote is null and not forced neutral", () => {
+    const result = shouldShowDetermination({
+      vote: null,
+      isSocialIssue: false,
+      tenetEvaluations: [ALIGN, CONFLICT],
+    });
+
+    expect(result).toBe(true);
+  });
+
+  it("returns false when tenet evaluations contain single defined alignment with undefined entries", () => {
+    const result = shouldShowDetermination({
+      vote: "yes",
+      isSocialIssue: false,
+      tenetEvaluations: [UNSET, ALIGN, NULL_ALIGNMENT, undefined],
+    });
+
+    expect(result).toBe(false);
+  });
+
+  it("returns false when tenet evaluations contain null entries with one non-neutral", () => {
+    const result = shouldShowDetermination({
+      vote: "no",
+      isSocialIssue: false,
+      tenetEvaluations: [null, CONFLICT, null],
+    });
+
+    expect(result).toBe(false);
+  });
+
+  it("returns false when tenet evaluations include object without alignment", () => {
+    const result = shouldShowDetermination({
+      vote: "no",
+      isSocialIssue: false,
+      tenetEvaluations: [NO_ALIGNMENT, CONFLICT],
+    });
+
+    expect(result).toBe(false);
+  });
 });

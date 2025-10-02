@@ -9,6 +9,8 @@ import {
   FilterOptions,
 } from "@/components/FilterSection/filter-section.component";
 import { useIsMobile } from "@/components/ui/use-mobile";
+import { shouldShowDetermination } from "@/utils/should-show-determination/should-show-determination.util";
+import type { JudgementValue } from "@/components/Judgement/judgement.component";
 
 interface BillExplorerProps {
   bills: BillSummary[];
@@ -104,6 +106,21 @@ function BillExplorer({ bills }: BillExplorerProps) {
   // Filter bills
   const filteredBills = useMemo(() => {
     const filtered = bills.filter((bill) => {
+      const judgementParams = {
+        vote: bill.final_judgment,
+        isSocialIssue: bill.isSocialIssue,
+        tenetEvaluations: bill.tenet_evaluations,
+      } as const;
+
+      const shouldDisplayDetermination = shouldShowDetermination(judgementParams);
+      const normalizedFinalJudgement: JudgementValue =
+        judgementParams.vote === "yes" || judgementParams.vote === "no"
+          ? judgementParams.vote
+          : "neutral";
+      const displayJudgement: JudgementValue = shouldDisplayDetermination
+        ? normalizedFinalJudgement
+        : "neutral";
+
       // Search
       if (filters.search.trim()) {
         const q = filters.search.trim().toLowerCase();
@@ -151,8 +168,7 @@ function BillExplorer({ bills }: BillExplorerProps) {
 
       // Judgement (final_judgment)
       if (filters.judgement.length > 0) {
-        const j = bill.final_judgment;
-        if (!j || !filters.judgement.includes(j)) return false;
+        if (!filters.judgement.includes(displayJudgement)) return false;
       }
 
       // Party

@@ -1,10 +1,16 @@
 import { TenetEvaluation } from "@/models/Bill";
-import { shouldForceNeutral } from "@/utils/vote-display";
+import { isSingleTenet } from "@/utils/vote-display";
+
+type TenetAlignmentLike = TenetEvaluation["alignment"] | null | undefined;
+
+type TenetEvaluationLike = {
+  alignment?: TenetAlignmentLike;
+};
 
 type ShouldShowDeterminationParams = {
-  vote: string;
-  isSocialIssue: boolean;
-  tenetEvaluations: Pick<TenetEvaluation, "alignment">[];
+  vote: string | null | undefined;
+  isSocialIssue?: boolean | null;
+  tenetEvaluations?: (TenetEvaluationLike | null | undefined)[] | null;
 };
 
 export const shouldShowDetermination = ({
@@ -12,12 +18,25 @@ export const shouldShowDetermination = ({
   isSocialIssue,
   tenetEvaluations,
 }: ShouldShowDeterminationParams): boolean => {
-  const normalizedVote = vote?.toLowerCase?.() ?? "";
+  const normalizedVote = vote?.toString?.().toLowerCase?.() ?? "";
   const isVoteNeutral = normalizedVote === "neutral";
-  const forceNeutral = shouldForceNeutral(tenetEvaluations ?? []);
+  const normalizedIsSocialIssue = Boolean(isSocialIssue);
+  const normalizedEvaluations: Parameters<typeof isSingleTenet>[0] = (
+    tenetEvaluations ?? []
+  )
+    .filter((evaluation): evaluation is TenetEvaluationLike => Boolean(evaluation))
+    .map((evaluation) => ({
+      alignment:
+        evaluation.alignment === "aligns" ||
+          evaluation.alignment === "conflicts" ||
+          evaluation.alignment === "neutral"
+          ? evaluation.alignment
+          : undefined,
+    }));
+  const forceNeutral = isSingleTenet(normalizedEvaluations);
 
   if (isVoteNeutral) return false;
-  if (isSocialIssue) return false;
+  if (normalizedIsSocialIssue) return false;
   if (forceNeutral) return false;
 
   return true;
