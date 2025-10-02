@@ -83,8 +83,7 @@ export default async function BillDetail({ params }: Params) {
   const isNeutral = unifiedBill.final_judgment === "neutral" || shouldForceNeutralVote;
 
 
-  const showAnalysis = !isNeutral || !isSocialIssue || !shouldForceNeutralVote;
-  console.log({ shouldForceNeutralVote, isNeutral, isSocialIssue, showAnalysis });
+  const showAnalysis = unifiedBill.final_judgment !== "neutral" && !isSocialIssue && !shouldForceNeutralVote;
   const displayJudgement = (
     shouldForceNeutralVote
       ? "neutral"
@@ -121,7 +120,7 @@ export default async function BillDetail({ params }: Params) {
             showAnalysis={showAnalysis}
             displayJudgement={displayJudgement}
           />
-          {showAnalysis && (
+          {showAnalysis && unifiedBill.question_period_questions && unifiedBill.question_period_questions.length > 0 && (
             <BillQuestions
               bill={unifiedBill}
               billUrl={buildAbsoluteUrl(shareOrigin, id)}
