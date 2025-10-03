@@ -9,7 +9,7 @@ interface TenetEvaluation {
  * when there is only a single non-neutral evaluation
  * (either one "aligns" or one "conflicts") and all others are neutral.
  */
-export function shouldForceNeutral(evaluations: TenetEvaluation[]): boolean {
+export function isSingleTenet(evaluations: TenetEvaluation[]): boolean {
   if (!evaluations || evaluations.length === 0) return false;
 
   const counts = evaluations.reduce(

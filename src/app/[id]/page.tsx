@@ -28,7 +28,7 @@ import {
   BUILD_CANADA_URL,
 } from "@/consts/general";
 import { BillShare } from "@/components/BillDetail/BillShare";
-import { shouldForceNeutral } from "@/utils/vote-display";
+import { shouldShowDetermination } from "@/utils/should-show-determination/should-show-determination.util";
 
 // Cache individual bill pages for 2 minutes
 export const revalidate = 120;
@@ -79,17 +79,17 @@ export default async function BillDetail({ params }: Params) {
   }
 
   const isSocialIssue = unifiedBill.isSocialIssue;
-  const shouldForceNeutralVote = shouldForceNeutral(unifiedBill.tenet_evaluations ?? []);
-  const isNeutral = unifiedBill.final_judgment === "neutral" || shouldForceNeutralVote;
-
-
-  const showAnalysis = !isNeutral || !isSocialIssue || !shouldForceNeutralVote;
-  console.log({ shouldForceNeutralVote, isNeutral, isSocialIssue, showAnalysis });
-  const displayJudgement = (
-    shouldForceNeutralVote
-      ? "neutral"
-      : (unifiedBill.final_judgment as JudgementValue)
-  ) as JudgementValue;
+  const judgementParams = {
+    vote: unifiedBill.final_judgment,
+    isSocialIssue,
+    tenetEvaluations: unifiedBill.tenet_evaluations,
+  } as const;
+  const shouldDisplayDetermination = shouldShowDetermination(judgementParams);
+  const normalizedFinalJudgement: JudgementValue =
+    judgementParams.vote === "yes" || judgementParams.vote === "no"
+      ? judgementParams.vote
+      : "neutral";
+  const showAnalysis = shouldDisplayDetermination;
 
   return (
     <div className="mx-auto max-w-[1100px] px-6 py-8">
@@ -119,9 +119,12 @@ export default async function BillDetail({ params }: Params) {
           <BillAnalysis
             bill={unifiedBill}
             showAnalysis={showAnalysis}
-            displayJudgement={displayJudgement}
+            displayJudgement={{
+              value: normalizedFinalJudgement,
+              shouldDisplay: shouldDisplayDetermination,
+            }}
           />
-          {showAnalysis && (
+          {showAnalysis && unifiedBill.question_period_questions && unifiedBill.question_period_questions.length > 0 && (
             <BillQuestions
               bill={unifiedBill}
               billUrl={buildAbsoluteUrl(shareOrigin, id)}
