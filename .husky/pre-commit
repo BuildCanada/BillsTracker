@@ -1,4 +1,5 @@
 npm run type-check
 npm run format
 npx biome check --error-on-warnings
+git add -u
 npm test

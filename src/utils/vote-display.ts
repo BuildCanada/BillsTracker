@@ -26,10 +26,9 @@ export function isSingleTenet(evaluations: TenetEvaluation[]): boolean {
       }
       return acc;
     },
-    { aligns: 0, conflicts: 0, neutral: 0 }
+    { aligns: 0, conflicts: 0, neutral: 0 },
   );
 
   const nonNeutralCount = counts.aligns + counts.conflicts;
   return nonNeutralCount === 1 && counts.neutral === evaluations.length - 1;
 }
-

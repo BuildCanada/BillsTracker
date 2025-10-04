@@ -140,7 +140,10 @@ export default async function EditBillPage({ params }: Params) {
               const fieldId = `question_period_questions_${idx}`;
               return (
                 <div key={fieldId} className="space-y-2">
-                  <label className="block text-sm font-medium" htmlFor={fieldId}>
+                  <label
+                    className="block text-sm font-medium"
+                    htmlFor={fieldId}
+                  >
                     Question {idx + 1}
                   </label>
                   <textarea

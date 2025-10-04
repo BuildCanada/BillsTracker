@@ -100,11 +100,7 @@ export function Judgement({
     <article
       role="status"
       aria-live="polite"
-      className={[
-        "border-1 rounded-full w-fit px-2",
-        sz.pad,
-        className,
-      ]
+      className={["border-1 rounded-full w-fit px-2", sz.pad, className]
         .filter(Boolean)
         .join(" ")}
     >
@@ -121,7 +117,11 @@ export function Judgement({
         </span>
 
         <span className={`font-medium leading-none ${sz.text}`}>
-          {verdictCopy(effectiveJudgement, isSocialIssue, onlySingleIssueVarying)}
+          {verdictCopy(
+            effectiveJudgement,
+            isSocialIssue,
+            onlySingleIssueVarying,
+          )}
         </span>
       </div>
     </article>
