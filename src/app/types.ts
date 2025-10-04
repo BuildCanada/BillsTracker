@@ -27,6 +27,15 @@ export interface BillSummary {
   needs_more_info?: boolean;
   missing_details?: string[];
   genres?: string[];
+  tenet_evaluations?: Array<
+    | {
+      id?: number;
+      title?: string;
+      alignment?: "aligns" | "conflicts" | "neutral";
+      explanation?: string;
+    }
+    | null
+  >;
   parliamentNumber?: number;
   sessionNumber?: number;
   stages: {

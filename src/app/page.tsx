@@ -9,6 +9,7 @@ import { headers } from "next/headers";
 import { env } from "@/env";
 import { buildRelativePath } from "@/utils/basePath";
 import { BUILD_CANADA_TWITTER_HANDLE, PROJECT_NAME } from "@/consts/general";
+import FAQModalTrigger from "./FAQModalTrigger";
 
 const CANADIAN_PARLIAMENT_NUMBER = 45;
 
@@ -213,10 +214,11 @@ export default async function Home() {
     <div className="min-h-screen">
       <div className="mx-auto max-w-[1120px] px-6 py-8  gap-8">
         <main>
-          <header className="flex items-center gap-4 pb-4 border-b border-[var(--panel-border)] mb-4">
+          <header className="flex items-center justify-between pb-4 border-b border-[var(--panel-border)] mb-4">
             <h1 className="text-[24px] font-semibold">
               45th Canadian Federal Parliament
             </h1>
+            <FAQModalTrigger />
           </header>
 
           <Markdown>{getParliament45Header()}</Markdown>
