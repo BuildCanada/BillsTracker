@@ -48,6 +48,14 @@ const sizes: Record<
   md: { pad: "p-3", text: "text-base", icon: "h-5 w-5", gap: "gap-3" },
 };
 
+interface JudgementProps {
+  judgement: JudgementValue;
+  size?: Size;
+  className?: string;
+  isSocialIssue?: boolean;
+  onlySingleIssueVarying?: boolean;
+}
+
 function verdictCopy(
   j: JudgementValue,
   isSocialIssue?: boolean,
@@ -75,24 +83,16 @@ export function Judgement({
   className,
   isSocialIssue,
   onlySingleIssueVarying,
-}: {
-  judgement: JudgementValue;
-  size?: Size;
-  className?: string;
-  isSocialIssue?: boolean;
-  onlySingleIssueVarying?: boolean;
-}) {
-  const s =
-    isSocialIssue || onlySingleIssueVarying
-      ? stylesByJudgement.neutral
-      : stylesByJudgement[judgement];
+}: JudgementProps) {
+  const effectiveJudgement =
+    isSocialIssue || onlySingleIssueVarying ? "neutral" : judgement;
+  const s = stylesByJudgement[effectiveJudgement];
   const sz = sizes[size];
 
-  const Icon = isSocialIssue
-    ? CircleHelp
-    : judgement === "yes"
+  const Icon =
+    effectiveJudgement === "yes"
       ? CheckCircle2
-      : judgement === "no"
+      : effectiveJudgement === "no"
         ? XCircle
         : CircleHelp;
 
@@ -102,12 +102,11 @@ export function Judgement({
       aria-live="polite"
       className={[
         "border-1 rounded-full w-fit px-2",
-        // "w-fit rounded-xl border-2 ring-1 transition-all duration-200 hover:shadow-lg",
-        // "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-        // s.wrap[variant],
         sz.pad,
         className,
-      ].join(" ")}
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       <div className={`flex items-center ${sz.gap}`}>
         <span
@@ -118,28 +117,15 @@ export function Judgement({
           ].join(" ")}
           aria-hidden="true"
         >
-          <Icon
-            className={
-              sz.icon +
-              " " +
-              s.icon +
-              " " +
-              (isSocialIssue ? "text-slate-700" : "")
-            }
-          />
+          <Icon className={`${sz.icon} ${s.icon}`} />
         </span>
 
         <span className={`font-medium leading-none ${sz.text}`}>
-          {verdictCopy(judgement, isSocialIssue, onlySingleIssueVarying)}
+          {verdictCopy(effectiveJudgement, isSocialIssue, onlySingleIssueVarying)}
         </span>
-        {/* <div className="flex flex-col">
-          {showLabel && (
-          )}
-          <span className={`${sz.text}`}>
-            {verdictCopy(judgement)}
-          </span>
-        </div> */}
       </div>
     </article>
   );
 }
+
+export type { JudgementProps };
