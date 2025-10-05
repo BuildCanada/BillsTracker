@@ -3,6 +3,7 @@ import Google from "next-auth/providers/google";
 import { env, assertServerEnv } from "@/env";
 import { connectToDatabase } from "@/lib/mongoose";
 import { User } from "@/models/User";
+import { BASE_PATH } from "@/utils/basePath";
 
 if (env.NODE_ENV !== "production") {
   try {
@@ -76,7 +77,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: "/sign-in",
+    signIn: `${BASE_PATH}/sign-in`,
   },
   secret: env.NEXTAUTH_SECRET || env.AUTH_SECRET,
 };

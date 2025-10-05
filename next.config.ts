@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/bills";
 
 const nextConfig: NextConfig = {
-  basePath: "/bills",
+  basePath: BASE_PATH,
   assetPrefix: BASE_PATH,
 
   /* config options here */
