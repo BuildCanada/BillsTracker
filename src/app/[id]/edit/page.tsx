@@ -14,6 +14,7 @@ export default async function EditBillPage({ params }: Params) {
 
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
+    console.log("!session?.user?.email")
     redirect(`/unauthorized`);
   }
 
@@ -23,6 +24,7 @@ export default async function EditBillPage({ params }: Params) {
     emailLower: session.user.email.toLowerCase(),
   });
   if (!dbUser) {
+    console.log("!dbUser")
     redirect(`/unauthorized`);
   }
 

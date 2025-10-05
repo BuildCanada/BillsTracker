@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/auth";
+import { authOptions } from "@/lib/auth";
 import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
 import { BASE_PATH } from "@/utils/basePath";
 
