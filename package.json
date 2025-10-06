@@ -13,7 +13,8 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "prompt": "tsx src/scripts/copy-bill-prompt.ts"
+    "prompt": "tsx src/scripts/copy-bill-prompt.ts",
+    "migrate": "tsx src/scripts/migrate.ts"
   },
   "dependencies": {
     "@auth/core": "0.34.2",
@@ -79,6 +80,7 @@
     "@types/react-dom": "19.1.9",
     "@vitest/ui": "^3.2.4",
     "daisyui": "^5.1.7",
+    "dotenv": "^17.2.3",
     "happy-dom": "^18.0.1",
     "husky": "^9.1.7",
     "tailwindcss": "^4",

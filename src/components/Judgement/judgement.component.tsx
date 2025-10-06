@@ -1,7 +1,7 @@
-import { CheckCircle2, XCircle, CircleHelp } from "lucide-react";
+import { CheckCircle2, XCircle, CircleMinus } from "lucide-react";
 import React from "react";
 
-export type JudgementValue = "yes" | "no" | "neutral";
+export type JudgementValue = "yes" | "no" | "abstain";
 type Size = "sm" | "md";
 
 const stylesByJudgement: Record<
@@ -30,7 +30,7 @@ const stylesByJudgement: Record<
     iconWrap: "bg-rose-100 text-rose-700 border-rose-200",
     icon: "text-rose-700",
   },
-  neutral: {
+  abstain: {
     wrap: {
       subtle: "bg-slate-50 text-slate-900 border-slate-200 ring-slate-600/10",
       outline: "bg-white text-slate-900 border-slate-300 ring-slate-600/10",
@@ -52,28 +52,16 @@ interface JudgementProps {
   judgement: JudgementValue;
   size?: Size;
   className?: string;
-  isSocialIssue?: boolean;
-  onlySingleIssueVarying?: boolean;
 }
 
-function verdictCopy(
-  j: JudgementValue,
-  isSocialIssue?: boolean,
-  onlySingleIssueVarying?: boolean,
-) {
-  if (isSocialIssue) {
-    return "Neutral";
-  }
-  if (onlySingleIssueVarying) {
-    return "Neutral";
-  }
+function verdictCopy(j: JudgementValue) {
   switch (j) {
     case "yes":
       return "Vote Yes";
     case "no":
       return "Vote No";
     default:
-      return "Neutral";
+      return "Abstain";
   }
 }
 
@@ -81,20 +69,12 @@ export function Judgement({
   judgement,
   size = "sm",
   className,
-  isSocialIssue,
-  onlySingleIssueVarying,
 }: JudgementProps) {
-  const effectiveJudgement =
-    isSocialIssue || onlySingleIssueVarying ? "neutral" : judgement;
-  const s = stylesByJudgement[effectiveJudgement];
+  const s = stylesByJudgement[judgement];
   const sz = sizes[size];
 
   const Icon =
-    effectiveJudgement === "yes"
-      ? CheckCircle2
-      : effectiveJudgement === "no"
-        ? XCircle
-        : CircleHelp;
+    judgement === "yes" ? CheckCircle2 : judgement === "no" ? XCircle : CircleMinus;
 
   return (
     <article
@@ -121,7 +101,7 @@ export function Judgement({
         </span>
 
         <span className={`font-medium leading-none ${sz.text}`}>
-          {verdictCopy(effectiveJudgement, isSocialIssue, onlySingleIssueVarying)}
+          {verdictCopy(judgement)}
         </span>
       </div>
     </article>

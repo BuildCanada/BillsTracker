@@ -107,22 +107,14 @@ function BillExplorer({ bills }: BillExplorerProps) {
   // Filter bills
   const filteredBills = useMemo(() => {
     const filtered = bills.filter((bill) => {
-      const judgementParams: Parameters<
-        typeof shouldShowDetermination
-      >[0] = {
-        vote: bill.final_judgment,
-        isSocialIssue: bill.isSocialIssue,
-        tenetEvaluations: bill.tenet_evaluations,
-      };
-
-      const shouldDisplayDetermination = shouldShowDetermination(judgementParams);
+      const shouldDisplayDetermination = shouldShowDetermination(bill.final_judgment);
       const normalizedFinalJudgement: JudgementValue =
-        judgementParams.vote === "yes" || judgementParams.vote === "no"
-          ? judgementParams.vote
-          : "neutral";
+        bill.final_judgment === "yes" || bill.final_judgment === "no"
+          ? bill.final_judgment
+          : "abstain";
       const displayJudgement: JudgementValue = shouldDisplayDetermination
         ? normalizedFinalJudgement
-        : "neutral";
+        : "abstain";
 
       // Search
       if (filters.search.trim()) {

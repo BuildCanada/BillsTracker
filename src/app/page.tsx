@@ -124,7 +124,7 @@ async function getMergedBills(): Promise<BillSummary[]> {
       ).length;
       const displayFinal: BillSummary["final_judgment"] =
         alignCount === 1 && conflictCount === 0
-          ? "neutral"
+          ? "abstain"
           : (dbBill.final_judgment as BillSummary["final_judgment"]);
       // Merge API bill with DB data (DB data takes precedence for analysis fields)
       return {
@@ -159,7 +159,7 @@ async function getMergedBills(): Promise<BillSummary[]> {
       ).length;
       const displayFinal: BillSummary["final_judgment"] =
         alignCount === 1 && conflictCount === 0
-          ? "neutral"
+          ? "abstain"
           : (dbBill.final_judgment as BillSummary["final_judgment"]);
       const billSummary: BillSummary = {
         billID: dbBill.billId,

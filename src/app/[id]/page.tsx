@@ -78,18 +78,13 @@ export default async function BillDetail({ params }: Params) {
     );
   }
 
-  const isSocialIssue = unifiedBill.isSocialIssue;
-  const judgementParams = {
-    vote: unifiedBill.final_judgment,
-    isSocialIssue,
-    tenetEvaluations: unifiedBill.tenet_evaluations,
-  } as const;
-  const shouldDisplayDetermination = shouldShowDetermination(judgementParams);
+  const shouldDisplayDetermination = shouldShowDetermination(
+    unifiedBill.final_judgment
+  );
   const normalizedFinalJudgement: JudgementValue =
-    judgementParams.vote === "yes" || judgementParams.vote === "no"
-      ? judgementParams.vote
-      : "neutral";
-  const showAnalysis = shouldDisplayDetermination;
+    unifiedBill.final_judgment === "yes" || unifiedBill.final_judgment === "no"
+      ? unifiedBill.final_judgment
+      : "abstain";
 
   return (
     <div className="mx-auto max-w-[1100px] px-6 py-8">
@@ -118,13 +113,13 @@ export default async function BillDetail({ params }: Params) {
           <BillSummary bill={unifiedBill} />
           <BillAnalysis
             bill={unifiedBill}
-            showAnalysis={showAnalysis}
+            showAnalysis={shouldDisplayDetermination}
             displayJudgement={{
               value: normalizedFinalJudgement,
               shouldDisplay: shouldDisplayDetermination,
             }}
           />
-          {showAnalysis && unifiedBill.question_period_questions && unifiedBill.question_period_questions.length > 0 && (
+          {shouldDisplayDetermination && unifiedBill.question_period_questions && unifiedBill.question_period_questions.length > 0 && (
             <BillQuestions
               bill={unifiedBill}
               billUrl={buildAbsoluteUrl(shareOrigin, id)}

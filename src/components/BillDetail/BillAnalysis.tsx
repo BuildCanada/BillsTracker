@@ -49,7 +49,7 @@ export function BillAnalysis({
 }: BillAnalysisProps) {
   const judgementValue: JudgementValue = displayJudgement.shouldDisplay
     ? displayJudgement.value
-    : "neutral";
+    : "abstain";
 
   if (!showAnalysis) {
     return (
@@ -62,7 +62,6 @@ export function BillAnalysis({
         <CardContent>
           <div>
             <Judgement
-              isSocialIssue={bill.isSocialIssue}
               judgement={judgementValue}
             />
           </div>
@@ -80,7 +79,6 @@ export function BillAnalysis({
               <CardTitle className="mb-2">Builder Assessment</CardTitle>
               <div>
                 <Judgement
-                  isSocialIssue={bill.isSocialIssue}
                   judgement={judgementValue}
                 />
               </div>
