@@ -7,13 +7,14 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "biome check",
-    "format": "biome lint --write --unsafe",
+    "format": "biome check --write",
     "test": "vitest run",
     "type-check": "tsc --noEmit",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "prompt": "tsx src/scripts/copy-bill-prompt.ts"
+    "prompt": "tsx src/scripts/copy-bill-prompt.ts",
+    "prepare": "husky"
   },
   "dependencies": {
     "@auth/core": "0.34.2",
@@ -43,6 +44,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
+    "@radix-ui/react-toggle": "^1.1.10",
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.8",
     "class-variance-authority": "^0.7.1",

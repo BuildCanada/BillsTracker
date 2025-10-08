@@ -107,15 +107,14 @@ function BillExplorer({ bills }: BillExplorerProps) {
   // Filter bills
   const filteredBills = useMemo(() => {
     const filtered = bills.filter((bill) => {
-      const judgementParams: Parameters<
-        typeof shouldShowDetermination
-      >[0] = {
+      const judgementParams: Parameters<typeof shouldShowDetermination>[0] = {
         vote: bill.final_judgment,
         isSocialIssue: bill.isSocialIssue,
         tenetEvaluations: bill.tenet_evaluations,
       };
 
-      const shouldDisplayDetermination = shouldShowDetermination(judgementParams);
+      const shouldDisplayDetermination =
+        shouldShowDetermination(judgementParams);
       const normalizedFinalJudgement: JudgementValue =
         judgementParams.vote === "yes" || judgementParams.vote === "no"
           ? judgementParams.vote
@@ -364,7 +363,14 @@ function BillExplorer({ bills }: BillExplorerProps) {
           ) : (
             <ul className="flex flex-col gap-3">
               {filteredBills.map((bill) => (
-                <BillCard key={bill.billID} bill={bill as BillSummary & { tenet_evaluations?: TenetEvaluation[] }} />
+                <BillCard
+                  key={bill.billID}
+                  bill={
+                    bill as BillSummary & {
+                      tenet_evaluations?: TenetEvaluation[];
+                    }
+                  }
+                />
               ))}
             </ul>
           )}
