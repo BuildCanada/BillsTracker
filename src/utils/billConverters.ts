@@ -60,7 +60,14 @@ export function fromBuildCanadaDbBill(bill: BillDocument): UnifiedBill {
     supportedRegion: bill.supportedRegion,
     introducedOn: bill.introducedOn,
     lastUpdatedOn: bill.lastUpdatedOn,
-    stages: bill.stages ? [...bill.stages] : [],
+    stages: bill.stages
+      ? bill.stages.map((stage) => ({
+          stage: stage.stage,
+          state: stage.state,
+          house: stage.house,
+          date: stage.date,
+        }))
+      : [],
     genres: bill.genres ? [...bill.genres] : undefined,
     parliamentNumber: bill.parliamentNumber,
     sessionNumber: bill.sessionNumber,
