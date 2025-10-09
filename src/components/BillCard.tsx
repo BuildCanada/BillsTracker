@@ -8,7 +8,6 @@ import dayjs from "dayjs";
 import { getCategoryIcon } from "@/utils/bill-category-to-icon/bill-category-to-icon.util";
 import { getBillStageDates } from "@/utils/stages-to-dates/stages-to-dates";
 import { TenetEvaluation } from "@/models/Bill";
-import { shouldShowDetermination } from "@/utils/should-show-determination/should-show-determination.util";
 
 interface BillCardProps {
   bill: BillSummary & { tenet_evaluations?: TenetEvaluation[] };
@@ -20,16 +19,7 @@ function BillCard({ bill }: BillCardProps) {
     ? dayjs(lastUpdated).format("MMM D, YYYY")
     : "N/A";
 
-  const shouldDisplayDetermination = shouldShowDetermination(
-    bill.final_judgment,
-  );
-  const normalizedFinalJudgement: JudgementValue =
-    bill.final_judgment === "yes" || bill.final_judgment === "no"
-      ? bill.final_judgment
-      : "abstain";
-  const judgementValue: JudgementValue = shouldDisplayDetermination
-    ? normalizedFinalJudgement
-    : "abstain";
+  const judgementValue: JudgementValue = bill.final_judgment || "abstain";
 
   return (
     <li className="group rounded-lg border   bg-[var(--panel)] shadow-sm   duration-200 overflow-hidden">

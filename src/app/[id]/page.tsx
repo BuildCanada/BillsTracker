@@ -81,10 +81,7 @@ export default async function BillDetail({ params }: Params) {
   const shouldDisplayDetermination = shouldShowDetermination(
     unifiedBill.final_judgment,
   );
-  const normalizedFinalJudgement: JudgementValue =
-    unifiedBill.final_judgment === "yes" || unifiedBill.final_judgment === "no"
-      ? unifiedBill.final_judgment
-      : "abstain";
+  const judgementValue: JudgementValue = unifiedBill.final_judgment;
 
   return (
     <div className="mx-auto max-w-[1100px] px-6 py-8">
@@ -115,7 +112,7 @@ export default async function BillDetail({ params }: Params) {
             bill={unifiedBill}
             showAnalysis={shouldDisplayDetermination}
             displayJudgement={{
-              value: normalizedFinalJudgement,
+              value: judgementValue,
               shouldDisplay: shouldDisplayDetermination,
             }}
           />
