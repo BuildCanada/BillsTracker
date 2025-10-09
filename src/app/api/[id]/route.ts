@@ -4,9 +4,6 @@ import { connectToDatabase } from "@/lib/mongoose";
 import { Bill } from "@/models/Bill";
 import { User } from "@/models/User";
 import { authOptions } from "@/lib/auth";
-import { getUnifiedBillById } from "@/server/get-unified-bill-by-id";
-import { z } from "zod";
-import { stripBasePath } from "@/utils/basePath";
 import { BASE_PATH } from "@/utils/basePath";
 
 export async function POST(
