@@ -3,6 +3,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { signIn } from "next-auth/react";
+import { BASE_PATH } from "@/utils/basePath";
 
 function SignInContent() {
   const [loading, setLoading] = useState(false);
@@ -16,7 +17,7 @@ function SignInContent() {
   const onGoogle = async () => {
     try {
       setLoading(true);
-      await signIn("google", { callbackUrl: "/" });
+      await signIn("google", { callbackUrl: BASE_PATH || "/" });
     } finally {
       setLoading(false);
     }

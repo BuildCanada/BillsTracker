@@ -4,6 +4,7 @@ import { connectToDatabase } from "@/lib/mongoose";
 import { Bill } from "@/models/Bill";
 import { User } from "@/models/User";
 import { authOptions } from "@/lib/auth";
+import { BASE_PATH } from "@/utils/basePath";
 
 export async function POST(
   request: Request,
@@ -306,5 +307,6 @@ export async function POST(
 
   await Bill.updateOne({ billId: id }, { $set: update }, { upsert: false });
 
-  return NextResponse.redirect(new URL(`/bills/${id}`, request.url));
+  const redirectPath = `${BASE_PATH || ""}/${id}`.replace(/\/+/g, "/");
+  return NextResponse.redirect(new URL(redirectPath, request.url));
 }

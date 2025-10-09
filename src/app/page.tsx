@@ -23,10 +23,12 @@ export async function generateMetadata(): Promise<Metadata> {
     "Understand Canadian federal bills with builder-first analysis.";
   const h = headers();
   const headerList = await h;
-  const host = headerList.get("x-forwarded-host") || headerList.get("host") || "";
+  const host =
+    headerList.get("x-forwarded-host") || headerList.get("host") || "";
   const proto = (headerList.get("x-forwarded-proto") || "https").split(",")[0];
   const baseUrl =
-    env.NEXT_PUBLIC_APP_URL || (host ? `${proto}://${host}` : "http://localhost:3000");
+    env.NEXT_PUBLIC_APP_URL ||
+    (host ? `${proto}://${host}` : "http://localhost:3000");
   const pagePath = buildRelativePath();
   const pageUrl = `${baseUrl}${pagePath}`;
   const ogPath = buildRelativePath("opengraph-image");
@@ -42,7 +44,9 @@ export async function generateMetadata(): Promise<Metadata> {
       url: pageUrl,
       siteName: PROJECT_NAME,
       type: "website",
-      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: PROJECT_NAME }],
+      images: [
+        { url: ogImageUrl, width: 1200, height: 630, alt: PROJECT_NAME },
+      ],
     },
     twitter: {
       card: "summary_large_image",
