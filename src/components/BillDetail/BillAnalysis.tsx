@@ -6,7 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 interface BillAnalysisProps {
   bill: UnifiedBill;
   showAnalysis: boolean;
-  displayJudgement: JudgementValue;
+  displayJudgement: {
+    value: JudgementValue;
+    shouldDisplay: boolean;
+  };
 }
 
 export function getAlignmentColor(
@@ -44,6 +47,10 @@ export function BillAnalysis({
   showAnalysis,
   displayJudgement,
 }: BillAnalysisProps) {
+  const judgementValue: JudgementValue = displayJudgement.shouldDisplay
+    ? displayJudgement.value
+    : "neutral";
+
   if (!showAnalysis) {
     return (
       <Card>
@@ -56,7 +63,7 @@ export function BillAnalysis({
           <div>
             <Judgement
               isSocialIssue={bill.isSocialIssue}
-              judgement={displayJudgement}
+              judgement={judgementValue}
             />
           </div>
         </CardContent>
@@ -74,7 +81,7 @@ export function BillAnalysis({
               <div>
                 <Judgement
                   isSocialIssue={bill.isSocialIssue}
-                  judgement={displayJudgement}
+                  judgement={judgementValue}
                 />
               </div>
             </div>

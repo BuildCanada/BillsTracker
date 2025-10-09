@@ -29,12 +29,13 @@ import {
   REVALIDATE_INTERVAL,
 } from "@/consts/general";
 import { BillShare } from "@/components/BillDetail/BillShare";
+import { shouldShowDetermination } from "@/utils/should-show-determination/should-show-determination.util";
 
 // Cache individual bill pages for 2 minutes
 export const revalidate = REVALIDATE_INTERVAL;
 
 interface Params {
-  params: Promise<any>;
+  params: Promise<{ id: string }>;
 }
 
 export default async function BillDetail({ params }: Params) {
@@ -78,22 +79,18 @@ export default async function BillDetail({ params }: Params) {
     );
   }
 
-  const isNeutral = unifiedBill.final_judgment === "neutral";
   const isSocialIssue = unifiedBill.isSocialIssue;
-  const alignCount = (unifiedBill.tenet_evaluations ?? []).filter(
-    (t) => t.alignment === "aligns",
-  ).length;
-  const conflictCount = (unifiedBill.tenet_evaluations ?? []).filter(
-    (t) => t.alignment === "conflicts",
-  ).length;
-  const onlySingleIssueVarying = alignCount === 1 || conflictCount === 1;
-
-  const showAnalysis = !isNeutral && !isSocialIssue && !onlySingleIssueVarying;
-  const displayJudgement = (
-    onlySingleIssueVarying
-      ? "neutral"
-      : (unifiedBill.final_judgment as JudgementValue)
-  ) as JudgementValue;
+  const judgementParams = {
+    vote: unifiedBill.final_judgment,
+    isSocialIssue,
+    tenetEvaluations: unifiedBill.tenet_evaluations,
+  } as const;
+  const shouldDisplayDetermination = shouldShowDetermination(judgementParams);
+  const normalizedFinalJudgement: JudgementValue =
+    judgementParams.vote === "yes" || judgementParams.vote === "no"
+      ? judgementParams.vote
+      : "neutral";
+  const showAnalysis = shouldDisplayDetermination;
 
   return (
     <div className="mx-auto max-w-[1100px] px-6 py-8">
@@ -123,14 +120,19 @@ export default async function BillDetail({ params }: Params) {
           <BillAnalysis
             bill={unifiedBill}
             showAnalysis={showAnalysis}
-            displayJudgement={displayJudgement}
+            displayJudgement={{
+              value: normalizedFinalJudgement,
+              shouldDisplay: shouldDisplayDetermination,
+            }}
           />
-          {showAnalysis && (
-            <BillQuestions
-              bill={unifiedBill}
-              billUrl={buildAbsoluteUrl(shareOrigin, id)}
-            />
-          )}
+          {showAnalysis &&
+            unifiedBill.question_period_questions &&
+            unifiedBill.question_period_questions.length > 0 && (
+              <BillQuestions
+                bill={unifiedBill}
+                billUrl={buildAbsoluteUrl(shareOrigin, id)}
+              />
+            )}
 
           <BillTenets bill={unifiedBill} />
           <BillContact className="md:hidden" />

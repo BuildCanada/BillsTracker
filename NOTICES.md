@@ -1,6 +1,4 @@
-Copyright (c) Build Canada Inc. - All Rights Reserved
-
-Not for distribution.
+Copyright (c) 2025 Build Canada
 
 ## Third-Party Licenses
 

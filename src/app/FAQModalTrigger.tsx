@@ -53,7 +53,7 @@ export default function FAQModalTrigger() {
       <button
         ref={buttonRef}
         type="button"
-        className="mt-3 inline-block text-xs underline text-["
+        className="mt-3 inline-block cursor-pointer text-xs underline text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         onClick={openModal}
       >
         FAQ
@@ -86,7 +86,7 @@ export default function FAQModalTrigger() {
               <button
                 type="button"
                 aria-label="Close"
-                className="ml-3 rounded text-[ hover:text-black/80"
+                className="ml-3 rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 onClick={closeModal}
               >
                 ✕
@@ -95,41 +95,55 @@ export default function FAQModalTrigger() {
 
             <div className="mt-4 text-sm leading-6">
               <h3 className="font-semibold">Why did you build this?</h3>
-              <p className="text-[ mt-1">
-                We wanted to better understand what is being done in key areas
-                that matter to Canadians like us. We built this tracker to know
-                what key commitments have been made, what their progress has
-                been, and how they impact outcomes.
+              <p className="text-[var(--text-secondary)] mt-1">
+                We built this tool so that Canadians could easily understand
+                parliamentary bills and how they align with a pro-growth stance.
               </p>
 
               <h3 className="font-semibold mt-4">
-                Where do commitments come from?
+                Where does the bill data come from?
               </h3>
-              <p className="text-[ mt-1">
-                We have pulled commitments from the Liberal Party's platform. We
-                show the original text and the source in each commitment's
-                details. As new commitments are made, we will add these in.
+              <p className="text-[var(--text-secondary)] mt-1">
+                We are powered by{" "}
+                <a
+                  href="https://civicsproject.org"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline"
+                >
+                  The Civics Project
+                </a>
+                , which pulls data from the Government of Canada's open
+                parliamentary data feeds.
               </p>
 
               <h3 className="font-semibold mt-4">
-                Where do metrics and targets come from?
+                How do you determine a bill's judgement?
               </h3>
-              <p className="text-[ mt-1">
-                In cases where the Liberal Party has provided a metric and/or
-                target, we use that. In other cases, we set a metric based on
-                the policy's intention. In each graph, we show where the target
-                source comes from.
+              <p className="text-[var(--text-secondary)] mt-1">
+                Each bill is evaluated against a set of pro-growth principles
+                using an LLM. The LLM uses these principles to make a judgement
+                on the bill. We show all of this, including the principles,
+                evaluation and rationale, on the bill's page.
               </p>
 
               <h3 className="font-semibold mt-4">
-                How are the progress, impact, and alignment scores calculated?
+                Was this tool created to vote on bills?
               </h3>
-              <p className="text-[ mt-1">
-                We use an LLM to score each of these. Our project is open
-                sourced on{" "}
+              <p className="text-[var(--text-secondary)] mt-1">
+                No. This tool was created to help Canadians better understand
+                bills and their economic impact. It is meant to be educational
+                and informative.
+              </p>
+
+              <h3 className="font-semibold mt-4">
+                What prompt do you use to evaluate the bills?
+              </h3>
+              <p className="text-[var(--text-secondary)] mt-1">
+                This project, including the prompt, is open sourced on{" "}
                 <a
                   className="underline"
-                  href="https://github.com/build-canada/outcomes"
+                  href="https://github.com/BuildCanada/BillsTracker/blob/main/src/prompt/summary-and-vote-prompt.ts"
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -139,12 +153,12 @@ export default function FAQModalTrigger() {
               </p>
 
               <h3 className="font-semibold mt-4">How can I contribute?</h3>
-              <p className="text-[ mt-1">
+              <p className="text-[var(--text-secondary)] mt-1">
                 This is a work in progress and we would love help from others.
                 Join us on{" "}
                 <a
                   className="underline"
-                  href="https://discord.gg/7rQ3VjYQea"
+                  href="https://discord.gg/VmbBSXKMve"
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -154,7 +168,7 @@ export default function FAQModalTrigger() {
               </p>
 
               <h3 className="font-semibold mt-4">How can I get in touch?</h3>
-              <p className="text-[ mt-1">
+              <p className="text-[var(--text-secondary)] mt-1">
                 You can reach out to us at{" "}
                 <a className="underline" href="mailto:hi@buildcanada.com">
                   hi@buildcanada.com

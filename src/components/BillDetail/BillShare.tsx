@@ -90,6 +90,11 @@ export function BillShare({
   const handleCopy = async () => {
     if (!resolvedUrl) return;
 
+    // Track the copy event with SimpleAnalytics
+    if (typeof window !== "undefined" && window.sa_event) {
+      window.sa_event("share_clicked_copy");
+    }
+
     try {
       const canUseClipboard =
         typeof navigator !== "undefined" &&
@@ -114,8 +119,17 @@ export function BillShare({
     }
   };
 
-  const openShareWindow = (url: string) => {
+  const openShareWindow = (
+    url: string,
+    platform: "x" | "facebook" | "whatsapp",
+  ) => {
     if (!url || typeof window === "undefined") return;
+
+    // Track the share event with SimpleAnalytics
+    if (window.sa_event) {
+      window.sa_event(`share_clicked_${platform}`);
+    }
+
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
@@ -124,21 +138,21 @@ export function BillShare({
       key: "x",
       label: "Share on X",
       icon: <XLogo className="size-4" />,
-      onClick: () => openShareWindow(xShareUrl),
+      onClick: () => openShareWindow(xShareUrl, "x"),
       disabled: !xShareUrl,
     },
     {
       key: "facebook",
       label: "Share on Facebook",
       icon: <Facebook className="size-4" />,
-      onClick: () => openShareWindow(facebookShareUrl),
+      onClick: () => openShareWindow(facebookShareUrl, "facebook"),
       disabled: !facebookShareUrl,
     },
     {
       key: "whatsapp",
       label: "Share on WhatsApp",
       icon: <MessageCircle className="size-4" />,
-      onClick: () => openShareWindow(whatsappShareUrl),
+      onClick: () => openShareWindow(whatsappShareUrl, "whatsapp"),
       disabled: !whatsappShareUrl,
     },
     {

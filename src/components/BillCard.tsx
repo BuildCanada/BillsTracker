@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { memo } from "react";
 import { BillSummary } from "@/app/types";
-import { Judgement } from "./Judgement/judgement.component";
+import { Judgement, JudgementValue } from "./Judgement/judgement.component";
 import { DynamicIcon } from "lucide-react/dynamic";
 import dayjs from "dayjs";
 
 import { getCategoryIcon } from "@/utils/bill-category-to-icon/bill-category-to-icon.util";
 import { getBillStageDates } from "@/utils/stages-to-dates/stages-to-dates";
 import { TenetEvaluation } from "@/models/Bill";
+import { shouldShowDetermination } from "@/utils/should-show-determination/should-show-determination.util";
 
 interface BillCardProps {
   bill: BillSummary & { tenet_evaluations?: TenetEvaluation[] };
@@ -19,15 +20,19 @@ function BillCard({ bill }: BillCardProps) {
     ? dayjs(lastUpdated).format("MMM D, YYYY")
     : "N/A";
 
-  const alignCount = (bill.tenet_evaluations ?? []).filter(
-    (t) => t.alignment === "aligns",
-  ).length;
-  const conflictCount = (bill.tenet_evaluations ?? []).filter(
-    (t) => t.alignment === "conflicts",
-  ).length;
-  const onlySingleIssueVarying = alignCount === 1 || conflictCount === 1;
-
-  console.log({ bill, onlySingleIssueVarying });
+  const judgementParams = {
+    vote: bill.final_judgment,
+    isSocialIssue: bill.isSocialIssue,
+    tenetEvaluations: bill.tenet_evaluations,
+  } as const;
+  const shouldDisplayDetermination = shouldShowDetermination(judgementParams);
+  const normalizedFinalJudgement: JudgementValue =
+    judgementParams.vote === "yes" || judgementParams.vote === "no"
+      ? judgementParams.vote
+      : "neutral";
+  const judgementValue: JudgementValue = shouldDisplayDetermination
+    ? normalizedFinalJudgement
+    : "neutral";
 
   return (
     <li className="group rounded-lg border   bg-[var(--panel)] shadow-sm   duration-200 overflow-hidden">
@@ -44,9 +49,8 @@ function BillCard({ bill }: BillCardProps) {
 
             {bill.final_judgment && (
               <Judgement
-                judgement={bill?.final_judgment}
+                judgement={judgementValue}
                 isSocialIssue={bill.isSocialIssue}
-                onlySingleIssueVarying={onlySingleIssueVarying}
               />
             )}
           </div>

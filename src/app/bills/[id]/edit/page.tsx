@@ -19,6 +19,9 @@ export default async function EditBillPage({ params }: Params) {
     redirect(`/bills/${id}`);
   }
 
+  const questionPeriodQuestions = bill.question_period_questions || [];
+  const questionFields = [...questionPeriodQuestions, { question: "" }];
+
   return (
     <div className="mx-auto max-w-[900px] px-6 py-8">
       <h1 className="text-xl font-semibold mb-6">Edit Bill</h1>
@@ -113,6 +116,39 @@ export default async function EditBillPage({ params }: Params) {
             defaultValue={(bill.genres || []).join(", ")}
             className="w-full min-h-20 border rounded p-2"
           />
+        </div>
+        <div className="space-y-4">
+          <h2 className="text-lg font-medium">Question Period Questions</h2>
+          <p className="text-sm text-muted-foreground">
+            Update existing questions or add a new one in the empty field below.
+            Leave any unused inputs blank.
+          </p>
+          <div className="space-y-3">
+            {questionFields.map((entry, idx) => {
+              const fieldId = `question_period_questions_${idx}`;
+              return (
+                <div key={fieldId} className="space-y-2">
+                  <label
+                    className="block text-sm font-medium"
+                    htmlFor={fieldId}
+                  >
+                    Question {idx + 1}
+                  </label>
+                  <textarea
+                    id={fieldId}
+                    name="question_period_questions"
+                    defaultValue={entry.question || ""}
+                    placeholder={
+                      idx === questionPeriodQuestions.length
+                        ? "Add a new question"
+                        : undefined
+                    }
+                    className="w-full min-h-24 border rounded p-2"
+                  />
+                </div>
+              );
+            })}
+          </div>
         </div>
         <div className="space-y-4">
           <h2 className="text-lg font-medium">Tenet Analysis</h2>
