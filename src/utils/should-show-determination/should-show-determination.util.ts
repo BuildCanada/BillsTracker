@@ -24,12 +24,14 @@ export const shouldShowDetermination = ({
   const normalizedEvaluations: Parameters<typeof isSingleTenet>[0] = (
     tenetEvaluations ?? []
   )
-    .filter((evaluation): evaluation is TenetEvaluationLike => Boolean(evaluation))
+    .filter((evaluation): evaluation is TenetEvaluationLike =>
+      Boolean(evaluation),
+    )
     .map((evaluation) => ({
       alignment:
         evaluation.alignment === "aligns" ||
-          evaluation.alignment === "conflicts" ||
-          evaluation.alignment === "neutral"
+        evaluation.alignment === "conflicts" ||
+        evaluation.alignment === "neutral"
           ? evaluation.alignment
           : undefined,
     }));

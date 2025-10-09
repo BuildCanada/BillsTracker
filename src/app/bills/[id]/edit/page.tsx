@@ -129,14 +129,21 @@ export default async function EditBillPage({ params }: Params) {
               const fieldId = `question_period_questions_${idx}`;
               return (
                 <div key={fieldId} className="space-y-2">
-                  <label className="block text-sm font-medium" htmlFor={fieldId}>
+                  <label
+                    className="block text-sm font-medium"
+                    htmlFor={fieldId}
+                  >
                     Question {idx + 1}
                   </label>
                   <textarea
                     id={fieldId}
                     name="question_period_questions"
                     defaultValue={entry.question || ""}
-                    placeholder={idx === questionPeriodQuestions.length ? "Add a new question" : undefined}
+                    placeholder={
+                      idx === questionPeriodQuestions.length
+                        ? "Add a new question"
+                        : undefined
+                    }
                     className="w-full min-h-24 border rounded p-2"
                   />
                 </div>

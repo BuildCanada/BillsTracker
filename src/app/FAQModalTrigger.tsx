@@ -96,8 +96,8 @@ export default function FAQModalTrigger() {
             <div className="mt-4 text-sm leading-6">
               <h3 className="font-semibold">Why did you build this?</h3>
               <p className="text-[var(--text-secondary)] mt-1">
-                We built this tool so that Canadians could easily understand parliamentary bills
-                and how they align with a pro-growth stance. 
+                We built this tool so that Canadians could easily understand
+                parliamentary bills and how they align with a pro-growth stance.
               </p>
 
               <h3 className="font-semibold mt-4">
@@ -105,33 +105,35 @@ export default function FAQModalTrigger() {
               </h3>
               <p className="text-[var(--text-secondary)] mt-1">
                 We are powered by{" "}
-                <a 
+                <a
                   href="https://civicsproject.org"
                   target="_blank"
                   rel="noreferrer"
                   className="underline"
                 >
-                   The Civics Project
-                </a>, which pulls data from the Government of Canada's open
-                parliamentary data feeds. 
+                  The Civics Project
+                </a>
+                , which pulls data from the Government of Canada's open
+                parliamentary data feeds.
               </p>
 
               <h3 className="font-semibold mt-4">
                 How do you determine a bill's judgement?
               </h3>
               <p className="text-[var(--text-secondary)] mt-1">
-                Each bill is evaluated against a set of pro-growth principles using an LLM.
-                The LLM uses these principles to make a judgement on the bill.
-                We show all of this, including the principles, evaluation and rationale,
-                on the bill's page. 
+                Each bill is evaluated against a set of pro-growth principles
+                using an LLM. The LLM uses these principles to make a judgement
+                on the bill. We show all of this, including the principles,
+                evaluation and rationale, on the bill's page.
               </p>
 
               <h3 className="font-semibold mt-4">
                 Was this tool created to vote on bills?
               </h3>
               <p className="text-[var(--text-secondary)] mt-1">
-                No. This tool was created to help Canadians better understand bills
-                and their economic impact. It is meant to be educational and informative.
+                No. This tool was created to help Canadians better understand
+                bills and their economic impact. It is meant to be educational
+                and informative.
               </p>
 
               <h3 className="font-semibold mt-4">

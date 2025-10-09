@@ -124,12 +124,14 @@ export default async function BillDetail({ params }: Params) {
               shouldDisplay: shouldDisplayDetermination,
             }}
           />
-          {showAnalysis && unifiedBill.question_period_questions && unifiedBill.question_period_questions.length > 0 && (
-            <BillQuestions
-              bill={unifiedBill}
-              billUrl={buildAbsoluteUrl(shareOrigin, id)}
-            />
-          )}
+          {showAnalysis &&
+            unifiedBill.question_period_questions &&
+            unifiedBill.question_period_questions.length > 0 && (
+              <BillQuestions
+                bill={unifiedBill}
+                billUrl={buildAbsoluteUrl(shareOrigin, id)}
+              />
+            )}
 
           <BillTenets bill={unifiedBill} />
           <BillContact className="md:hidden" />

@@ -1,4 +1,4 @@
-import { CheckCircle2, XCircle, CircleHelp } from "lucide-react";
+import { CheckCircle2, XCircle, CircleMinus } from "lucide-react";
 import React from "react";
 
 export type JudgementValue = "yes" | "no" | "neutral";
@@ -94,17 +94,13 @@ export function Judgement({
       ? CheckCircle2
       : effectiveJudgement === "no"
         ? XCircle
-        : CircleHelp;
+        : CircleMinus;
 
   return (
     <article
       role="status"
       aria-live="polite"
-      className={[
-        "border-1 rounded-full w-fit px-2",
-        sz.pad,
-        className,
-      ]
+      className={["border-1 rounded-full w-fit px-2", sz.pad, className]
         .filter(Boolean)
         .join(" ")}
     >
@@ -121,7 +117,11 @@ export function Judgement({
         </span>
 
         <span className={`font-medium leading-none ${sz.text}`}>
-          {verdictCopy(effectiveJudgement, isSocialIssue, onlySingleIssueVarying)}
+          {verdictCopy(
+            effectiveJudgement,
+            isSocialIssue,
+            onlySingleIssueVarying,
+          )}
         </span>
       </div>
     </article>

@@ -130,7 +130,10 @@ export async function POST(
       const questionPeriodValues = (form.getAll as any)(
         "question_period_questions",
       );
-      if (Array.isArray(questionPeriodValues) && questionPeriodValues.length > 0) {
+      if (
+        Array.isArray(questionPeriodValues) &&
+        questionPeriodValues.length > 0
+      ) {
         hasQuestionPeriodQuestions = true;
         question_period_questions_input = questionPeriodValues;
       }
@@ -148,11 +151,11 @@ export async function POST(
   const parseCommaSeparated = (value: unknown): string[] => {
     const segments: string[] = [];
     const addFromString = (input: string) => {
-      input
+      const newSegments = input
         .split(",")
         .map((s) => s.trim())
-        .filter(Boolean)
-        .forEach((segment) => segments.push(segment));
+        .filter(Boolean);
+      segments.push(...newSegments);
     };
 
     const handle = (input: unknown): void => {
@@ -200,10 +203,8 @@ export async function POST(
         lines.length > 1 &&
         lines.every((line) => line.trim() && /\?$/.test(line.trim()))
       ) {
-        lines
-          .map((line) => line.trim())
-          .filter(Boolean)
-          .forEach((line) => questions.push(line));
+        const newQuestions = lines.map((line) => line.trim()).filter(Boolean);
+        questions.push(...newQuestions);
         return;
       }
 

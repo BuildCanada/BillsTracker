@@ -7,13 +7,14 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "biome check",
-    "format": "biome lint --write --unsafe",
+    "format": "biome check --write",
     "test": "vitest run",
     "type-check": "tsc --noEmit",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "prompt": "tsx src/scripts/copy-bill-prompt.ts"
+    "prompt": "tsx src/scripts/copy-bill-prompt.ts",
+    "prepare": "husky"
   },
   "dependencies": {
     "@auth/core": "0.34.2",
