@@ -79,7 +79,7 @@ export default async function BillDetail({ params }: Params) {
   }
 
   const shouldDisplayDetermination = shouldShowDetermination(
-    unifiedBill.final_judgment
+    unifiedBill.final_judgment,
   );
   const normalizedFinalJudgement: JudgementValue =
     unifiedBill.final_judgment === "yes" || unifiedBill.final_judgment === "no"
@@ -119,12 +119,14 @@ export default async function BillDetail({ params }: Params) {
               shouldDisplay: shouldDisplayDetermination,
             }}
           />
-          {shouldDisplayDetermination && unifiedBill.question_period_questions && unifiedBill.question_period_questions.length > 0 && (
-            <BillQuestions
-              bill={unifiedBill}
-              billUrl={buildAbsoluteUrl(shareOrigin, id)}
-            />
-          )}
+          {shouldDisplayDetermination &&
+            unifiedBill.question_period_questions &&
+            unifiedBill.question_period_questions.length > 0 && (
+              <BillQuestions
+                bill={unifiedBill}
+                billUrl={buildAbsoluteUrl(shareOrigin, id)}
+              />
+            )}
 
           <BillTenets bill={unifiedBill} />
           <BillContact className="md:hidden" />

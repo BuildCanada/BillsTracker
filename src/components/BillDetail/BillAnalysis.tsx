@@ -61,9 +61,7 @@ export function BillAnalysis({
         </CardHeader>
         <CardContent>
           <div>
-            <Judgement
-              judgement={judgementValue}
-            />
+            <Judgement judgement={judgementValue} />
           </div>
         </CardContent>
       </Card>
@@ -78,9 +76,7 @@ export function BillAnalysis({
             <div className="flex md:items-center md:justify-between md:flex-row flex-col gap-4 ">
               <CardTitle className="mb-2">Builder Assessment</CardTitle>
               <div>
-                <Judgement
-                  judgement={judgementValue}
-                />
+                <Judgement judgement={judgementValue} />
               </div>
             </div>
           </CardHeader>

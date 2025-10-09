@@ -20,7 +20,9 @@ function BillCard({ bill }: BillCardProps) {
     ? dayjs(lastUpdated).format("MMM D, YYYY")
     : "N/A";
 
-  const shouldDisplayDetermination = shouldShowDetermination(bill.final_judgment);
+  const shouldDisplayDetermination = shouldShowDetermination(
+    bill.final_judgment,
+  );
   const normalizedFinalJudgement: JudgementValue =
     bill.final_judgment === "yes" || bill.final_judgment === "no"
       ? bill.final_judgment
@@ -42,11 +44,7 @@ function BillCard({ bill }: BillCardProps) {
               </h2>
             </div>
 
-            {bill.final_judgment && (
-              <Judgement
-                judgement={judgementValue}
-              />
-            )}
+            {bill.final_judgment && <Judgement judgement={judgementValue} />}
           </div>
 
           {/* Description */}
@@ -68,12 +66,13 @@ function BillCard({ bill }: BillCardProps) {
             {/* Impact Badge */}
             {bill.impact && (
               <span
-                className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${bill.impact === "High"
-                  ? "bg-red-100 text-red-700"
-                  : bill.impact === "Medium"
-                    ? "bg-yellow-100 text-yellow-700"
-                    : "bg-green-100 text-green-700"
-                  }`}
+                className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                  bill.impact === "High"
+                    ? "bg-red-100 text-red-700"
+                    : bill.impact === "Medium"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : "bg-green-100 text-green-700"
+                }`}
               >
                 {bill.impact} Impact
               </span>

@@ -8,7 +8,9 @@
 import { Bill } from "@/models/Bill";
 
 export async function up() {
-  console.log("Starting migration: Update neutral to abstain for social issues");
+  console.log(
+    "Starting migration: Update neutral to abstain for social issues",
+  );
 
   const result = await Bill.updateMany(
     {

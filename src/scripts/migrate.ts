@@ -43,9 +43,7 @@ async function runMigration(filename: string) {
     const migration = await import(migrationPath);
 
     if (!migration.up || typeof migration.up !== "function") {
-      throw new Error(
-        `Migration ${filename} must export an 'up' function`,
-      );
+      throw new Error(`Migration ${filename} must export an 'up' function`);
     }
 
     await migration.up();

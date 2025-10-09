@@ -81,8 +81,8 @@ export function fromBuildCanadaDbBill(bill: BillDocument): UnifiedBill {
       explanation: te.explanation,
     })),
     final_judgment:
-      ((bill.final_judgment ?? "").toString().trim().toLowerCase() === "yes" ||
-        (bill.final_judgment ?? "").toString().trim().toLowerCase() === "no")
+      (bill.final_judgment ?? "").toString().trim().toLowerCase() === "yes" ||
+      (bill.final_judgment ?? "").toString().trim().toLowerCase() === "no"
         ? (bill.final_judgment as "yes" | "no")
         : "abstain",
     rationale: bill.rationale,

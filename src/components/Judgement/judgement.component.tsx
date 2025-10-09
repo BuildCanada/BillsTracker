@@ -74,17 +74,17 @@ export function Judgement({
   const sz = sizes[size];
 
   const Icon =
-    judgement === "yes" ? CheckCircle2 : judgement === "no" ? XCircle : CircleMinus;
+    judgement === "yes"
+      ? CheckCircle2
+      : judgement === "no"
+        ? XCircle
+        : CircleMinus;
 
   return (
     <article
       role="status"
       aria-live="polite"
-      className={[
-        "border-1 rounded-full w-fit px-2",
-        sz.pad,
-        className,
-      ]
+      className={["border-1 rounded-full w-fit px-2", sz.pad, className]
         .filter(Boolean)
         .join(" ")}
     >

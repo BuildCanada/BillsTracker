@@ -177,7 +177,9 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
     // Parse JSON response
     try {
       const parsed = JSON.parse(responseText);
-      const rawFj = String(parsed.final_judgment || "").trim().toLowerCase();
+      const rawFj = String(parsed.final_judgment || "")
+        .trim()
+        .toLowerCase();
       const normalizedFj: "yes" | "no" | "abstain" =
         rawFj === "yes" || rawFj === "no" || rawFj === "abstain"
           ? rawFj

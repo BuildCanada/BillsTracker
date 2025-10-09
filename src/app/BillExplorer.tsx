@@ -107,7 +107,9 @@ function BillExplorer({ bills }: BillExplorerProps) {
   // Filter bills
   const filteredBills = useMemo(() => {
     const filtered = bills.filter((bill) => {
-      const shouldDisplayDetermination = shouldShowDetermination(bill.final_judgment);
+      const shouldDisplayDetermination = shouldShowDetermination(
+        bill.final_judgment,
+      );
       const normalizedFinalJudgement: JudgementValue =
         bill.final_judgment === "yes" || bill.final_judgment === "no"
           ? bill.final_judgment
@@ -356,7 +358,14 @@ function BillExplorer({ bills }: BillExplorerProps) {
           ) : (
             <ul className="flex flex-col gap-3">
               {filteredBills.map((bill) => (
-                <BillCard key={bill.billID} bill={bill as BillSummary & { tenet_evaluations?: TenetEvaluation[] }} />
+                <BillCard
+                  key={bill.billID}
+                  bill={
+                    bill as BillSummary & {
+                      tenet_evaluations?: TenetEvaluation[];
+                    }
+                  }
+                />
               ))}
             </ul>
           )}

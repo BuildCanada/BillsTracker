@@ -34,15 +34,15 @@ const buildXShareText = ({
 
   // Build the full share text: Title + Question + URL
   const parts = [];
-  
+
   if (sanitizedTitle) {
     parts.push(`Builder Question for ${sanitizedTitle}:`);
   }
-  
+
   if (sanitizedQuestion) {
     parts.push(sanitizedQuestion);
   }
-  
+
   if (sanitizedUrl) {
     parts.push(sanitizedUrl);
   }
@@ -62,7 +62,7 @@ export const BillQuestions = ({
     .filter((q) => q.question.length);
   const shareTitle = bill.short_title || bill.title;
 
-  const handleShareClick = (url: string) => {
+  const _handleShareClick = (url: string) => {
     if (typeof window !== "undefined" && window.sa_event) {
       window.sa_event("share_question_clicked_x");
     }
@@ -82,39 +82,39 @@ export const BillQuestions = ({
               No question period cards yet.
             </p>
           ) : (
-                      <div className="flex flex-col gap-4">
-            {questions.map((q, idx) => {
-              const rawQuestion = q.question ?? "";
-              // stripMarkdown already handles trimming, so we can use it for both display and sharing
-              const trimmedQuestion = rawQuestion.trim();
-              const shareText = buildXShareText({
-                title: shareTitle,
-                question: trimmedQuestion,
-                url: billUrl,
-              });
-              const xShareUrl = `https://x.com/intent/post?${new URLSearchParams({ text: shareText }).toString()}`;
+            <div className="flex flex-col gap-4">
+              {questions.map((q, idx) => {
+                const rawQuestion = q.question ?? "";
+                // stripMarkdown already handles trimming, so we can use it for both display and sharing
+                const trimmedQuestion = rawQuestion.trim();
+                const shareText = buildXShareText({
+                  title: shareTitle,
+                  question: trimmedQuestion,
+                  url: billUrl,
+                });
+                const xShareUrl = `https://x.com/intent/post?${new URLSearchParams({ text: shareText }).toString()}`;
 
-              return (
-                <Card key={idx} className="flex h-full flex-col">
-                  <CardContent className="flex h-full flex-col justify-between gap-2">
-                    <div className="prose prose-sm mt-4 flex-1 text-sm leading-6">
-                      <Markdown>{trimmedQuestion}</Markdown>
-                    </div>
-                    <div className="flex flex-col justify-end gap-2 text-sm">
-                      <a
-                        href={xShareUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-end gap-1 text-sm font-medium text-primary hover:text-primary/80"
-                      >
-                        Share on <XLogo className="size-4" />
-                      </a>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                return (
+                  <Card key={idx} className="flex h-full flex-col">
+                    <CardContent className="flex h-full flex-col justify-between gap-2">
+                      <div className="prose prose-sm mt-4 flex-1 text-sm leading-6">
+                        <Markdown>{trimmedQuestion}</Markdown>
+                      </div>
+                      <div className="flex flex-col justify-end gap-2 text-sm">
+                        <a
+                          href={xShareUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-end gap-1 text-sm font-medium text-primary hover:text-primary/80"
+                        >
+                          Share on <XLogo className="size-4" />
+                        </a>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
           )}
         </CardContent>
       </Card>

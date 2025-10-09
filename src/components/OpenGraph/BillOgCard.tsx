@@ -4,12 +4,7 @@ import { PROJECT_NAME } from "@/consts/general";
 
 type BillSubset = Pick<
   UnifiedBill,
-  | "billId"
-  | "title"
-  | "short_title"
-  | "summary"
-  | "rationale"
-  | "genres"
+  "billId" | "title" | "short_title" | "summary" | "rationale" | "genres"
 > & {
   final_judgment?: "yes" | "no" | "abstain";
   fallbackId?: string;
@@ -19,7 +14,11 @@ export function BillOgCard({ bill }: { bill: BillSubset }) {
   const title = bill.short_title || bill.title || bill.fallbackId || "Bill";
   const status = (bill.final_judgment || "abstain").toLowerCase();
   const voteLabel =
-    status === "yes" ? "Vote: Yes" : status === "no" ? "Vote: No" : "Vote: Abstain";
+    status === "yes"
+      ? "Vote: Yes"
+      : status === "no"
+        ? "Vote: No"
+        : "Vote: Abstain";
   const voteBg =
     status === "yes" ? "#166534" : status === "no" ? "#b91c1c" : "#4b5563";
 
