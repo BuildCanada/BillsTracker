@@ -39,11 +39,7 @@ const buildXShareText = ({
   prefixes.push("Builder Question:");
   prefixes.push("");
 
-  const buildShareString = (
-    prefix: string,
-    body: string,
-    link: string,
-  ) => {
+  const buildShareString = (prefix: string, body: string, link: string) => {
     const segments = [prefix, body, link].filter((segment) => segment.length);
     return segments.join("\n\n");
   };
@@ -143,10 +139,8 @@ export const BillQuestions = ({
                         rel="noopener noreferrer"
                         className="inline-flex items-center justify-end gap-1 text-sm font-medium text-primary hover:text-primary/80"
                       >
-                        Share on                         <XLogo className="size-4" />
-
+                        Share on <XLogo className="size-4" />
                       </a>
-
                     </div>
                   </CardContent>
                 </Card>
