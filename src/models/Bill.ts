@@ -38,7 +38,7 @@ export interface BillDocument extends mongoose.Document {
 
   // Replaced the old 'analysis' object with new, top-level fields
   tenet_evaluations: TenetEvaluation[];
-  final_judgment: string; // "yes", "no", or "neutral"
+  final_judgment: string; // "yes", "no", or "abstain"
   rationale: string;
   needs_more_info: boolean;
   missing_details: string[];
@@ -111,7 +111,7 @@ const BillSchema = new Schema<BillDocument>(
 
     // Replaced the old 'analysis' sub-schema with new fields
     tenet_evaluations: { type: [TenetEvaluationSchema], default: [] },
-    final_judgment: { type: String, enum: ["yes", "no", "neutral"] },
+    final_judgment: { type: String, enum: ["yes", "no", "abstain"] },
     rationale: { type: String },
     needs_more_info: { type: Boolean, default: false },
     missing_details: { type: [String], default: [] },

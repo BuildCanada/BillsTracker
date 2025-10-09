@@ -40,12 +40,13 @@ export default async function OpengraphImage({
   params: { id: string };
 }) {
   const bill = await getUnifiedBillById(params.id);
+  const status = (bill?.final_judgment || "abstain").toLowerCase();
   const voteText =
-    bill?.final_judgment === "yes"
+    status === "yes"
       ? "Vote: Yes"
-      : bill?.final_judgment === "no"
+      : status === "no"
         ? "Vote: No"
-        : "Vote: Neutral";
+        : "Vote: Abstain";
   const textForFont = `${bill?.short_title || bill?.title || params.id} ${voteText} ${PROJECT_NAME} Build Canada Policy Tracker Powered by The Civics Project`;
   let interRegular: ArrayBuffer | undefined;
   let interBold: ArrayBuffer | undefined;

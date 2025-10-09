@@ -182,7 +182,7 @@ export function FilterSidebar({
           <div className="space-y-3 ">
             <Label>Judgement</Label>
             <div className="space-y-2">
-              {["yes", "no", "neutral"].map((j) => (
+              {["yes", "no", "abstain"].map((j) => (
                 <div key={j} className="flex items-start space-x-2">
                   <Checkbox
                     id={`judgement-${j}`}

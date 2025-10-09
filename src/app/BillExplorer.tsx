@@ -9,7 +9,6 @@ import {
   FilterOptions,
 } from "@/components/FilterSection/filter-section.component";
 import { useIsMobile } from "@/components/ui/use-mobile";
-import { shouldShowDetermination } from "@/utils/should-show-determination/should-show-determination.util";
 import type { JudgementValue } from "@/components/Judgement/judgement.component";
 import { TenetEvaluation } from "@/models/Bill";
 
@@ -107,21 +106,7 @@ function BillExplorer({ bills }: BillExplorerProps) {
   // Filter bills
   const filteredBills = useMemo(() => {
     const filtered = bills.filter((bill) => {
-      const judgementParams: Parameters<typeof shouldShowDetermination>[0] = {
-        vote: bill.final_judgment,
-        isSocialIssue: bill.isSocialIssue,
-        tenetEvaluations: bill.tenet_evaluations,
-      };
-
-      const shouldDisplayDetermination =
-        shouldShowDetermination(judgementParams);
-      const normalizedFinalJudgement: JudgementValue =
-        judgementParams.vote === "yes" || judgementParams.vote === "no"
-          ? judgementParams.vote
-          : "neutral";
-      const displayJudgement: JudgementValue = shouldDisplayDetermination
-        ? normalizedFinalJudgement
-        : "neutral";
+      const displayJudgement: JudgementValue = bill.final_judgment || "abstain";
 
       // Search
       if (filters.search.trim()) {

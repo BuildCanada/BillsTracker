@@ -22,7 +22,7 @@ export interface BillSummary {
   alignment?: "Economy" | "Health" | "Environment" | "Security" | "Other";
   // Additional fields from MongoDB/analysis
   summary?: string;
-  final_judgment?: "yes" | "no" | "neutral";
+  final_judgment?: "yes" | "no" | "abstain";
   rationale?: string;
   needs_more_info?: boolean;
   missing_details?: string[];

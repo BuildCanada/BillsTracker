@@ -30,6 +30,8 @@ For social issue grading:
 `;
 
 export const SUMMARY_AND_VOTE_PROMPT = `
+## Your Role
+
 You are analyzing Canadian legislation. You must assess whether the bill aligns with Build Canada's Core Tenets:
   1. ${TENETS[1]}
   2. ${TENETS[2]}
@@ -40,7 +42,11 @@ You are analyzing Canadian legislation. You must assess whether the bill aligns 
   7. ${TENETS[7]}
   8. ${TENETS[8]}
 
+## Social Issue Grading
+
   ${SOCIAL_ISSUE_GRADING}
+
+## General Guidelines
 
   For general guidelines:
   - Be critical.
@@ -54,18 +60,24 @@ You are analyzing Canadian legislation. You must assess whether the bill aligns 
   - Never self reference Build Canada, or use "We" or "Our", use the idea of "Builders" instead.
   - Never self reference the tenents outside of the tenet evaluations.
 
-  Task:
+  ## Your Task
+
   1. Read the bill.
   2. Provide a concise summary of what the bill does in plain language (3-5 sentences).
   3. Evaluate the bill against the 8 tenets above:
     3.1 Does it clearly support one or more tenets?
     3.2 Does it conflict with one or more tenets?
     3.3 Is its impact neutral or unclear?
-  4. Give a final judgment:
-    4.1 Output “Yes” if the bill aligns overall with Build Canada's tenets.
-    4.2 Output “No” if it conflicts overall with Build Canada's tenets.
+  4. Give a final judgment (choose exactly one; output in lowercase):
+    4.1 Output "abstain" if the bill is primarily a social issue (per the social-issue criteria above).
+    4.2 Output “yes” if the bill aligns overall with Build Canada's tenets.
+    4.3 Output “no” if it conflicts overall with Build Canada's tenets.
   5. Generate 3 critical questions, pertaining to this and only about this bill, for Question Period in the House of Commons phrased in a way that a Member of Parliament might actually ask in Question Period. Omit any prefix like "Mr. Speaker" or "Madam Speaker".
- 
+
+  Important: All enum values must be lowercase exactly as specified.
+  - tenet_evaluations.alignment: aligns|conflicts|neutral
+  - final_judgment: yes|no|abstain
+  - is_social_issue: yes|no
 
   Output format (return valid JSON only):
 
@@ -133,9 +145,9 @@ You are analyzing Canadian legislation. You must assess whether the bill aligns 
       {
         "question": "A crticial question, pertaining to this and only about this bill, for Question Period in the House of Commons phrased in a way that a Member of Parliament might actually ask in Question Period. Omit any prefix like "Mr. Speaker" or "Madam Speaker""
       },
-      
+
     ],
-    "final_judgment": "yes|no",
+    "final_judgment": "yes|no|abstain",
     "rationale": "2 sentences explaining the overall judgment and then bullet points explaining the rationale for the judgment and suggestions for what we might change. Use markdown formatting.",
     "is_social_issue": "yes|no"
   }

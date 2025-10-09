@@ -40,7 +40,7 @@ export interface UnifiedBill {
     alignment: "aligns" | "conflicts" | "neutral";
     explanation: string;
   }>;
-  final_judgment?: "yes" | "no" | "neutral";
+  final_judgment: "yes" | "no" | "abstain";
   rationale?: string;
   needs_more_info?: boolean;
   missing_details?: string[];
@@ -60,7 +60,14 @@ export function fromBuildCanadaDbBill(bill: BillDocument): UnifiedBill {
     supportedRegion: bill.supportedRegion,
     introducedOn: bill.introducedOn,
     lastUpdatedOn: bill.lastUpdatedOn,
-    stages: bill.stages ? [...bill.stages] : [],
+    stages: bill.stages
+      ? bill.stages.map((stage) => ({
+          stage: stage.stage,
+          state: stage.state,
+          house: stage.house,
+          date: stage.date,
+        }))
+      : [],
     genres: bill.genres ? [...bill.genres] : undefined,
     parliamentNumber: bill.parliamentNumber,
     sessionNumber: bill.sessionNumber,
@@ -80,7 +87,11 @@ export function fromBuildCanadaDbBill(bill: BillDocument): UnifiedBill {
       alignment: te.alignment,
       explanation: te.explanation,
     })),
-    final_judgment: bill.final_judgment as "yes" | "no" | "neutral" | undefined,
+    final_judgment:
+      (bill.final_judgment ?? "").toString().trim().toLowerCase() === "yes" ||
+      (bill.final_judgment ?? "").toString().trim().toLowerCase() === "no"
+        ? (bill.final_judgment as "yes" | "no")
+        : "abstain",
     rationale: bill.rationale,
     needs_more_info: bill.needs_more_info,
     missing_details: bill.missing_details
@@ -194,9 +205,15 @@ export async function fromCivicsProjectApiBill(
           summary: existingBill.summary,
           tenet_evaluations:
             existingBill.tenet_evaluations || analysis.tenet_evaluations,
-          final_judgment:
-            (existingBill.final_judgment as "yes" | "no" | "neutral") ||
-            analysis.final_judgment,
+          final_judgment: (() => {
+            const raw = String(existingBill.final_judgment || "")
+              .trim()
+              .toLowerCase();
+            if (raw === "yes" || raw === "no") return raw as "yes" | "no";
+            // Treat legacy "neutral" and any unknown value as "abstain"
+            if (raw === "abstain" || raw === "neutral") return "abstain";
+            return analysis.final_judgment;
+          })(),
           rationale: existingBill.rationale || analysis.rationale,
           needs_more_info:
             existingBill.needs_more_info || analysis.needs_more_info,

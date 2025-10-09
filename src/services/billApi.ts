@@ -37,6 +37,24 @@ export type ApiBillDetail = {
 
 const CANADIAN_PARLIAMENT_NUMBER = 45;
 
+/** Types for AI analysis results */
+export interface BillAnalysis {
+  summary: string;
+  short_title?: string;
+  tenet_evaluations: Array<{
+    id: number;
+    title: string;
+    alignment: "aligns" | "conflicts" | "neutral";
+    explanation: string;
+  }>;
+  final_judgment: "yes" | "no" | "abstain";
+  rationale: string;
+  needs_more_info: boolean;
+  missing_details: string[];
+  steel_man: string;
+  question_period_questions?: Array<{ question: string }>;
+}
+
 export async function getBillFromCivicsProjectApi(
   billId: string,
 ): Promise<ApiBillDetail | null> {
@@ -66,23 +84,6 @@ export async function getBillFromCivicsProjectApi(
     );
   }
   return data;
-}
-
-export interface BillAnalysis {
-  summary: string;
-  short_title?: string;
-  tenet_evaluations: Array<{
-    id: number;
-    title: string;
-    alignment: "aligns" | "conflicts" | "neutral";
-    explanation: string;
-  }>;
-  final_judgment: "yes" | "no" | "neutral";
-  rationale: string;
-  needs_more_info: boolean;
-  missing_details: string[];
-  steel_man: string;
-  question_period_questions?: Array<{ question: string }>;
 }
 
 export async function summarizeBillText(input: string): Promise<BillAnalysis> {
@@ -149,7 +150,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
           explanation: "Unable to analyze without AI",
         },
       ],
-      final_judgment: "no",
+      final_judgment: "abstain",
       rationale: "Analysis requires AI capabilities",
       needs_more_info: true,
       missing_details: ["AI analysis capabilities required"],
@@ -176,11 +177,18 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
     // Parse JSON response
     try {
       const parsed = JSON.parse(responseText);
+      const rawFj = String(parsed.final_judgment || "")
+        .trim()
+        .toLowerCase();
+      const normalizedFj: "yes" | "no" | "abstain" =
+        rawFj === "yes" || rawFj === "no" || rawFj === "abstain"
+          ? rawFj
+          : "abstain";
       const analysis: BillAnalysis = {
         summary: parsed.summary ?? "",
         short_title: parsed.short_title ?? undefined,
         tenet_evaluations: parsed.tenet_evaluations ?? [],
-        final_judgment: parsed.final_judgment ?? "no",
+        final_judgment: normalizedFj,
         rationale: parsed.rationale ?? "",
         needs_more_info: parsed.needs_more_info ?? false,
         missing_details: parsed.missing_details ?? [],
@@ -261,7 +269,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
             explanation: "JSON parse failed",
           },
         ],
-        final_judgment: "no",
+        final_judgment: "abstain",
         rationale: "Analysis parsing failed",
         needs_more_info: true,
         missing_details: ["Valid AI response format"],
@@ -332,7 +340,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
           explanation: "Analysis failed",
         },
       ],
-      final_judgment: "no",
+      final_judgment: "abstain",
       rationale: "Technical error during analysis",
       needs_more_info: true,
       missing_details: ["Technical issue resolution"],
