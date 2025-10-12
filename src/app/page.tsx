@@ -203,9 +203,11 @@ async function getMergedBillsCached(): Promise<BillSummary[]> {
 export default async function Home({
   searchParams,
 }: {
-  searchParams?: HomeSearchParams;
+  searchParams?: HomeSearchParams | Promise<HomeSearchParams>;
 }) {
-  if (searchParams?.cache === "clear") {
+  const resolvedSearchParams = await Promise.resolve(searchParams);
+
+  if (resolvedSearchParams?.cache === "clear") {
     mergedBillsCache = null; // Allow manual cache busting with ?cache=clear
   }
   const bills = await getMergedBillsCached();
