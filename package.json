@@ -10,6 +10,7 @@
     "format": "biome check --write",
     "test": "vitest run",
     "type-check": "tsc --noEmit",
+    "check": "npm run type-check && npm run format && npx biome check --error-on-warnings",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",

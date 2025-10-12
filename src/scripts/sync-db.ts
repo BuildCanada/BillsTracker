@@ -51,9 +51,7 @@ dotenv.config({ path: path.join(process.cwd(), ".env.local") });
 
 import { spawnSync } from "node:child_process";
 import { mkdir, access, readdir } from "node:fs/promises";
-import { createInterface } from "node:readline";
-
-type Environment = "dev" | "prod";
+import { Environment, getMongoUri, promptForConfirmation } from "./utils";
 
 interface ParsedArgs {
   dryRun: boolean;
@@ -120,17 +118,6 @@ function parseArgs(): ParsedArgs {
   return parsed;
 }
 
-type EnvConfig = typeof import("@/env")["env"];
-
-let envConfigPromise: Promise<EnvConfig> | null = null;
-
-function loadEnvConfig(): Promise<EnvConfig> {
-  if (!envConfigPromise) {
-    envConfigPromise = import("@/env").then((module) => module.env);
-  }
-  return envConfigPromise;
-}
-
 type MongooseModule = typeof import("@/lib/mongoose");
 
 let mongooseModulePromise: Promise<MongooseModule> | null = null;
@@ -147,27 +134,6 @@ async function loadDefaultDatabaseName(): Promise<string | null> {
   return trimmed === "" ? null : trimmed;
 }
 
-async function getMongoUri(env: Environment): Promise<string> {
-  if (env === "prod") {
-    const prodUri = process.env.PROD_MONGO_URI;
-    if (!prodUri || prodUri.trim() === "") {
-      throw new Error(
-        "PROD_MONGO_URI is not set in environment. Cannot connect to production database.",
-      );
-    }
-    return prodUri.trim();
-  }
-
-  const envConfig = await loadEnvConfig();
-  const devUri = envConfig.MONGO_URI;
-  if (!devUri || devUri.trim() === "") {
-    throw new Error(
-      "MONGO_URI is not set in environment. Cannot connect to dev database.",
-    );
-  }
-  return devUri.trim();
-}
-
 function formatTimestamp(): string {
   const now = new Date();
   const year = now.getFullYear();
@@ -177,21 +143,6 @@ function formatTimestamp(): string {
   const minutes = String(now.getMinutes()).padStart(2, "0");
   const seconds = String(now.getSeconds()).padStart(2, "0");
   return `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
-}
-
-async function promptForConfirmation(message: string): Promise<boolean> {
-  const rl = createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise((resolve) => {
-    rl.question(`${message}\n`, (answer) => {
-      rl.close();
-      const normalized = answer.trim().toLowerCase();
-      resolve(normalized === "y" || normalized === "yes");
-    });
-  });
 }
 
 async function ensureDirectoryExists(

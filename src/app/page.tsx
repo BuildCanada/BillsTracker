@@ -12,6 +12,7 @@ import { BUILD_CANADA_TWITTER_HANDLE, PROJECT_NAME } from "@/consts/general";
 import FAQModalTrigger from "./FAQModalTrigger";
 
 const CANADIAN_PARLIAMENT_NUMBER = 45;
+type HomeSearchParams = { cache?: string };
 
 // Force runtime generation (avoid build-time pre-render) and cache in-memory for 5 minutes
 export const dynamic = "force-dynamic";
@@ -219,7 +220,14 @@ async function getMergedBillsCached(): Promise<BillSummary[]> {
   return data;
 }
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: HomeSearchParams;
+}) {
+  if (searchParams?.cache === "clear") {
+    mergedBillsCache = null; // Allow manual cache busting with ?cache=clear
+  }
   const bills = await getMergedBillsCached();
   return (
     <div className="min-h-screen">
