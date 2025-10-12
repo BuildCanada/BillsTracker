@@ -158,7 +158,7 @@ function resolveMigrationPath(input: string): {
   let candidateAbsolute: string;
   if (path.isAbsolute(normalizedInput)) {
     candidateAbsolute = normalizedInput;
-  } else if (normalizedInput.startsWith("src" + path.sep)) {
+  } else if (normalizedInput.startsWith(`src${path.sep}`)) {
     candidateAbsolute = path.resolve(process.cwd(), normalizedInput);
   } else {
     candidateAbsolute = path.join(MIGRATIONS_ROOT, normalizedInput);
