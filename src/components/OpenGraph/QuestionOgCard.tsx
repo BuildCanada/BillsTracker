@@ -3,8 +3,9 @@ import type { UnifiedBill } from "@/utils/billConverters";
 
 type QuestionSubset = Pick<
   UnifiedBill,
-  "billId" | "title" | "short_title" | "final_judgment" | "isSocialIssue"
+  "billId" | "title" | "short_title" | "isSocialIssue"
 > & {
+  final_judgment?: "yes" | "no" | "abstain";
   question: string;
   index: number;
   fallbackId?: string;
@@ -13,12 +14,12 @@ type QuestionSubset = Pick<
 export function QuestionOgCard({ bill }: { bill: QuestionSubset }) {
   const title = bill.short_title || bill.title || bill.fallbackId || "Bill";
   const voteLabel = bill.isSocialIssue
-    ? "Vote: Neutral"
+    ? "Vote: Abstain"
     : bill.final_judgment === "yes"
       ? "Vote: Yes"
       : bill.final_judgment === "no"
         ? "Vote: No"
-        : "Vote: Neutral";
+        : "Vote: Abstain";
   const voteBg = bill.isSocialIssue
     ? "#4b5563"
     : bill.final_judgment === "yes"

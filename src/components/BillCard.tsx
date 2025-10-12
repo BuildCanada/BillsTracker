@@ -8,7 +8,6 @@ import dayjs from "dayjs";
 import { getCategoryIcon } from "@/utils/bill-category-to-icon/bill-category-to-icon.util";
 import { getBillStageDates } from "@/utils/stages-to-dates/stages-to-dates";
 import { TenetEvaluation } from "@/models/Bill";
-import { shouldShowDetermination } from "@/utils/should-show-determination/should-show-determination.util";
 
 interface BillCardProps {
   bill: BillSummary & { tenet_evaluations?: TenetEvaluation[] };
@@ -20,19 +19,7 @@ function BillCard({ bill }: BillCardProps) {
     ? dayjs(lastUpdated).format("MMM D, YYYY")
     : "N/A";
 
-  const judgementParams = {
-    vote: bill.final_judgment,
-    isSocialIssue: bill.isSocialIssue,
-    tenetEvaluations: bill.tenet_evaluations,
-  } as const;
-  const shouldDisplayDetermination = shouldShowDetermination(judgementParams);
-  const normalizedFinalJudgement: JudgementValue =
-    judgementParams.vote === "yes" || judgementParams.vote === "no"
-      ? judgementParams.vote
-      : "neutral";
-  const judgementValue: JudgementValue = shouldDisplayDetermination
-    ? normalizedFinalJudgement
-    : "neutral";
+  const judgementValue: JudgementValue = bill.final_judgment || "abstain";
 
   return (
     <li className="group rounded-lg border   bg-[var(--panel)] shadow-sm   duration-200 overflow-hidden">
@@ -47,12 +34,7 @@ function BillCard({ bill }: BillCardProps) {
               </h2>
             </div>
 
-            {bill.final_judgment && (
-              <Judgement
-                judgement={judgementValue}
-                isSocialIssue={bill.isSocialIssue}
-              />
-            )}
+            {bill.final_judgment && <Judgement judgement={judgementValue} />}
           </div>
 
           {/* Description */}

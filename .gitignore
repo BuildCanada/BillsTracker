@@ -45,3 +45,6 @@ next-env.d.ts
 .claude
 .plans
 .mcp.json
+
+# DB Backups
+db-backups

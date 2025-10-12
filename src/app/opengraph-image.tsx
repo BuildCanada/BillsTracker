@@ -1,5 +1,4 @@
 import { ImageResponse } from "next/og";
-import { PROJECT_NAME } from "@/consts/general";
 
 export const runtime = "nodejs";
 
@@ -101,4 +100,3 @@ export default async function HomeOpengraphImage() {
     },
   );
 }
-

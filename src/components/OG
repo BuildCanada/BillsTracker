@@ -4,7 +4,7 @@ import React from "react";
 
 export function BillOgCard({ bill }) {
   const title = bill.short_title || bill.title;
-  const judgement = bill.final_judgment || "neutral";
+  const judgement = bill.final_judgment || "abstain";
   const badgeColor = judgement === "yes" ? "#16a34a" : judgement === "no" ? "#dc2626" : "#4b5563";
 
   return (
@@ -64,7 +64,7 @@ export function BillOgCard({ bill }) {
             textTransform: "uppercase",
             letterSpacing: 1,
           }}>
-            {judgement === "yes" ? "Supports" : judgement === "no" ? "Opposes" : "Neutral"}
+            {judgement === "yes" ? "Supports" : judgement === "no" ? "Opposes" : "Abstain"}
           </div>
           {bill.rationale ? (
             <div style={{ marginTop: 16, fontSize: 22, color: "#d1d5db", textAlign: "right" }}>

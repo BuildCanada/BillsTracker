@@ -12,6 +12,7 @@ import { BUILD_CANADA_TWITTER_HANDLE, PROJECT_NAME } from "@/consts/general";
 import FAQModalTrigger from "./FAQModalTrigger";
 
 const CANADIAN_PARLIAMENT_NUMBER = 45;
+type HomeSearchParams = { cache?: string };
 
 // Force runtime generation (avoid build-time pre-render) and cache in-memory for 5 minutes
 export const dynamic = "force-dynamic";
@@ -23,10 +24,12 @@ export async function generateMetadata(): Promise<Metadata> {
     "Understand Canadian federal bills with builder-first analysis.";
   const h = headers();
   const headerList = await h;
-  const host = headerList.get("x-forwarded-host") || headerList.get("host") || "";
+  const host =
+    headerList.get("x-forwarded-host") || headerList.get("host") || "";
   const proto = (headerList.get("x-forwarded-proto") || "https").split(",")[0];
   const baseUrl =
-    env.NEXT_PUBLIC_APP_URL || (host ? `${proto}://${host}` : "http://localhost:3000");
+    env.NEXT_PUBLIC_APP_URL ||
+    (host ? `${proto}://${host}` : "http://localhost:3000");
   const pagePath = buildRelativePath();
   const pageUrl = `${baseUrl}${pagePath}`;
   const ogPath = buildRelativePath("opengraph-image");
@@ -42,7 +45,9 @@ export async function generateMetadata(): Promise<Metadata> {
       url: pageUrl,
       siteName: PROJECT_NAME,
       type: "website",
-      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: PROJECT_NAME }],
+      images: [
+        { url: ogImageUrl, width: 1200, height: 630, alt: PROJECT_NAME },
+      ],
     },
     twitter: {
       card: "summary_large_image",
@@ -65,6 +70,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+const shouldUseLocalCache = process.env.NODE_ENV === "production";
 let mergedBillsCache: { data: BillSummary[]; expiresAt: number } | null = null;
 
 async function getApiBills(): Promise<BillSummary[]> {
@@ -116,16 +122,6 @@ async function getMergedBills(): Promise<BillSummary[]> {
     const dbBill = dbBillsMap.get(apiBill.billID);
 
     if (dbBill) {
-      const alignCount = (dbBill.tenet_evaluations ?? []).filter(
-        (t) => t.alignment === "aligns",
-      ).length;
-      const conflictCount = (dbBill.tenet_evaluations ?? []).filter(
-        (t) => t.alignment === "conflicts",
-      ).length;
-      const displayFinal: BillSummary["final_judgment"] =
-        alignCount === 1 && conflictCount === 0
-          ? "neutral"
-          : (dbBill.final_judgment as BillSummary["final_judgment"]);
       // Merge API bill with DB data (DB data takes precedence for analysis fields)
       return {
         ...dbBill,
@@ -133,7 +129,7 @@ async function getMergedBills(): Promise<BillSummary[]> {
         shortTitle: dbBill.short_title || apiBill.shortTitle,
         summary: dbBill.summary,
         isSocialIssue: dbBill.isSocialIssue,
-        final_judgment: displayFinal,
+        final_judgment: dbBill.final_judgment as BillSummary["final_judgment"],
         rationale: dbBill.rationale,
         needs_more_info: dbBill.needs_more_info,
         missing_details: dbBill.missing_details,
@@ -151,16 +147,6 @@ async function getMergedBills(): Promise<BillSummary[]> {
   for (const [billId, dbBill] of dbBillsMap) {
     if (!mergedBills.find((bill) => bill.billID === billId)) {
       // Convert DB bill to BillSummary format
-      const alignCount = (dbBill.tenet_evaluations ?? []).filter(
-        (t) => t.alignment === "aligns",
-      ).length;
-      const conflictCount = (dbBill.tenet_evaluations ?? []).filter(
-        (t) => t.alignment === "conflicts",
-      ).length;
-      const displayFinal: BillSummary["final_judgment"] =
-        alignCount === 1 && conflictCount === 0
-          ? "neutral"
-          : (dbBill.final_judgment as BillSummary["final_judgment"]);
       const billSummary: BillSummary = {
         billID: dbBill.billId,
         title: dbBill.title,
@@ -179,7 +165,7 @@ async function getMergedBills(): Promise<BillSummary[]> {
           dbBill.lastUpdatedOn?.toISOString() || new Date().toISOString(),
         summary: dbBill.summary,
         isSocialIssue: dbBill.isSocialIssue,
-        final_judgment: displayFinal,
+        final_judgment: dbBill.final_judgment as BillSummary["final_judgment"],
         rationale: dbBill.rationale,
         needs_more_info: dbBill.needs_more_info,
         missing_details: dbBill.missing_details,
@@ -198,6 +184,12 @@ async function getMergedBills(): Promise<BillSummary[]> {
 }
 
 async function getMergedBillsCached(): Promise<BillSummary[]> {
+  if (!shouldUseLocalCache) {
+    // Avoid stale data while iterating locally; always hit the backing store.
+    mergedBillsCache = null;
+    return getMergedBills();
+  }
+
   const now = Date.now();
   const ttlMs = 300 * 1000; // 5 minutes
   if (mergedBillsCache && mergedBillsCache.expiresAt > now) {
@@ -208,7 +200,14 @@ async function getMergedBillsCached(): Promise<BillSummary[]> {
   return data;
 }
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: HomeSearchParams;
+}) {
+  if (searchParams?.cache === "clear") {
+    mergedBillsCache = null; // Allow manual cache busting with ?cache=clear
+  }
   const bills = await getMergedBillsCached();
   return (
     <div className="min-h-screen">
