@@ -69,6 +69,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+const shouldUseLocalCache = process.env.NODE_ENV === "production";
 let mergedBillsCache: { data: BillSummary[]; expiresAt: number } | null = null;
 
 async function getApiBills(): Promise<BillSummary[]> {
@@ -202,6 +203,12 @@ async function getMergedBills(): Promise<BillSummary[]> {
 }
 
 async function getMergedBillsCached(): Promise<BillSummary[]> {
+  if (!shouldUseLocalCache) {
+    // Avoid stale data while iterating locally; always hit the backing store.
+    mergedBillsCache = null;
+    return getMergedBills();
+  }
+
   const now = Date.now();
   const ttlMs = 300 * 1000; // 5 minutes
   if (mergedBillsCache && mergedBillsCache.expiresAt > now) {
