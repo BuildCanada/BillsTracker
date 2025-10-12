@@ -53,6 +53,8 @@ import { spawnSync } from "node:child_process";
 import { mkdir, access, readdir } from "node:fs/promises";
 import { Environment, getMongoUri, promptForConfirmation } from "./utils";
 
+const DB_BACKUPS_ROOT = path.join(process.cwd(), "db-backups");
+
 interface ParsedArgs {
   dryRun: boolean;
   command: "dump" | "restore" | null;
@@ -212,6 +214,35 @@ function describeRestoreAction(to: Environment, collection?: string): string {
   return `Replace entire ${to} database`;
 }
 
+function ensurePathWithinBase(baseDir: string, candidate: string): string {
+  const relative = path.relative(baseDir, candidate);
+  if (
+    relative === "" ||
+    (!relative.startsWith("..") && !path.isAbsolute(relative))
+  ) {
+    return candidate;
+  }
+  throw new Error(
+    `Dump path must be within ${baseDir}. Received: ${candidate}`,
+  );
+}
+
+function resolveDumpDirectoryPath(dumpPath: string): string {
+  const normalizedInput = path.normalize(dumpPath);
+
+  if (path.isAbsolute(normalizedInput)) {
+    return ensurePathWithinBase(DB_BACKUPS_ROOT, normalizedInput);
+  }
+
+  const segments = normalizedInput.split(path.sep).filter((segment) => segment);
+  if (segments[0] === "db-backups") {
+    segments.shift();
+  }
+
+  const resolved = path.resolve(DB_BACKUPS_ROOT, ...segments);
+  return ensurePathWithinBase(DB_BACKUPS_ROOT, resolved);
+}
+
 function resolveDatabaseName({
   uri,
   providedDbName,
@@ -266,7 +297,7 @@ async function dumpDatabase(
   }
 
   const timestamp = formatTimestamp();
-  const backupDir = path.join(process.cwd(), "db-backups", from, timestamp);
+  const backupDir = path.join(DB_BACKUPS_ROOT, from, timestamp);
 
   console.log(`Dumping to: ${backupDir}`);
 
@@ -320,9 +351,7 @@ async function restoreDatabase(
   dbNameOverride?: string,
 ): Promise<void> {
   // Resolve dump path (relative to repo root unless absolute)
-  const resolvedPath = path.isAbsolute(dumpPath)
-    ? dumpPath
-    : path.join(process.cwd(), dumpPath);
+  const resolvedPath = resolveDumpDirectoryPath(dumpPath);
 
   // Verify dump directory exists
   await verifyDirectoryExists(resolvedPath);
@@ -374,18 +403,33 @@ async function restoreDatabase(
       envDbName,
       context: `restoring collection '${collection}' to ${to}`,
     });
-    const collectionDirName = dumpDbName ?? dbName;
-    // For collection restore, point to the specific collection's BSON file
-    const collectionPath = path.join(
-      resolvedPath,
-      collectionDirName,
-      `${collection}.bson`,
-    );
-    try {
-      await access(collectionPath);
-    } catch {
-      throw new Error(`Collection dump not found at ${collectionPath}`);
+    const nestedCollectionPath =
+      dumpDbName !== null
+        ? path.join(resolvedPath, dumpDbName, `${collection}.bson`)
+        : path.join(resolvedPath, dbName, `${collection}.bson`);
+    const directCollectionPath = path.join(resolvedPath, `${collection}.bson`);
+    const candidatePaths: string[] = [directCollectionPath];
+    if (!candidatePaths.includes(nestedCollectionPath)) {
+      candidatePaths.push(nestedCollectionPath);
     }
+
+    let collectionPath: string | null = null;
+    for (const candidate of candidatePaths) {
+      try {
+        await access(candidate);
+        collectionPath = candidate;
+        break;
+      } catch {
+        // try next candidate
+      }
+    }
+
+    if (!collectionPath) {
+      throw new Error(
+        `Collection dump not found. Checked: ${candidatePaths.join(", ")}`,
+      );
+    }
+
     args.push("--db", dbName, "--collection", collection, collectionPath);
   } else {
     args.push(resolvedPath);

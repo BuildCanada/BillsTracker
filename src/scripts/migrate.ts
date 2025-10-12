@@ -8,24 +8,31 @@
  * Available Actions:
  *
  * 1. Run a migration against the dev database (default)
- *    tsx src/scripts/migrate.ts 1.ts
+ *    tsx src/scripts/migrate.ts src/migrations/1.ts
  *
  * 2. Explicitly target dev
- *    tsx src/scripts/migrate.ts 2-add-indexes.ts --env dev
+ *    tsx src/scripts/migrate.ts src/migrations/2-add-indexes.ts --env dev
  *
  * 3. Run a migration against production (requires confirmation)
- *    tsx src/scripts/migrate.ts 3-new-field.ts --env prod
+ *    tsx src/scripts/migrate.ts src/migrations/3-new-field.ts --env prod
  *
  * 4. Preview without executing
- *    tsx src/scripts/migrate.ts 3-new-field.ts --env prod --dry-run
+ *    tsx src/scripts/migrate.ts src/migrations/3-new-field.ts --env prod --dry-run
  *
  * Global Options:
  *   --env <dev|prod>   Target environment (default: dev)
  *   --dry-run          Log actions without connecting or mutating data
+ *
+ * Notes:
+ * - Run this script from the repository root so paths resolve correctly.
+ * - Supply a path inside src/migrations (absolute or repo-relative like src/migrations/1.ts).
+ * - Each migration module must export an async `up` function.
+ * - Production targets prompt for a second confirmation before executing.
  */
 
 import dotenv from "dotenv";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import {
   Environment,
   getMongoUri,
@@ -36,15 +43,17 @@ import {
 // Load environment variables from .env.local (Next.js convention)
 dotenv.config({ path: path.join(process.cwd(), ".env.local") });
 
+const MIGRATIONS_ROOT = path.join(process.cwd(), "src/migrations");
+
 interface ParsedArgs {
-  filename: string | null;
+  migrationInputPath: string | null;
   environment: Environment;
   dryRun: boolean;
 }
 
 function defaultParsedArgs(): ParsedArgs {
   return {
-    filename: null,
+    migrationInputPath: null,
     environment: "dev",
     dryRun: false,
   };
@@ -93,12 +102,12 @@ function parseArgs(argv: string[]): ParsedArgs {
       continue;
     }
 
-    if (!arg.startsWith("-") && parsed.filename === null) {
-      parsed.filename = arg;
+    if (!arg.startsWith("-") && parsed.migrationInputPath === null) {
+      parsed.migrationInputPath = arg;
       continue;
     }
 
-    if (!arg.startsWith("-") && parsed.filename !== null) {
+    if (!arg.startsWith("-") && parsed.migrationInputPath !== null) {
       throw new Error(`Unexpected extra argument: ${arg}`);
     }
 
@@ -117,47 +126,92 @@ function parseEnvironment(value: string): Environment {
 
 function usage(): void {
   console.error(
-    "Usage: tsx src/scripts/migrate.ts <migration-filename> [--env <dev|prod>] [--dry-run]",
+    "Usage: tsx src/scripts/migrate.ts <path-to-migration> [--env <dev|prod>] [--dry-run]",
   );
   console.error("Examples:");
-  console.error("  tsx src/scripts/migrate.ts 1.ts");
-  console.error("  tsx src/scripts/migrate.ts 1.ts --env prod");
-  console.error("  tsx src/scripts/migrate.ts 1.ts --env prod --dry-run");
+  console.error("  tsx src/scripts/migrate.ts src/migrations/1.ts");
+  console.error("  tsx src/scripts/migrate.ts src/migrations/1.ts --env prod");
+  console.error(
+    "  tsx src/scripts/migrate.ts src/migrations/1.ts --env prod --dry-run",
+  );
 }
 
-async function loadMigrationModule(filename: string) {
-  const migrationPath = path.join(process.cwd(), "src/migrations", filename);
+function ensurePathWithinBase(baseDir: string, candidate: string): string {
+  const relative = path.relative(baseDir, candidate);
+  if (
+    relative === "" ||
+    (!relative.startsWith("..") && !path.isAbsolute(relative))
+  ) {
+    return candidate;
+  }
+  throw new Error(
+    `Migration path must be within ${baseDir}. Received: ${candidate}`,
+  );
+}
+
+function resolveMigrationPath(input: string): {
+  absolutePath: string;
+  displayPath: string;
+} {
+  const normalizedInput = path.normalize(input);
+
+  let candidateAbsolute: string;
+  if (path.isAbsolute(normalizedInput)) {
+    candidateAbsolute = normalizedInput;
+  } else if (normalizedInput.startsWith("src" + path.sep)) {
+    candidateAbsolute = path.resolve(process.cwd(), normalizedInput);
+  } else {
+    candidateAbsolute = path.join(MIGRATIONS_ROOT, normalizedInput);
+  }
+
+  const migrationPath = ensurePathWithinBase(
+    MIGRATIONS_ROOT,
+    candidateAbsolute,
+  );
+  const displayPath = path.relative(process.cwd(), migrationPath);
+  return {
+    absolutePath: migrationPath,
+    displayPath: displayPath || normalizedInput,
+  };
+}
+
+async function loadMigrationModule(absolutePath: string, displayPath: string) {
   try {
-    const migration = await import(migrationPath);
+    const migration = await import(pathToFileURL(absolutePath).href);
     return migration as { up?: () => unknown };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to load migration ${filename}: ${message}`);
+    throw new Error(`Failed to load migration ${displayPath}: ${message}`);
   }
 }
 
 async function runMigration({
-  filename,
+  migrationInputPath,
   environment,
   dryRun,
 }: {
-  filename: string;
+  migrationInputPath: string;
   environment: Environment;
   dryRun: boolean;
 }): Promise<void> {
+  const { absolutePath, displayPath } =
+    resolveMigrationPath(migrationInputPath);
   const mongoUri = await getMongoUri(environment);
   const redactedUri = redactMongoUri(mongoUri);
-  const action = `Run migration '${filename}' on ${environment} database`;
+  const action = `Run migration '${displayPath}' on ${environment} database`;
 
   console.log(`\nAction: ${action}`);
   console.log(`Target environment: ${environment}`);
   console.log(`Mongo URI: ${redactedUri}`);
-  console.log(`Migration file: ${filename}`);
+  console.log(`Migration file: ${displayPath}`);
   console.log("");
 
-  const migrationModule = await loadMigrationModule(filename);
+  process.env.MONGO_URI = mongoUri;
+  process.env.MONGODB_URI = mongoUri;
+
+  const migrationModule = await loadMigrationModule(absolutePath, displayPath);
   if (typeof migrationModule.up !== "function") {
-    throw new Error(`Migration ${filename} must export an 'up' function`);
+    throw new Error(`Migration ${displayPath} must export an 'up' function`);
   }
 
   if (dryRun) {
@@ -184,9 +238,6 @@ async function runMigration({
     }
   }
 
-  process.env.MONGO_URI = mongoUri;
-  process.env.MONGODB_URI = mongoUri;
-
   const { connectToDatabase } = await import("@/lib/mongoose");
 
   console.log("Connecting to MongoDB...");
@@ -197,13 +248,13 @@ async function runMigration({
     await migrationModule.up();
   } catch (error) {
     if (error instanceof Error) {
-      error.message = `Migration ${filename} failed: ${error.message}`;
+      error.message = `Migration ${displayPath} failed: ${error.message}`;
       throw error;
     }
-    throw new Error(`Migration ${filename} failed: ${String(error)}`);
+    throw new Error(`Migration ${displayPath} failed: ${String(error)}`);
   }
 
-  console.log(`Migration ${filename} completed successfully`);
+  console.log(`Migration ${displayPath} completed successfully`);
 }
 
 async function main(): Promise<void> {
@@ -218,13 +269,13 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  if (!parsed.filename) {
+  if (!parsed.migrationInputPath) {
     usage();
     process.exit(1);
   }
 
   await runMigration({
-    filename: parsed.filename,
+    migrationInputPath: parsed.migrationInputPath,
     environment: parsed.environment,
     dryRun: parsed.dryRun,
   });

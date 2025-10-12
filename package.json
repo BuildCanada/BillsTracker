@@ -15,7 +15,6 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "prompt": "tsx src/scripts/copy-bill-prompt.ts",
-    "migrate": "tsx src/scripts/migrate.ts",
     "prepare": "husky"
   },
   "dependencies": {
