@@ -307,6 +307,8 @@ export async function POST(
 
   await Bill.updateOne({ billId: id }, { $set: update }, { upsert: false });
 
-  const redirectPath = `${BASE_PATH || ""}/${id}`.replace(/\/+/g, "/");
-  return NextResponse.redirect(new URL(redirectPath, request.url));
+  // API routes need to manually include basePath in redirects
+  const url = new URL(request.url);
+  const redirectUrl = new URL(`${BASE_PATH}/${id}`, url.origin);
+  return NextResponse.redirect(redirectUrl);
 }

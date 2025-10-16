@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation";
 import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { connectToDatabase } from "@/lib/mongoose";
-import { User } from "@/models/User";
+import { requireAuthenticatedUser } from "@/lib/auth-guards";
+import { BASE_PATH } from "@/utils/basePath";
+import { Button } from "@/components/ui/button";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -12,19 +11,8 @@ interface Params {
 export default async function EditBillPage({ params }: Params) {
   const { id } = await params;
 
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    redirect(`/unauthorized`);
-  }
-
-  // Verify the signed-in user exists in DB; do not create
-  await connectToDatabase();
-  const dbUser = await User.findOne({
-    emailLower: session.user.email.toLowerCase(),
-  });
-  if (!dbUser) {
-    redirect(`/unauthorized`);
-  }
+  // Use reusable auth guard for consistent authentication
+  await requireAuthenticatedUser();
 
   const bill = await getBillByIdFromDB(id);
   if (!bill) {
@@ -37,7 +25,11 @@ export default async function EditBillPage({ params }: Params) {
   return (
     <div className="mx-auto max-w-[900px] px-6 py-8">
       <h1 className="text-xl font-semibold mb-6">Edit Bill</h1>
-      <form className="space-y-6" action={`/bills/api/${id}`} method="post">
+      <form
+        className="space-y-6"
+        action={`${BASE_PATH}/api/${id}`}
+        method="post"
+      >
         <div className="space-y-2">
           <label className="block text-sm font-medium" htmlFor="title">
             Title
@@ -223,9 +215,7 @@ export default async function EditBillPage({ params }: Params) {
             );
           })}
         </div>
-        <button type="submit" className="underline">
-          Save
-        </button>
+        <Button type="submit">Save</Button>
       </form>
     </div>
   );
