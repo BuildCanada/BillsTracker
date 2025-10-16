@@ -8,15 +8,19 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { env } from "@/env";
 import { buildRelativePath } from "@/utils/basePath";
-import { BUILD_CANADA_TWITTER_HANDLE, PROJECT_NAME } from "@/consts/general";
+import {
+  BUILD_CANADA_TWITTER_HANDLE,
+  PROJECT_NAME,
+  PAGE_REVALIDATE_INTERVAL,
+} from "@/consts/general";
 import FAQModalTrigger from "./FAQModalTrigger";
 
 const CANADIAN_PARLIAMENT_NUMBER = 45;
 type HomeSearchParams = { cache?: string };
 
-// Force runtime generation (avoid build-time pre-render) and cache in-memory for 5 minutes
-export const dynamic = "force-dynamic";
-export const revalidate = 300;
+// Force runtime generation (avoid build-time pre-render) and cache in-memory.
+export const dynamic = "auto";
+export const revalidate = PAGE_REVALIDATE_INTERVAL;
 
 export async function generateMetadata(): Promise<Metadata> {
   const title = "Home";
