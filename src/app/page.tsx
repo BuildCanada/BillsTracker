@@ -10,12 +10,13 @@ import { env } from "@/env";
 import { buildRelativePath } from "@/utils/basePath";
 import { BUILD_CANADA_TWITTER_HANDLE, PROJECT_NAME } from "@/consts/general";
 import FAQModalTrigger from "./FAQModalTrigger";
+import { REVALIDATE_INTERVAL } from "@/consts/general";
 
 const CANADIAN_PARLIAMENT_NUMBER = 45;
 
-// Force runtime generation (avoid build-time pre-render) and cache in-memory for 5 minutes
+// Force runtime generation (avoid build-time pre-render) and cache in-memory.
 export const dynamic = "auto";
-export const revalidate = 120;
+export const revalidate = REVALIDATE_INTERVAL;
 
 export async function generateMetadata(): Promise<Metadata> {
   const title = "Home";
