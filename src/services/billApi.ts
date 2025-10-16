@@ -1,6 +1,7 @@
 import { xmlToMarkdown } from "@/utils/xml-to-md/xml-to-md.util";
 import { SUMMARY_AND_VOTE_PROMPT } from "@/prompt/summary-and-vote-prompt";
 import OpenAI from "openai";
+import { BILL_API_REVALIDATE_INTERVAL } from "@/consts/general";
 
 export type ApiStage = {
   stage: string;
@@ -37,14 +38,32 @@ export type ApiBillDetail = {
 
 const CANADIAN_PARLIAMENT_NUMBER = 45;
 
+/** Types for AI analysis results */
+export interface BillAnalysis {
+  summary: string;
+  short_title?: string;
+  tenet_evaluations: Array<{
+    id: number;
+    title: string;
+    alignment: "aligns" | "conflicts" | "neutral";
+    explanation: string;
+  }>;
+  final_judgment: "yes" | "no" | "abstain";
+  rationale: string;
+  needs_more_info: boolean;
+  missing_details: string[];
+  steel_man: string;
+  question_period_questions?: Array<{ question: string }>;
+}
+
 export async function getBillFromCivicsProjectApi(
   billId: string,
 ): Promise<ApiBillDetail | null> {
   const URL = `https://api.civicsproject.org/bills/canada/${billId.toLowerCase()}/${CANADIAN_PARLIAMENT_NUMBER}`;
   const response = await fetch(URL, {
-    // Cache individual bills for 10 minutes in production
+    // Cache individual bills.
     ...(process.env.NODE_ENV === "production"
-      ? { next: { revalidate: 600 } }
+      ? { next: { revalidate: BILL_API_REVALIDATE_INTERVAL } }
       : { cache: "no-store" }),
     headers: {
       "Content-Type": "application/json",
@@ -66,23 +85,6 @@ export async function getBillFromCivicsProjectApi(
     );
   }
   return data;
-}
-
-export interface BillAnalysis {
-  summary: string;
-  short_title?: string;
-  tenet_evaluations: Array<{
-    id: number;
-    title: string;
-    alignment: "aligns" | "conflicts" | "neutral";
-    explanation: string;
-  }>;
-  final_judgment: "yes" | "no" | "neutral";
-  rationale: string;
-  needs_more_info: boolean;
-  missing_details: string[];
-  steel_man: string;
-  question_period_questions?: Array<{ question: string }>;
 }
 
 export async function summarizeBillText(input: string): Promise<BillAnalysis> {
@@ -149,7 +151,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
           explanation: "Unable to analyze without AI",
         },
       ],
-      final_judgment: "no",
+      final_judgment: "abstain",
       rationale: "Analysis requires AI capabilities",
       needs_more_info: true,
       missing_details: ["AI analysis capabilities required"],
@@ -176,11 +178,18 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
     // Parse JSON response
     try {
       const parsed = JSON.parse(responseText);
+      const rawFj = String(parsed.final_judgment || "")
+        .trim()
+        .toLowerCase();
+      const normalizedFj: "yes" | "no" | "abstain" =
+        rawFj === "yes" || rawFj === "no" || rawFj === "abstain"
+          ? rawFj
+          : "abstain";
       const analysis: BillAnalysis = {
         summary: parsed.summary ?? "",
         short_title: parsed.short_title ?? undefined,
         tenet_evaluations: parsed.tenet_evaluations ?? [],
-        final_judgment: parsed.final_judgment ?? "no",
+        final_judgment: normalizedFj,
         rationale: parsed.rationale ?? "",
         needs_more_info: parsed.needs_more_info ?? false,
         missing_details: parsed.missing_details ?? [],
@@ -261,7 +270,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
             explanation: "JSON parse failed",
           },
         ],
-        final_judgment: "no",
+        final_judgment: "abstain",
         rationale: "Analysis parsing failed",
         needs_more_info: true,
         missing_details: ["Valid AI response format"],
@@ -332,7 +341,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
           explanation: "Analysis failed",
         },
       ],
-      final_judgment: "no",
+      final_judgment: "abstain",
       rationale: "Technical error during analysis",
       needs_more_info: true,
       missing_details: ["Technical issue resolution"],

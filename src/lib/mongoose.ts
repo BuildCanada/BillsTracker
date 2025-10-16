@@ -3,7 +3,7 @@ import { env } from "@/env";
 
 const MONGO_URI = env.MONGO_URI || "";
 
-const DATABASE_NAME = "bills";
+export const DATABASE_NAME = "bills";
 
 if (!MONGO_URI) {
   // In dev we don't throw to avoid crashing builds without env; callers can decide

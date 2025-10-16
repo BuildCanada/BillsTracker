@@ -62,7 +62,7 @@ export default async function EditBillPage({ params }: Params) {
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium" htmlFor="final_judgment">
-            Final Judgment (yes/no/neutral)
+            Final Judgment (yes/no/abstain)
           </label>
           <textarea
             id="final_judgment"
