@@ -8,11 +8,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { env } from "@/env";
 import { buildRelativePath } from "@/utils/basePath";
-import {
-  BUILD_CANADA_TWITTER_HANDLE,
-  PROJECT_NAME,
-  PAGE_REVALIDATE_INTERVAL,
-} from "@/consts/general";
+import { BUILD_CANADA_TWITTER_HANDLE, PROJECT_NAME } from "@/consts/general";
 import FAQModalTrigger from "./FAQModalTrigger";
 
 const CANADIAN_PARLIAMENT_NUMBER = 45;
@@ -20,7 +16,8 @@ type HomeSearchParams = { cache?: string };
 
 // Force runtime generation (avoid build-time pre-render) and cache in-memory.
 export const dynamic = "auto";
-export const revalidate = PAGE_REVALIDATE_INTERVAL;
+// Next.js requires route segment configs to be literal values (not imported constants)
+export const revalidate = 120; // seconds - cache page data
 
 export async function generateMetadata(): Promise<Metadata> {
   const title = "Home";
@@ -207,9 +204,9 @@ async function getMergedBillsCached(): Promise<BillSummary[]> {
 export default async function Home({
   searchParams,
 }: {
-  searchParams?: HomeSearchParams | Promise<HomeSearchParams>;
+  searchParams?: Promise<HomeSearchParams>;
 }) {
-  const resolvedSearchParams = await Promise.resolve(searchParams);
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
 
   if (resolvedSearchParams?.cache === "clear") {
     mergedBillsCache = null; // Allow manual cache busting with ?cache=clear

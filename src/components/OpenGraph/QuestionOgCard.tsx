@@ -69,6 +69,7 @@ export function QuestionOgCard({ bill }: { bill: QuestionSubset }) {
           >
             <div
               style={{
+                display: "flex",
                 fontSize: 36,
                 fontWeight: 800,
                 color: "#0f172a",
@@ -108,6 +109,7 @@ export function QuestionOgCard({ bill }: { bill: QuestionSubset }) {
           >
             <div
               style={{
+                display: "flex",
                 maxWidth: 1040,
                 fontSize: 44,
                 fontWeight: 700,
@@ -120,6 +122,7 @@ export function QuestionOgCard({ bill }: { bill: QuestionSubset }) {
             </div>
             <div
               style={{
+                display: "flex",
                 maxWidth: 1040,
                 fontSize: 28,
                 color: "#334155",
@@ -139,10 +142,12 @@ export function QuestionOgCard({ bill }: { bill: QuestionSubset }) {
               alignItems: "center",
             }}
           >
-            <div style={{ fontSize: 18, color: "#6b7280" }}>
+            <div style={{ display: "flex", fontSize: 18, color: "#6b7280" }}>
               Question Period
             </div>
-            <div style={{ fontSize: 18, color: "#6b7280" }}>{bill.billId}</div>
+            <div style={{ display: "flex", fontSize: 18, color: "#6b7280" }}>
+              {bill.billId}
+            </div>
           </div>
         </div>
       </div>

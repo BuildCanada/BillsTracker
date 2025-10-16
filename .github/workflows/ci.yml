@@ -19,3 +19,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run type-check
       - run: pnpm exec biome check --error-on-warnings
+      - name: Build
+        run: pnpm run build
+        env:
+          # Dummy values for build-time env vars (not needed at build time, only runtime)
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: build-time-secret
+          GOOGLE_CLIENT_ID: build-time-client-id
+          GOOGLE_CLIENT_SECRET: build-time-client-secret
