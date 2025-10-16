@@ -1,17 +1,10 @@
-"use client";
-import { signIn } from "next-auth/react";
+import Link from "next/link";
 
 export const SignIn = () => {
-  const handleSignInClick = () => {
-    signIn("google");
-  };
   return (
     <div>
-      <p
-        className="text-xs text-[var(--muted-foreground)] cursor-pointer"
-        onClick={handleSignInClick}
-      >
-        Admin
+      <p className="text-xs text-[var(--muted-foreground)] cursor-pointer">
+        <Link href={"/sign-in"}>Admin</Link>
       </p>
     </div>
   );

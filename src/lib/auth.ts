@@ -1,62 +1,83 @@
 import { NextAuthOptions } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
+import Google from "next-auth/providers/google";
+import { env, assertServerEnv } from "@/env";
 import { connectToDatabase } from "@/lib/mongoose";
 import { User } from "@/models/User";
-import { env } from "@/env";
+import { BASE_PATH } from "@/utils/basePath";
+
+if (env.NODE_ENV !== "production") {
+  try {
+    assertServerEnv();
+  } catch (e) {
+    console.warn("[auth] env check:", e);
+  }
+  if (!env.NEXTAUTH_URL)
+    console.warn(
+      "[auth] Missing NEXTAUTH_URL (e.g. http://localhost:3000 in dev).",
+    );
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    GoogleProvider({
+    Google({
       clientId: env.GOOGLE_CLIENT_ID || "",
       clientSecret: env.GOOGLE_CLIENT_SECRET || "",
+      authorization: {
+        params: { scope: "openid email profile", prompt: "consent" },
+      },
     }),
   ],
+  debug: process.env.NODE_ENV !== "production",
+  session: { strategy: "jwt" },
   callbacks: {
     async signIn({ user }) {
-      // Only allow sign-in if email is provided
-      if (!user.email) {
-        return false;
-      }
+      const email = user?.email?.trim().toLowerCase();
+      if (!email) return false;
 
+      // Prefer DB-backed allowlist. Fall back to stub if DB not configured.
       try {
         await connectToDatabase();
-
-        // Check if user exists in our database
-        const existingUser = await User.findOne({
-          emailLower: user.email.toLowerCase(),
-        });
-
-        if (existingUser) {
-          // Only allow sign-in if the user is approved
-          return existingUser.allowed === true;
+        const now = new Date();
+        const existing = await User.findOne({ emailLower: email });
+        if (!existing) {
+          if (env.NODE_ENV !== "production") {
+            console.warn(
+              `[auth] User ${email} not found. No auto-creation. Denying sign-in.`,
+            );
+          }
+          return false;
         }
-
-        return false;
-      } catch (error) {
-        console.error("Error during sign-in:", error);
+        existing.name = user?.name ?? existing.name;
+        (existing as any).image = (user as any)?.image ?? existing.image;
+        existing.lastLoginAt = now;
+        await existing.save();
+        return !!existing.allowed;
+      } catch (err) {
+        if (env.NODE_ENV !== "production") {
+          console.warn("[auth] DB check failed, denying sign-in:", err);
+        }
         return false;
       }
     },
-    async session({ session }) {
-      // Add user ID to session if needed
-      if (session.user?.email) {
-        try {
-          await connectToDatabase();
-          const dbUser = await User.findOne({
-            emailLower: session.user.email.toLowerCase(),
-          });
-          if (dbUser) {
-            (session.user as any).id = dbUser._id.toString();
-            (session.user as any).allowed = dbUser.allowed;
-          }
-        } catch (error) {
-          console.error("Error fetching user from DB:", error);
-        }
+    async jwt({ token, user }) {
+      if (user?.email) {
+        token.email = user.email;
+        token.name = user.name;
+        token.picture = (user as any)?.image as string | undefined;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session?.user) {
+        session.user.email = token.email as string | undefined;
+        session.user.name = token.name as string | undefined;
+        (session.user as any).image = token.picture as string | undefined;
       }
       return session;
     },
   },
   pages: {
-    signIn: "/auth/signin",
+    signIn: `${BASE_PATH}/sign-in`,
   },
+  secret: env.NEXTAUTH_SECRET || env.AUTH_SECRET,
 };
