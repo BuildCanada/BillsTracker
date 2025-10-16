@@ -37,9 +37,10 @@ async function loadGoogleFont(font: string, weight: number, text: string) {
 export default async function OpengraphImage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const bill = await getUnifiedBillById(params.id);
+  const { id } = await params;
+  const bill = await getUnifiedBillById(id);
   const status = (bill?.final_judgment || "abstain").toLowerCase();
   const voteText =
     status === "yes"
@@ -47,7 +48,7 @@ export default async function OpengraphImage({
       : status === "no"
         ? "Vote: No"
         : "Vote: Abstain";
-  const textForFont = `${bill?.short_title || bill?.title || params.id} ${voteText} ${PROJECT_NAME} Build Canada Policy Tracker Powered by The Civics Project`;
+  const textForFont = `${bill?.short_title || bill?.title || id} ${voteText} ${PROJECT_NAME} Build Canada Policy Tracker Powered by The Civics Project`;
   let interRegular: ArrayBuffer | undefined;
   let interBold: ArrayBuffer | undefined;
   try {
@@ -69,7 +70,7 @@ export default async function OpengraphImage({
         final_judgment: bill?.final_judgment,
         rationale: bill?.rationale,
         genres: bill?.genres,
-        fallbackId: params.id,
+        fallbackId: id,
       }}
     />,
     {

@@ -87,10 +87,12 @@ export const BillQuestions = ({
                 const rawQuestion = q.question ?? "";
                 // stripMarkdown already handles trimming, so we can use it for both display and sharing
                 const trimmedQuestion = rawQuestion.trim();
+                const questionNumber = idx + 1;
+                const billUrlWithQuestion = `${billUrl}?q=${questionNumber}`;
                 const shareText = buildXShareText({
                   title: shareTitle,
                   question: trimmedQuestion,
-                  url: billUrl,
+                  url: billUrlWithQuestion,
                 });
                 const xShareUrl = `https://x.com/intent/post?${new URLSearchParams({ text: shareText }).toString()}`;
 

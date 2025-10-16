@@ -26,13 +26,12 @@ import { buildAbsoluteUrl, buildRelativePath } from "@/utils/basePath";
 import {
   BUILD_CANADA_TWITTER_HANDLE,
   BUILD_CANADA_URL,
-  PAGE_REVALIDATE_INTERVAL,
 } from "@/consts/general";
 import { BillShare } from "@/components/BillDetail/BillShare";
 import { shouldShowDetermination } from "@/utils/should-show-determination/should-show-determination.util";
 
-// Cache individual bill pages.
-export const revalidate = PAGE_REVALIDATE_INTERVAL;
+// Next.js requires route segment configs to be literal values (not imported constants)
+export const revalidate = 120; // seconds - cache individual bill pages
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -170,7 +169,12 @@ export async function generateMetadata(
   const defaultOgPath = buildRelativePath(id, "opengraph-image");
   const defaultOg = `${baseUrl}${defaultOgPath}`;
   const questionsOgPath = q
-    ? buildRelativePath(id, "q", encodeURIComponent(q), "opengraph-image")
+    ? buildRelativePath(
+        id,
+        "question",
+        encodeURIComponent(q),
+        "opengraph-image",
+      )
     : undefined;
   const questionsOg = questionsOgPath
     ? `${baseUrl}${questionsOgPath}`

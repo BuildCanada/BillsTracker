@@ -16,16 +16,12 @@ export const revalidate = 3600;
 
 export default async function QuestionsOpengraphImage({
   params,
-  searchParams,
 }: {
-  params: { id: string };
-  searchParams: { index?: string };
+  params: Promise<{ id: string; number: string }>;
 }) {
-  const bill = await getUnifiedBillById(params.id);
-  const indexParam =
-    typeof searchParams?.index === "string"
-      ? parseInt(searchParams.index, 10)
-      : 1;
+  const { id, number } = await params;
+  const bill = await getUnifiedBillById(id);
+  const indexParam = typeof number === "string" ? parseInt(number, 10) : 1;
   const index = Number.isFinite(indexParam) && indexParam > 0 ? indexParam : 1;
   const question = bill?.question_period_questions?.[index - 1]?.question || "";
 
@@ -39,7 +35,7 @@ export default async function QuestionsOpengraphImage({
         isSocialIssue: bill?.isSocialIssue || false,
         question,
         index,
-        fallbackId: params.id,
+        fallbackId: id,
       }}
     />,
     {
