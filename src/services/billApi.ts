@@ -1,7 +1,7 @@
 import { xmlToMarkdown } from "@/utils/xml-to-md/xml-to-md.util";
 import { SUMMARY_AND_VOTE_PROMPT } from "@/prompt/summary-and-vote-prompt";
 import OpenAI from "openai";
-import { BILL_PAGE_REVALIDATE_INTERVAL } from "@/consts/general";
+import { BILL_API_REVALIDATE_INTERVAL } from "@/consts/general";
 
 export type ApiStage = {
   stage: string;
@@ -45,7 +45,7 @@ export async function getBillFromCivicsProjectApi(
   const response = await fetch(URL, {
     // Cache individual bills.
     ...(process.env.NODE_ENV === "production"
-      ? { next: { revalidate: BILL_PAGE_REVALIDATE_INTERVAL } }
+      ? { next: { revalidate: BILL_API_REVALIDATE_INTERVAL } }
       : { cache: "no-store" }),
     headers: {
       "Content-Type": "application/json",
