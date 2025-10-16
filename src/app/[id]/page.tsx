@@ -31,7 +31,7 @@ import {
 import { BillShare } from "@/components/BillDetail/BillShare";
 import { shouldShowDetermination } from "@/utils/should-show-determination/should-show-determination.util";
 
-// Cache individual bill pages for 2 minutes
+// Cache individual bill pages.
 export const revalidate = REVALIDATE_INTERVAL;
 
 interface Params {
