@@ -42,9 +42,12 @@ yarn-error.log*
 next-env.d.ts
 
 # Claude Code
-.claude
+.claude/settings.local.json
 .plans
 .mcp.json
 
 # DB Backups
 db-backups
+
+# Files
+files
