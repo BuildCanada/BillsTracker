@@ -48,3 +48,6 @@ next-env.d.ts
 
 # DB Backups
 db-backups
+
+# Files
+files
