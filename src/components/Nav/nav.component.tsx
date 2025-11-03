@@ -29,6 +29,8 @@ export const Nav = () => {
           </div>
         </Link>
 
+        {/* <Link href="/budget" className="text-sm underline font-semibold">Budget 2025</Link> */}
+
         <nav className="hidden sm:flex items-center gap-3 text-sm">
           {session?.user && (
             <div className="flex items-center gap-3">
