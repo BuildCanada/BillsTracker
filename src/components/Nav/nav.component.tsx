@@ -29,15 +29,14 @@ export const Nav = () => {
           </div>
         </Link>
 
-        {/* <Link href="/budget" className="text-sm underline font-semibold">Budget 2025</Link> */}
-
-        <nav className="hidden sm:flex items-center gap-3 text-sm">
+        <nav className="flex items-center gap-3 text-sm">
+          {/* <Link href="/budget" className="text-sm underline font-semibold">
+            Budget 2025
+          </Link> */}
           {session?.user && (
-            <div className="flex items-center gap-3">
-              <Button size="sm" variant="secondary" onClick={handleSignOut}>
-                Sign Out
-              </Button>
-            </div>
+            <Button size="sm" variant="secondary" onClick={handleSignOut}>
+              Sign Out
+            </Button>
           )}
         </nav>
       </div>
