@@ -1,4 +1,4 @@
-export const BUDGET_2024_META = {
+export const BUDGET_META = {
   // Required fields
   title: "Budget 2024", // Full title (can be same as short_title from analysis file)
   status: "tabled", // Bill status: "tabled", "passed", "defeated", etc.

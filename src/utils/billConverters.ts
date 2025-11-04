@@ -18,6 +18,7 @@ export interface UnifiedBill {
   sponsorParty?: string;
   chamber?: string;
   supportedRegion?: string;
+  source?: string;
   introducedOn?: Date;
   lastUpdatedOn?: Date;
   stages: {
@@ -58,6 +59,7 @@ export function fromBuildCanadaDbBill(bill: BillDocument): UnifiedBill {
     sponsorParty: bill.sponsorParty,
     chamber: bill.chamber,
     supportedRegion: bill.supportedRegion,
+    source: bill.source,
     introducedOn: bill.introducedOn,
     lastUpdatedOn: bill.lastUpdatedOn,
     stages: bill.stages

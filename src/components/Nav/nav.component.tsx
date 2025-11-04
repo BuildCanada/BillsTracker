@@ -30,9 +30,9 @@ export const Nav = () => {
         </Link>
 
         <nav className="flex items-center gap-3 text-sm">
-          {/* <Link href="/budget-2025" className="text-sm underline font-semibold">
+          <Link href="/budget-2025" className="text-sm underline font-semibold">
             Budget 2025
-          </Link> */}
+          </Link>
           {session?.user && (
             <Button size="sm" variant="secondary" onClick={handleSignOut}>
               Sign Out

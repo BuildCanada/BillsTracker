@@ -1,4 +1,4 @@
-export const BUDGET_2024 = {
+export const BUDGET = {
   summary:
     "Budget 2024 tackles housing supply head-on by unlocking public land, tying infrastructure dollars to zoning reform, speeding approvals, and expanding low-cost financing to drive millions of new homes by 2031.\n- It leans into productivity and competitiveness with large, targeted bets on AI compute, SR&ED modernization, clean electricity and manufacturing tax credits, EV supply chains, and faster major-project approvals.\n- It adds social supports (Canada Disability Benefit, pharmacare phase 1, dental, school food) while capping junk fees, returning the small-business carbon rebate, and easing student costs.\n- To fund this, it tightens tax fairness (higher capital-gains inclusion above $250k, with a new entrepreneurs' incentive), keeps deficits trending down (<1% of GDP after 2026–27), and targets a declining debt-to-GDP.",
   short_title: "Budget 2024",

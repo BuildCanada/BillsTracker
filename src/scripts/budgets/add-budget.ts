@@ -7,11 +7,8 @@
  *
  * Usage:
  *
- * 1. Add budget-2025 with data from budget-2024 files (for testing)
- *    tsx src/scripts/budgets/add-budget.ts --bill-id budget-2025 --file src/scripts/budgets/budget-2024.ts --meta src/scripts/budgets/budget-2024-meta.ts
- *
- * 2. Add budget-2025 with data from budget-2025 files (when ready)
- *    tsx src/scripts/budgets/add-budget.ts --bill-id budget-2025 --file src/scripts/budgets/budget-2025.ts --meta src/scripts/budgets/budget-2025-meta.ts
+ * 1. Add budget 2025 with data from budget-2025 files
+ *    npx tsx src/scripts/budgets/add-budget.ts --bill-id budget-2025 --file src/scripts/budgets/budget-2025.ts --meta src/scripts/budgets/budget-2025-meta.ts
  *
  * Required Flags:
  *   --bill-id <id>   The bill ID to create in the system (e.g., "budget-2025")
@@ -20,7 +17,7 @@
  *
  * Notes:
  * - Run this script from the repository root so paths resolve correctly.
- * - The analysis file (--file) must export a constant object with:
+ * - The analysis file (--file) must export a BUDGET constant object with:
  *   - summary: string
  *   - short_title: string
  *   - tenet_evaluations: Array<{id, title, alignment, explanation}>
@@ -30,7 +27,8 @@
  *   - needs_more_info: boolean (optional)
  *   - missing_details: string[] (optional)
  *   - steel_man: string (optional)
- * - The metadata file (--meta) must export a constant object with:
+ *   Example: export const BUDGET = { summary: "...", short_title: "...", ... };
+ * - The metadata file (--meta) must export a BUDGET_META constant object with:
  *   - title: string (required)
  *   - status: string (required)
  *   - chamber: "House of Commons" | "Senate" (required)
@@ -41,9 +39,13 @@
  *   - genres: string[] (optional)
  *   - supportedRegion: string (optional)
  *   - source: string (optional)
+ *   - parliamentNumber: number (optional)
+ *   - sessionNumber: number (optional)
  *   - stages: StageRecord[] (optional)
  *   - votes: VoteRecord[] (optional)
+ *   - billTextsCount: number (optional)
  *   - isSocialIssue: boolean (optional)
+ *   Example: export const BUDGET_META = { title: "Budget 2025", status: "tabled", ... };
  * - If a bill with the same billId already exists, it will be updated.
  * - Defaults to dev environment. Use --env prod to target production.
  * - This script does not use default values - all required fields must be present in the files.
@@ -235,12 +237,28 @@ async function loadBudgetFile(
   absolutePath: string,
   displayPath: string,
   expectedFields: string[],
+  preferredExportName?: string,
 ): Promise<any> {
   try {
     const module = await import(pathToFileURL(absolutePath).href);
     const exports = Object.keys(module);
     if (exports.length === 0) {
       throw new Error("No exports found in file");
+    }
+
+    // First, try the preferred export name if specified (e.g., "BUDGET" or "BUDGET_META")
+    if (preferredExportName && preferredExportName in module) {
+      const value = module[preferredExportName];
+      if (
+        typeof value === "object" &&
+        value !== null &&
+        expectedFields.every((field) => field in value)
+      ) {
+        return value;
+      }
+      throw new Error(
+        `Export '${preferredExportName}' exists but is missing required fields [${expectedFields.join(", ")}]`,
+      );
     }
 
     // Try to find the export that matches the expected structure
@@ -320,19 +338,22 @@ async function addBudget({
   console.log("");
 
   // Load analysis data (from --file)
-  const analysisData = await loadBudgetFile(analysisPath, analysisDisplay, [
-    "summary",
-    "short_title",
-    "final_judgment",
-    "rationale",
-  ]);
+  // Budget files export a BUDGET constant with the analysis data
+  const analysisData = await loadBudgetFile(
+    analysisPath,
+    analysisDisplay,
+    ["summary", "short_title", "final_judgment", "rationale"],
+    "BUDGET",
+  );
 
   // Load metadata (from --meta)
-  const metaData = await loadBudgetFile(metaAbsPath, metaDisplay, [
-    "title",
-    "status",
-    "chamber",
-  ]);
+  // Metadata files export a BUDGET_META constant
+  const metaData = await loadBudgetFile(
+    metaAbsPath,
+    metaDisplay,
+    ["title", "status", "chamber"],
+    "BUDGET_META",
+  );
 
   // Validate required fields from analysis file
   validateRequiredFields(
@@ -481,7 +502,7 @@ async function addBudget({
   }
 
   if (existing) {
-    await Bill.updateOne({ billId }, billData);
+    await Bill.updateOne({ billId }, { $set: billData });
     console.log(`Successfully updated bill '${billId}' in database`);
   } else {
     await Bill.create(billData);
