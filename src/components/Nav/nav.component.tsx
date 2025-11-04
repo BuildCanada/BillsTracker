@@ -30,7 +30,7 @@ export const Nav = () => {
         </Link>
 
         <nav className="flex items-center gap-3 text-sm">
-          {/* <Link href="/budget" className="text-sm underline font-semibold">
+          {/* <Link href="/budget-2025" className="text-sm underline font-semibold">
             Budget 2025
           </Link> */}
           {session?.user && (
