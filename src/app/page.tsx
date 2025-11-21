@@ -14,6 +14,12 @@ import FAQModalTrigger from "./FAQModalTrigger";
 const CANADIAN_PARLIAMENT_NUMBER = 45;
 type HomeSearchParams = { cache?: string };
 
+function toIsoString(value?: Date | string): string | undefined {
+  if (!value) return undefined;
+  const parsed = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
+}
+
 // Force runtime generation (avoid build-time pre-render) and cache in-memory.
 export const dynamic = "auto";
 // Next.js requires route segment configs to be literal values (not imported constants)
@@ -77,7 +83,7 @@ let mergedBillsCache: { data: BillSummary[]; expiresAt: number } | null = null;
 async function getApiBills(): Promise<BillSummary[]> {
   try {
     const response = await fetch(
-      `https://api.civicsproject.org/bills/region/canada/${CANADIAN_PARLIAMENT_NUMBER}`,
+      `${env.CIVICS_PROJECT_BASE_URL}/canada/bills/${CANADIAN_PARLIAMENT_NUMBER}`,
       {
         // Cache for 5 minutes in production, no cache in development
         ...(process.env.NODE_ENV === "production"
@@ -105,7 +111,6 @@ async function getApiBills(): Promise<BillSummary[]> {
 async function getMergedBills(): Promise<BillSummary[]> {
   const apiBills = await getApiBills();
   const uri = process.env.MONGO_URI || "";
-  console.log({ "THE MONGO URI IS": uri });
   const hasValidMongoUri =
     uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
   const dbBills = hasValidMongoUri ? await getAllBillsFromDB() : [];
@@ -161,9 +166,9 @@ async function getMergedBills(): Promise<BillSummary[]> {
           (dbBill.chamber as "House of Commons" | "Senate") ||
           "House of Commons",
         introducedOn:
-          dbBill.introducedOn?.toISOString() || new Date().toISOString(),
+          toIsoString(dbBill.introducedOn) || new Date().toISOString(),
         lastUpdatedOn:
-          dbBill.lastUpdatedOn?.toISOString() || new Date().toISOString(),
+          toIsoString(dbBill.lastUpdatedOn) || new Date().toISOString(),
         summary: dbBill.summary,
         isSocialIssue: dbBill.isSocialIssue,
         final_judgment: dbBill.final_judgment as BillSummary["final_judgment"],
@@ -178,9 +183,6 @@ async function getMergedBills(): Promise<BillSummary[]> {
     }
   }
 
-  console.log(
-    `Merged ${mergedBills.length} bills (${apiBills.length} from API, ${dbBills.length} from DB${hasValidMongoUri ? "" : " - Mongo disabled"})`,
-  );
   return mergedBills;
 }
 

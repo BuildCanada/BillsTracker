@@ -1,8 +1,9 @@
 import { BillSummary } from "@/app/types";
+import { env } from "@/env";
 
 export async function getBillsFromCivicsProject(): Promise<BillSummary[]> {
   const response = await fetch(
-    "https://api.civicsproject.org/bills/region/canada/45",
+    `${env.CIVICS_PROJECT_BASE_URL}/canada/bills/45`,
     {
       cache: "no-store",
       headers: {

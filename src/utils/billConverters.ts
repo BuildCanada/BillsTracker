@@ -120,8 +120,12 @@ export async function fromCivicsProjectApiBill(
       : undefined;
 
   let billMarkdown: string | null = null;
-  if (bill.source) {
-    billMarkdown = await fetchBillMarkdown(bill.source);
+
+  const latestBillSource =
+    bill.source || (bill.billTexts?.[0] as { url?: string })?.url;
+
+  if (latestBillSource) {
+    billMarkdown = await fetchBillMarkdown(latestBillSource);
   }
 
   // Check if we need to regenerate summary based on source changes from Civics Project API
