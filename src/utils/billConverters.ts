@@ -129,7 +129,6 @@ export async function fromCivicsProjectApiBill(
   }
 
   // Check if we need to regenerate summary based on source changes from Civics Project API
-  const currentSource = bill.source || null;
   let analysis: BillAnalysis = {
     summary: bill.header || "",
     tenet_evaluations: [
@@ -185,12 +184,11 @@ export async function fromCivicsProjectApiBill(
       },
     ],
     final_judgment: "no",
-    rationale: "Not analyzed",
+    rationale: undefined,
     needs_more_info: false,
     missing_details: [],
     steel_man: "Not analyzed",
   };
-  let shouldRegenerateSummary = true;
 
   // Check existing bill in database to see if source changed
   try {
@@ -203,7 +201,7 @@ export async function fromCivicsProjectApiBill(
         .lean()
         .exec()) as BillDocument | null;
 
-      if (existingBill && existingBill.source === currentSource) {
+      if (existingBill && !analysis.rationale) {
         // Source hasn't changed, use existing analysis
         analysis = {
           summary: existingBill.summary,
@@ -225,7 +223,6 @@ export async function fromCivicsProjectApiBill(
             existingBill.missing_details || analysis.missing_details,
           steel_man: existingBill.steel_man || analysis.steel_man,
         };
-        shouldRegenerateSummary = false;
         console.log(
           `Using existing analysis for ${bill.billID} (source unchanged)`,
         );
@@ -236,7 +233,7 @@ export async function fromCivicsProjectApiBill(
     // Continue with regeneration if DB check fails
   }
 
-  if (shouldRegenerateSummary && billMarkdown) {
+  if (!analysis?.rationale && billMarkdown) {
     console.log(`Regenerating analysis for ${bill.billID} (source changed)`);
     analysis = await summarizeBillText(billMarkdown);
   }

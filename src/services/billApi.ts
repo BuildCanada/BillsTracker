@@ -50,7 +50,7 @@ export interface BillAnalysis {
     explanation: string;
   }>;
   final_judgment: "yes" | "no" | "abstain";
-  rationale: string;
+  rationale?: string;
   needs_more_info: boolean;
   missing_details: string[];
   steel_man: string;
@@ -153,7 +153,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
         },
       ],
       final_judgment: "abstain",
-      rationale: "Analysis requires AI capabilities",
+      rationale: undefined,
       needs_more_info: true,
       missing_details: ["AI analysis capabilities required"],
       steel_man:
@@ -191,7 +191,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
         short_title: parsed.short_title ?? undefined,
         tenet_evaluations: parsed.tenet_evaluations ?? [],
         final_judgment: normalizedFj,
-        rationale: parsed.rationale ?? "",
+        rationale: parsed.rationale ?? undefined,
         needs_more_info: parsed.needs_more_info ?? false,
         missing_details: parsed.missing_details ?? [],
         steel_man: parsed.steel_man ?? "",
@@ -272,7 +272,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
           },
         ],
         final_judgment: "abstain",
-        rationale: "Analysis parsing failed",
+        rationale: undefined,
         needs_more_info: true,
         missing_details: ["Valid AI response format"],
         steel_man: "Analysis parsing failed",
