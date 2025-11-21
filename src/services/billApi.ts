@@ -2,6 +2,7 @@ import { xmlToMarkdown } from "@/utils/xml-to-md/xml-to-md.util";
 import { SUMMARY_AND_VOTE_PROMPT } from "@/prompt/summary-and-vote-prompt";
 import OpenAI from "openai";
 import { BILL_API_REVALIDATE_INTERVAL } from "@/consts/general";
+import { env } from "@/env";
 
 export type ApiStage = {
   stage: string;
@@ -49,7 +50,7 @@ export interface BillAnalysis {
     explanation: string;
   }>;
   final_judgment: "yes" | "no" | "abstain";
-  rationale: string;
+  rationale?: string;
   needs_more_info: boolean;
   missing_details: string[];
   steel_man: string;
@@ -59,7 +60,7 @@ export interface BillAnalysis {
 export async function getBillFromCivicsProjectApi(
   billId: string,
 ): Promise<ApiBillDetail | null> {
-  const URL = `https://api.civicsproject.org/bills/canada/${billId.toLowerCase()}/${CANADIAN_PARLIAMENT_NUMBER}`;
+  const URL = `${env.CIVICS_PROJECT_BASE_URL}/canada/bills/${CANADIAN_PARLIAMENT_NUMBER}/${billId}`;
   const response = await fetch(URL, {
     // Cache individual bills.
     ...(process.env.NODE_ENV === "production"
@@ -152,7 +153,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
         },
       ],
       final_judgment: "abstain",
-      rationale: "Analysis requires AI capabilities",
+      rationale: undefined,
       needs_more_info: true,
       missing_details: ["AI analysis capabilities required"],
       steel_man:
@@ -190,7 +191,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
         short_title: parsed.short_title ?? undefined,
         tenet_evaluations: parsed.tenet_evaluations ?? [],
         final_judgment: normalizedFj,
-        rationale: parsed.rationale ?? "",
+        rationale: parsed.rationale ?? undefined,
         needs_more_info: parsed.needs_more_info ?? false,
         missing_details: parsed.missing_details ?? [],
         steel_man: parsed.steel_man ?? "",
@@ -271,7 +272,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
           },
         ],
         final_judgment: "abstain",
-        rationale: "Analysis parsing failed",
+        rationale: undefined,
         needs_more_info: true,
         missing_details: ["Valid AI response format"],
         steel_man: "Analysis parsing failed",
@@ -476,11 +477,6 @@ export async function onBillNotInDatabase(params: {
         ? params.bill.stages[params.bill.stages.length - 1].date
         : (params.bill.updatedAt ?? params.bill.date);
 
-    const house =
-      params.bill.stages && params.bill.stages.length > 0
-        ? params.bill.stages[params.bill.stages.length - 1].house
-        : undefined;
-
     const classifiedIsSocialIssue = params.isSocialIssue;
 
     const billData = {
@@ -498,7 +494,9 @@ export async function onBillNotInDatabase(params: {
       steel_man: params.analysis.steel_man,
       status: params.bill.status,
       sponsorParty: params.bill.sponsorParty,
-      chamber: house as "House of Commons" | "Senate" | undefined,
+      chamber: params.bill.billID.startsWith("S")
+        ? "Senate"
+        : "House of Commons",
       genres: params.bill.genres,
       supportedRegion: params.bill.supportedRegion,
       introducedOn: new Date(params.bill.date),

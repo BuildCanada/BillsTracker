@@ -14,6 +14,8 @@ function optional(
   return value && value.trim() !== "" ? value : undefined;
 }
 
+const ENDPOINT = "https://civics-project-kiyv.vercel.app";
+
 export const env = {
   NODE_ENV: process.env.NODE_ENV || "development",
   NEXTAUTH_URL: optional("NEXTAUTH_URL", process.env.NEXTAUTH_URL),
@@ -29,6 +31,7 @@ export const env = {
     "CIVICS_PROJECT_API_KEY",
     process.env.CIVICS_PROJECT_API_KEY,
   ),
+  CIVICS_PROJECT_BASE_URL: optional("CIVICS_PROJECT_BASE_URL", ENDPOINT),
   MONGO_URI: optional(
     "MONGO_URI",
     (process.env.MONGO_URI || process.env.MONGODB_URI)?.trim(),

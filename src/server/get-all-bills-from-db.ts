@@ -18,10 +18,8 @@ export const getAllBillsFromDB = async (): Promise<BillDocument[]> => {
     const bills = await Bill.find({}).lean().exec();
     console.log(`Fetched ${bills.length} bills from MongoDB`);
 
-    // Ensure proper serialization by converting to plain objects
-    return bills.map((bill) =>
-      JSON.parse(JSON.stringify(bill)),
-    ) as BillDocument[];
+    // Return lean results directly so date fields stay as Date instances
+    return bills as unknown as BillDocument[];
   } catch (error) {
     console.error("Error fetching bills from MongoDB:", error);
     return [];
