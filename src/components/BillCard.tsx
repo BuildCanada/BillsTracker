@@ -3,11 +3,13 @@ import { memo } from "react";
 import { BillSummary } from "@/app/types";
 import { Judgement, JudgementValue } from "./Judgement/judgement.component";
 import { DynamicIcon } from "lucide-react/dynamic";
+import { Factory } from "lucide-react";
 import dayjs from "dayjs";
 
 import { getCategoryIcon } from "@/utils/bill-category-to-icon/bill-category-to-icon.util";
 import { getBillStageDates } from "@/utils/stages-to-dates/stages-to-dates";
 import { TenetEvaluation } from "@/models/Bill";
+import { calculateRelevanceLevel } from "@/utils/relevance-level";
 
 interface BillCardProps {
   bill: BillSummary & { tenet_evaluations?: TenetEvaluation[] };
@@ -20,6 +22,38 @@ function BillCard({ bill }: BillCardProps) {
     : "N/A";
 
   const judgementValue: JudgementValue = bill.final_judgment || "abstain";
+
+  const relevanceLevel =
+    bill.relevance_level ?? calculateRelevanceLevel(bill.relevance_score);
+
+  const getRelevanceBadge = () => {
+    if (!relevanceLevel) return null;
+
+    switch (relevanceLevel) {
+      case "low":
+        return {
+          label: "Low Relevance",
+          className: "bg-gray-100 text-gray-700",
+          icon: Factory,
+        };
+      case "medium":
+        return {
+          label: "Relevant",
+          className: "bg-orange-100 text-orange-700",
+          icon: Factory,
+        };
+      case "high":
+        return {
+          label: "Very Relevant",
+          className: "bg-red-100 text-red-700",
+          icon: Factory,
+        };
+      default:
+        return null;
+    }
+  };
+
+  const relevanceBadge = getRelevanceBadge();
 
   return (
     <li className="group rounded-lg border   bg-[var(--panel)] shadow-sm   duration-200 overflow-hidden">
@@ -34,7 +68,22 @@ function BillCard({ bill }: BillCardProps) {
               </h2>
             </div>
 
-            {bill.final_judgment && <Judgement judgement={judgementValue} />}
+            <div className="flex flex-col items-end gap-2">
+              {bill.final_judgment && <Judgement judgement={judgementValue} />}
+              {/* Relevance Badge */}
+              {relevanceBadge &&
+                (() => {
+                  const IconComponent = relevanceBadge.icon;
+                  return (
+                    <span
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${relevanceBadge.className}`}
+                    >
+                      <IconComponent className="w-3.5 h-3.5" />
+                      {relevanceBadge.label}
+                    </span>
+                  );
+                })()}
+            </div>
           </div>
 
           {/* Description */}
@@ -53,26 +102,6 @@ function BillCard({ bill }: BillCardProps) {
 
           {/* Tags Section */}
           <div className="flex flex-wrap gap-1.5 mb-4">
-            {/* Impact Badge */}
-            {bill.impact && (
-              <span
-                className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-                  bill.impact === "High"
-                    ? "bg-red-100 text-red-700"
-                    : bill.impact === "Medium"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : "bg-green-100 text-green-700"
-                }`}
-              >
-                {bill.impact} Impact
-              </span>
-            )}
-            {(bill.billID === "C-1" || bill.billID === "S-1") && (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-                Pro Forma Bill
-              </span>
-            )}
-
             {/* Genre Tags (limit to 3 visible) */}
             {bill.genres &&
               bill.genres.length > 0 &&
@@ -93,6 +122,26 @@ function BillCard({ bill }: BillCardProps) {
                   )
                 );
               })}
+
+            {/* Impact Badge */}
+            {bill.impact && (
+              <span
+                className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                  bill.impact === "High"
+                    ? "bg-red-100 text-red-700"
+                    : bill.impact === "Medium"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : "bg-green-100 text-green-700"
+                }`}
+              >
+                {bill.impact} Impact
+              </span>
+            )}
+            {(bill.billID === "C-1" || bill.billID === "S-1") && (
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                Pro Forma Bill
+              </span>
+            )}
           </div>
 
           {/* Footer Section */}

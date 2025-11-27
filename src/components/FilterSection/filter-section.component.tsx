@@ -16,6 +16,7 @@ import {
 } from "../ui/select";
 
 export interface FilterState {
+  sortBy: string;
   search: string;
   status: string[];
   category: string[];
@@ -23,6 +24,7 @@ export interface FilterState {
   chamber: string[];
   dateRange: string;
   judgement: string[];
+  minRelevance: string;
 }
 
 export interface FilterOptions {
@@ -89,6 +91,7 @@ export function FilterSidebar({
     count += filters.chamber.length;
     count += filters.judgement.length;
     if (filters.dateRange && filters.dateRange !== "all") count++;
+    if (filters.minRelevance && filters.minRelevance !== "all") count++;
     return count;
   };
 
@@ -132,6 +135,25 @@ export function FilterSidebar({
 
       {!isCollapsed && (
         <CardContent className="space-y-6 overflow-y-auto pr-2 flex-1">
+          {/* Sort By */}
+          <div className="space-y-2">
+            <Label>Sort By</Label>
+            <Select
+              value={filters.sortBy}
+              onValueChange={(value) => updateFilter("sortBy", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Date" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="date">Date (Newest First)</SelectItem>
+                <SelectItem value="relevance">
+                  Relevance (Highest First)
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Search */}
           <div className="space-y-2">
             <Label>Search</Label>
@@ -199,6 +221,28 @@ export function FilterSidebar({
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Relevance Score */}
+          <div className="space-y-2">
+            <Label>Minimum Relevance Score</Label>
+            <Select
+              value={filters.minRelevance}
+              onValueChange={(value) => updateFilter("minRelevance", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="5">5+</SelectItem>
+                <SelectItem value="6">6+</SelectItem>
+                <SelectItem value="7">7+</SelectItem>
+                <SelectItem value="8">8+</SelectItem>
+                <SelectItem value="9">9+</SelectItem>
+                <SelectItem value="10">10</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Category */}

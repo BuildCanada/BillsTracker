@@ -11,6 +11,7 @@ import {
 import { useIsMobile } from "@/components/ui/use-mobile";
 import type { JudgementValue } from "@/components/Judgement/judgement.component";
 import { TenetEvaluation } from "@/models/Bill";
+import { getBillStageDates } from "@/utils/stages-to-dates/stages-to-dates";
 
 interface BillExplorerProps {
   bills: BillSummary[];
@@ -94,6 +95,7 @@ function BillExplorer({ bills }: BillExplorerProps) {
   const isMobile = useIsMobile();
   const [isFilterCollapsed, setIsFilterCollapsed] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
+    sortBy: "date",
     search: "",
     status: [],
     category: [],
@@ -101,6 +103,7 @@ function BillExplorer({ bills }: BillExplorerProps) {
     chamber: [],
     dateRange: "all",
     judgement: [],
+    minRelevance: "all",
   });
 
   // Filter bills
@@ -214,16 +217,71 @@ function BillExplorer({ bills }: BillExplorerProps) {
         if (billDate < cutoff) return false;
       }
 
+      // Relevance filter (minimum score)
+      if (filters.minRelevance && filters.minRelevance !== "all") {
+        const minScore = parseInt(filters.minRelevance, 10);
+        if (!Number.isNaN(minScore)) {
+          const score = bill.relevance_score ?? 0;
+          if (score < minScore) return false;
+        }
+      }
+
       return true;
+    });
+
+    // Sort bills based on selected sort option
+    const sorted = [...filtered].sort((a, b) => {
+      if (filters.sortBy === "relevance") {
+        // Sort by relevance_score (descending), then alphabetically by title
+        const scoreA = a.relevance_score ?? 0;
+        const scoreB = b.relevance_score ?? 0;
+
+        if (scoreB !== scoreA) {
+          return scoreB - scoreA; // Higher score first
+        }
+
+        // Tiebreaker: alphabetically by title
+        return (a.title || "").localeCompare(b.title || "");
+      } else {
+        // Sort by date (most recent first) - use same logic as BillCard display
+        // Get dates from stages (same as what's displayed on the card)
+        const datesA = getBillStageDates(a.stages);
+        const datesB = getBillStageDates(b.stages);
+
+        // Use lastUpdated from stages, fallback to firstIntroduced, then to direct fields
+        const dateA = datesA.lastUpdated
+          ? datesA.lastUpdated.getTime()
+          : datesA.firstIntroduced
+            ? datesA.firstIntroduced.getTime()
+            : a.lastUpdatedOn
+              ? new Date(a.lastUpdatedOn).getTime()
+              : a.introducedOn
+                ? new Date(a.introducedOn).getTime()
+                : 0;
+
+        const dateB = datesB.lastUpdated
+          ? datesB.lastUpdated.getTime()
+          : datesB.firstIntroduced
+            ? datesB.firstIntroduced.getTime()
+            : b.lastUpdatedOn
+              ? new Date(b.lastUpdatedOn).getTime()
+              : b.introducedOn
+                ? new Date(b.introducedOn).getTime()
+                : 0;
+
+        return dateB - dateA; // Most recent first
+      }
     });
 
     console.log("Filtering results:", {
       totalBills: bills.length,
       filteredBills: filtered.length,
+      sortedBills: sorted.length,
+      sortBy: filters.sortBy,
       activeFilters: filters,
     });
 
-    return filtered;
+    return sorted;
   }, [bills, filters]);
 
   // Grouping disabled for now
@@ -318,6 +376,7 @@ function BillExplorer({ bills }: BillExplorerProps) {
 
   const clearFilters = useCallback(() => {
     setFilters({
+      sortBy: "date",
       search: "",
       status: [],
       category: [],
@@ -325,6 +384,7 @@ function BillExplorer({ bills }: BillExplorerProps) {
       chamber: [],
       dateRange: "all",
       judgement: [],
+      minRelevance: "all",
     });
   }, []);
 
