@@ -22,12 +22,15 @@ export function BillMetadata({ bill }: BillMetadataProps) {
     ? dayjs(billDates.lastUpdated).format("MMM D, YYYY")
     : "N/A";
 
+  const billUrl =
+    bill.source || `https://www.parl.ca/LegisInfo/en/bill/45-1/${bill.billId}`;
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>
           <a
-            href={`https://www.parl.ca/LegisInfo/en/bill/45-1/${bill.billId}`}
+            href={billUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="text-md font-bold underline text-["
