@@ -12,6 +12,7 @@ import { useIsMobile } from "@/components/ui/use-mobile";
 import type { JudgementValue } from "@/components/Judgement/judgement.component";
 import { TenetEvaluation } from "@/models/Bill";
 import { getBillStageDates } from "@/utils/stages-to-dates/stages-to-dates";
+import { sortBillsByMostRecent } from "@/utils/stages-to-dates/stages-to-dates";
 
 interface BillExplorerProps {
   bills: BillSummary[];
@@ -31,28 +32,6 @@ function normalizeStatus(s?: string) {
   return (s || "unknown").toLowerCase().replace(/\s+/g, " ").trim();
 }
 
-// /** Pull a best-effort "updated at" date; fall back to introducedOn */
-// function getUpdatedAt(b: any): number {
-//   const candidates: Array<string | undefined> = [
-//     b.updatedAt,
-//     b.lastUpdated,
-//     b.lastActionDate,
-//     b.latestEventDate,
-//     b.lastEventAt,
-//     b.modifiedAt,
-//     b.introducedOn,
-//   ];
-//   for (const d of candidates) {
-//     const t = d ? new Date(d).getTime() : NaN;
-//     if (!Number.isNaN(t)) return t;
-//   }
-//   return 0;
-// }
-
-/**
- * Assign an advancement rank (lower = more advanced).
- * Covers common Canadian bill stages + generic fallbacks.
- */
 function statusRank(statusKey: string): number {
   // order buckets from most advanced to least
   const buckets: Array<[number, RegExp]> = [
@@ -284,41 +263,6 @@ function BillExplorer({ bills }: BillExplorerProps) {
     return sorted;
   }, [bills, filters]);
 
-  // Grouping disabled for now
-  // const grouped: GroupedBills = useMemo(() => {
-  //   // collect originals per status for nicer headings
-  //   const originalsByKey = new Map<string, string[]>();
-  //   const groups = new Map<string, BillSummary[]>();
-  //
-  //   for (const b of filteredBills) {
-  //     const key = normalizeStatus(b.status);
-  //     if (!groups.has(key)) groups.set(key, []);
-  //     groups.get(key)!.push(b);
-  //
-  //     const origs = originalsByKey.get(key) || [];
-  //     origs.push(b.status || "Unknown");
-  //     originalsByKey.set(key, origs);
-  //   }
-  //
-  //   // build array with rank + sort items by updated desc
-  //   const arr: GroupedBills = [...groups.entries()].map(([key, items]) => {
-  //     const rank = statusRank(key);
-  //     items.sort((a, b) => getUpdatedAt(b) - getUpdatedAt(a));
-  //     const label = pickLabel(key, originalsByKey.get(key) || []);
-  //     return { statusLabel: label, key, rank, items };
-  //   });
-  //
-  //   // sort groups by advancement rank, then by most recent item in each group
-  //   arr.sort((g1, g2) => {
-  //     if (g1.rank !== g2.rank) return g1.rank - g2.rank;
-  //     const g1Latest = getUpdatedAt(g1.items[0]);
-  //     const g2Latest = getUpdatedAt(g2.items[0]);
-  //     return g2Latest - g1Latest;
-  //   });
-  //
-  //   return arr;
-  // }, [filteredBills]);
-
   // Sidebar filter options (normalize statuses for consistency)
   const filterOptions: FilterOptions = useMemo(() => {
     const statusKeyToLabel = new Map<string, string>();
@@ -353,7 +297,7 @@ function BillExplorer({ bills }: BillExplorerProps) {
     // present statuses sorted by advancement rank
     const statuses = [...statusKeyToLabel.entries()]
       .map(([key, label]) => ({ key, label, rank: statusRank(key) }))
-      .sort((a, b) => a.rank - b.rank || a.label.localeCompare(b.label))
+      // .sort((a, b) => a.rank - b.rank || a.label.localeCompare(b.label))
       .map((x) => x.label);
 
     const options = {
@@ -362,9 +306,6 @@ function BillExplorer({ bills }: BillExplorerProps) {
       chambers: Array.from(chamberSet).sort(),
       categories: Array.from(categorySet).sort(),
     };
-
-    console.log("Filter options generated:", options);
-    console.log("Total bills:", bills.length);
 
     return options;
   }, [bills]);

@@ -5,6 +5,13 @@ export type BillStatus =
   | "Failed"
   | "Paused";
 
+export type BillStage = {
+  stage: string;
+  state: string;
+  house: string;
+  date: string | Date;
+};
+
 export interface BillSummary {
   billID: string;
   title: string;
@@ -35,12 +42,9 @@ export interface BillSummary {
   } | null>;
   parliamentNumber?: number;
   sessionNumber?: number;
-  stages: {
-    stage: string;
-    state: string;
-    house: string;
-    date: Date;
-  }[];
+  billStages?: BillStage[];
+  /** Some sources use `stages`; keep both to smooth over schema differences. */
+  stages?: BillStage[];
   isSocialIssue?: boolean;
   // Relevance analysis fields
   relevance_score?: number;

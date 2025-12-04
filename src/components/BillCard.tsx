@@ -7,7 +7,7 @@ import { Factory } from "lucide-react";
 import dayjs from "dayjs";
 
 import { getCategoryIcon } from "@/utils/bill-category-to-icon/bill-category-to-icon.util";
-import { getBillStageDates } from "@/utils/stages-to-dates/stages-to-dates";
+import { getBillMostRecentDate } from "@/utils/stages-to-dates/stages-to-dates";
 import { TenetEvaluation } from "@/models/Bill";
 import { calculateRelevanceLevel } from "@/utils/relevance-level";
 
@@ -16,10 +16,8 @@ interface BillCardProps {
 }
 
 function BillCard({ bill }: BillCardProps) {
-  const { lastUpdated } = getBillStageDates(bill.stages);
-  const dateDisplay = lastUpdated
-    ? dayjs(lastUpdated).format("MMM D, YYYY")
-    : "N/A";
+  const bestDate = getBillMostRecentDate(bill);
+  const dateDisplay = bestDate ? dayjs(bestDate).format("MMM D, YYYY") : "N/A";
 
   const judgementValue: JudgementValue = bill.final_judgment || "abstain";
 
