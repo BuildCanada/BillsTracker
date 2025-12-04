@@ -108,6 +108,16 @@ async function getApiBills(): Promise<BillSummary[]> {
   }
 }
 
+// Helper function to safely convert Date or string to ISO string
+function toISOString(
+  date: Date | string | undefined | null,
+): string | undefined {
+  if (!date) return undefined;
+  if (typeof date === "string") return date;
+  if (date instanceof Date) return date.toISOString();
+  return undefined;
+}
+
 async function getMergedBills(): Promise<BillSummary[]> {
   const apiBills = await getApiBills();
   const uri = process.env.MONGO_URI || "";
@@ -142,6 +152,17 @@ async function getMergedBills(): Promise<BillSummary[]> {
         genres: dbBill.genres,
         parliamentNumber: dbBill.parliamentNumber,
         sessionNumber: dbBill.sessionNumber,
+        relevance_score: dbBill.relevance_score,
+        relevance_level: dbBill.relevance_level,
+        gdp_impact_percent: dbBill.gdp_impact_percent,
+        gdp_impact_confidence: dbBill.gdp_impact_confidence,
+        gdp_impact_justification: dbBill.gdp_impact_justification,
+        relevance_justification: dbBill.relevance_justification,
+        primary_mechanism: dbBill.primary_mechanism,
+        implementation_timeline: dbBill.implementation_timeline,
+        relevance_analysis_timestamp: toISOString(
+          dbBill.relevance_analysis_timestamp,
+        ),
       };
     }
 
@@ -178,6 +199,17 @@ async function getMergedBills(): Promise<BillSummary[]> {
         genres: dbBill.genres,
         parliamentNumber: dbBill.parliamentNumber,
         sessionNumber: dbBill.sessionNumber,
+        relevance_score: dbBill.relevance_score,
+        relevance_level: dbBill.relevance_level,
+        gdp_impact_percent: dbBill.gdp_impact_percent,
+        gdp_impact_confidence: dbBill.gdp_impact_confidence,
+        gdp_impact_justification: dbBill.gdp_impact_justification,
+        relevance_justification: dbBill.relevance_justification,
+        primary_mechanism: dbBill.primary_mechanism,
+        implementation_timeline: dbBill.implementation_timeline,
+        relevance_analysis_timestamp: toISOString(
+          dbBill.relevance_analysis_timestamp,
+        ),
       };
       mergedBills.push(billSummary);
     }
