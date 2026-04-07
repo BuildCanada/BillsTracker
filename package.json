@@ -18,7 +18,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@auth/core": "0.34.2",
+    "@auth/core": "0.34.3",
     "@google/genai": "^1.15.0",
     "@google/generative-ai": "^0.24.1",
     "@next/third-parties": "^15.5.3",
@@ -52,14 +52,14 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "dayjs": "^1.11.18",
-    "fast-xml-parser": "^5.2.5",
+    "fast-xml-parser": "^5.3.8",
     "input-otp": "^1.4.2",
     "jose": "^5.9.6",
     "lucide-react": "^0.544.0",
     "mongodb": "^6.18.0",
     "mongoose": "^8.18.0",
-    "next": "15.5.3",
-    "next-auth": "4.24.11",
+    "next": "15.5.14",
+    "next-auth": "4.24.13",
     "next-themes": "^0.4.6",
     "openai": "^5.15.0",
     "react": "19.1.1",
@@ -83,7 +83,7 @@
     "@vitest/ui": "^3.2.4",
     "daisyui": "^5.1.7",
     "dotenv": "^17.2.3",
-    "happy-dom": "^18.0.1",
+    "happy-dom": "^20.0.0",
     "husky": "^9.1.7",
     "tailwindcss": "^4",
     "tsx": "^4.20.5",
@@ -94,6 +94,19 @@
   "overrides": {
     "@types/react": "19.1.13",
     "@types/react-dom": "19.1.9"
+  },
+  "pnpm": {
+    "overrides": {
+      "vite": ">=7.3.2",
+      "rollup": ">=4.59.0",
+      "mdast-util-to-hast": ">=13.2.1",
+      "cross-spawn": ">=7.0.6",
+      "postcss": ">=8.4.31",
+      "micromatch": ">=4.0.8",
+      "braces": ">=3.0.3",
+      "cookie": ">=0.7.0",
+      "path-to-regexp": ">=6.3.0"
+    }
   },
   "packageManager": "pnpm@9.5.0+sha512.140036830124618d624a2187b50d04289d5a087f326c9edfc0ccd733d76c4f52c3a313d4fc148794a2a9d81553016004e6742e8cf850670268a7387fc220c903"
 }
