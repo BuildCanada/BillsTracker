@@ -2,6 +2,7 @@ import { xmlToMarkdown } from "@/utils/xml-to-md/xml-to-md.util";
 import { SUMMARY_AND_VOTE_PROMPT } from "@/prompt/summary-and-vote-prompt";
 import OpenAI from "openai";
 import { BILL_API_REVALIDATE_INTERVAL } from "@/consts/general";
+import { calculateRelevanceLevel } from "@/utils/relevance-level";
 import { env } from "@/env";
 
 export type ApiStage = {
@@ -380,6 +381,15 @@ export async function onBillNotInDatabase(params: {
   analysis: BillAnalysis;
   billTextsCount: number;
   isSocialIssue: boolean;
+  relevanceAnalysis?: {
+    relevance_score: number;
+    gdp_impact_percent: number;
+    gdp_impact_confidence: string;
+    gdp_impact_justification: string;
+    relevance_justification: string;
+    primary_mechanism: string;
+    implementation_timeline: string;
+  } | null;
 }): Promise<void> {
   console.log("Saving bill to database:", params.billId);
 
@@ -420,12 +430,17 @@ export async function onBillNotInDatabase(params: {
       const shortTitleMissing =
         !existing.short_title &&
         (params.bill.shortTitle || params.analysis.short_title);
+      const relevanceMissing =
+        typeof existing.relevance_score !== "number" &&
+        params.relevanceAnalysis !== null &&
+        params.relevanceAnalysis !== undefined;
 
       if (
         sourceChanged ||
         countChanged ||
         qpMissingOrDifferent ||
-        shortTitleMissing
+        shortTitleMissing ||
+        relevanceMissing
       ) {
         if (sourceChanged) {
           console.log(
@@ -443,30 +458,54 @@ export async function onBillNotInDatabase(params: {
           console.log(
             `Updating bill ${params.billId} - adding missing short_title`,
           );
+        } else if (relevanceMissing) {
+          console.log(
+            `Updating bill ${params.billId} - adding relevance analysis`,
+          );
         }
 
-        await Bill.updateOne(
-          { billId: params.billId },
-          {
-            title: params.bill.title,
-            short_title: params.bill.shortTitle || params.analysis.short_title,
-            summary: params.analysis.summary,
-            tenet_evaluations: params.analysis.tenet_evaluations,
-            final_judgment: params.analysis.final_judgment,
-            rationale: params.analysis.rationale,
-            needs_more_info: params.analysis.needs_more_info,
-            missing_details: params.analysis.missing_details,
-            steel_man: params.analysis.steel_man,
-            status: params.bill.status,
-            sponsorParty: params.bill.sponsorParty,
-            genres: params.bill.genres,
-            billTextsCount: params.billTextsCount,
-            lastUpdatedOn: new Date(),
-            isSocialIssue: params.isSocialIssue,
-            question_period_questions: newQP,
-            source: params.source,
-          },
-        );
+        const updateData: Record<string, unknown> = {
+          title: params.bill.title,
+          short_title: params.bill.shortTitle || params.analysis.short_title,
+          summary: params.analysis.summary,
+          tenet_evaluations: params.analysis.tenet_evaluations,
+          final_judgment: params.analysis.final_judgment,
+          rationale: params.analysis.rationale,
+          needs_more_info: params.analysis.needs_more_info,
+          missing_details: params.analysis.missing_details,
+          steel_man: params.analysis.steel_man,
+          status: params.bill.status,
+          sponsorParty: params.bill.sponsorParty,
+          genres: params.bill.genres,
+          billTextsCount: params.billTextsCount,
+          lastUpdatedOn: new Date(),
+          isSocialIssue: params.isSocialIssue,
+          question_period_questions: newQP,
+          source: params.source,
+        };
+
+        // Add relevance fields if provided
+        if (params.relevanceAnalysis) {
+          updateData.relevance_score = params.relevanceAnalysis.relevance_score;
+          updateData.relevance_level = calculateRelevanceLevel(
+            params.relevanceAnalysis.relevance_score,
+          );
+          updateData.gdp_impact_percent =
+            params.relevanceAnalysis.gdp_impact_percent;
+          updateData.gdp_impact_confidence =
+            params.relevanceAnalysis.gdp_impact_confidence;
+          updateData.gdp_impact_justification =
+            params.relevanceAnalysis.gdp_impact_justification;
+          updateData.relevance_justification =
+            params.relevanceAnalysis.relevance_justification;
+          updateData.primary_mechanism =
+            params.relevanceAnalysis.primary_mechanism;
+          updateData.implementation_timeline =
+            params.relevanceAnalysis.implementation_timeline;
+          updateData.relevance_analysis_timestamp = new Date();
+        }
+
+        await Bill.updateOne({ billId: params.billId }, updateData);
       }
       return;
     }
@@ -479,7 +518,7 @@ export async function onBillNotInDatabase(params: {
 
     const classifiedIsSocialIssue = params.isSocialIssue;
 
-    const billData = {
+    const billData: Record<string, unknown> = {
       billId: params.bill.billID,
       parliamentNumber: params.bill.parliamentNumber,
       sessionNumber: params.bill.sessionNumber,
@@ -514,6 +553,24 @@ export async function onBillNotInDatabase(params: {
       question_period_questions:
         params.analysis.question_period_questions ?? [],
     };
+
+    if (params.relevanceAnalysis) {
+      billData.relevance_score = params.relevanceAnalysis.relevance_score;
+      billData.relevance_level = calculateRelevanceLevel(
+        params.relevanceAnalysis.relevance_score,
+      );
+      billData.gdp_impact_percent = params.relevanceAnalysis.gdp_impact_percent;
+      billData.gdp_impact_confidence =
+        params.relevanceAnalysis.gdp_impact_confidence;
+      billData.gdp_impact_justification =
+        params.relevanceAnalysis.gdp_impact_justification;
+      billData.relevance_justification =
+        params.relevanceAnalysis.relevance_justification;
+      billData.primary_mechanism = params.relevanceAnalysis.primary_mechanism;
+      billData.implementation_timeline =
+        params.relevanceAnalysis.implementation_timeline;
+      billData.relevance_analysis_timestamp = new Date();
+    }
 
     await Bill.create(billData);
     console.log("Successfully saved bill to database:", params.billId);

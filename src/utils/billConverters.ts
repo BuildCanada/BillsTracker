@@ -7,6 +7,8 @@ import {
   type BillAnalysis,
 } from "@/services/billApi";
 import { socialIssueGrader } from "@/services/social-issue-grader";
+import { analyzeRelevance } from "@/services/relevance-analyzer";
+import { calculateRelevanceLevel } from "@/utils/relevance-level";
 
 // Unified bill data structure
 export interface UnifiedBill {
@@ -45,6 +47,16 @@ export interface UnifiedBill {
   needs_more_info?: boolean;
   missing_details?: string[];
   steel_man?: string;
+  // Relevance analysis fields
+  relevance_score?: number;
+  relevance_level?: "low" | "medium" | "high";
+  gdp_impact_percent?: number;
+  gdp_impact_confidence?: string;
+  gdp_impact_justification?: string;
+  relevance_justification?: string;
+  primary_mechanism?: string;
+  implementation_timeline?: string;
+  relevance_analysis_timestamp?: Date;
 }
 
 // Convert Build Canada DB bill to unified format
@@ -98,6 +110,17 @@ export function fromBuildCanadaDbBill(bill: BillDocument): UnifiedBill {
       ? [...bill.missing_details]
       : undefined,
     steel_man: bill.steel_man,
+    // Relevance analysis fields
+    relevance_score: bill.relevance_score,
+    relevance_level:
+      bill.relevance_level ?? calculateRelevanceLevel(bill.relevance_score),
+    gdp_impact_percent: bill.gdp_impact_percent,
+    gdp_impact_confidence: bill.gdp_impact_confidence,
+    gdp_impact_justification: bill.gdp_impact_justification,
+    relevance_justification: bill.relevance_justification,
+    primary_mechanism: bill.primary_mechanism,
+    implementation_timeline: bill.implementation_timeline,
+    relevance_analysis_timestamp: bill.relevance_analysis_timestamp,
   };
 }
 
@@ -252,6 +275,32 @@ export async function fromCivicsProjectApiBill(
     );
   }
 
+  // Analyze relevance if missing (new bill or relevance data absent)
+  let relevanceAnalysis = null;
+  if (
+    hasValidMongoUri &&
+    billMarkdown &&
+    (existingBill === null || typeof existingBill.relevance_score !== "number")
+  ) {
+    console.log(`🔍 Analyzing relevance for ${bill.billID}...`);
+    relevanceAnalysis = await analyzeRelevance(billMarkdown);
+    if (relevanceAnalysis) {
+      console.log(
+        `✅ Relevance analysis complete for ${bill.billID}: score=${relevanceAnalysis.relevance_score}/10, gdp_impact=${relevanceAnalysis.gdp_impact_percent}%`,
+      );
+    } else {
+      console.log(`❌ Relevance analysis failed for ${bill.billID}`);
+    }
+  } else if (!billMarkdown) {
+    console.log(
+      `⚠️  Skipping relevance analysis for ${bill.billID}: no markdown available`,
+    );
+  } else if (existingBill && typeof existingBill.relevance_score === "number") {
+    console.log(
+      `ℹ️  Skipping relevance analysis for ${bill.billID}: already has relevance_score=${existingBill.relevance_score}`,
+    );
+  }
+
   await onBillNotInDatabase({
     billId: bill.billID,
     source: bill.source,
@@ -260,6 +309,7 @@ export async function fromCivicsProjectApiBill(
     analysis,
     billTextsCount: Array.isArray(bill.billTexts) ? bill.billTexts.length : 0,
     isSocialIssue: isSocialIssueFinal,
+    relevanceAnalysis: relevanceAnalysis,
   });
 
   return {
@@ -293,5 +343,32 @@ export async function fromCivicsProjectApiBill(
     needs_more_info: analysis.needs_more_info,
     missing_details: analysis.missing_details,
     steel_man: analysis.steel_man,
+    // Include relevance analysis data if available
+    relevance_score:
+      existingBill?.relevance_score ?? relevanceAnalysis?.relevance_score,
+    relevance_level:
+      existingBill?.relevance_level ??
+      calculateRelevanceLevel(
+        existingBill?.relevance_score ?? relevanceAnalysis?.relevance_score,
+      ),
+    gdp_impact_percent:
+      existingBill?.gdp_impact_percent ?? relevanceAnalysis?.gdp_impact_percent,
+    gdp_impact_confidence:
+      existingBill?.gdp_impact_confidence ??
+      relevanceAnalysis?.gdp_impact_confidence,
+    gdp_impact_justification:
+      existingBill?.gdp_impact_justification ??
+      relevanceAnalysis?.gdp_impact_justification,
+    relevance_justification:
+      existingBill?.relevance_justification ??
+      relevanceAnalysis?.relevance_justification,
+    primary_mechanism:
+      existingBill?.primary_mechanism ?? relevanceAnalysis?.primary_mechanism,
+    implementation_timeline:
+      existingBill?.implementation_timeline ??
+      relevanceAnalysis?.implementation_timeline,
+    relevance_analysis_timestamp:
+      existingBill?.relevance_analysis_timestamp ??
+      (relevanceAnalysis ? new Date() : undefined),
   };
 }

@@ -46,4 +46,14 @@ export interface BillSummary {
   /** Some sources use `stages`; keep both to smooth over schema differences. */
   stages?: BillStage[];
   isSocialIssue?: boolean;
+  // Relevance analysis fields
+  relevance_score?: number;
+  relevance_level?: "low" | "medium" | "high";
+  gdp_impact_percent?: number;
+  gdp_impact_confidence?: string;
+  gdp_impact_justification?: string;
+  relevance_justification?: string;
+  primary_mechanism?: string;
+  implementation_timeline?: string;
+  relevance_analysis_timestamp?: string;
 }
