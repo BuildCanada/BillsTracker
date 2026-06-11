@@ -3,6 +3,7 @@ import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
 import { requireAuthenticatedUser } from "@/lib/auth-guards";
 import { BASE_PATH } from "@/utils/basePath";
 import { Button } from "@/components/ui/button";
+import { ReprocessButton } from "@/components/ReprocessButton/reprocess-button.component";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -25,6 +26,9 @@ export default async function EditBillPage({ params }: Params) {
   return (
     <div className="mx-auto max-w-[900px] px-6 py-8">
       <h1 className="text-xl font-semibold mb-6">Edit Bill</h1>
+      <div className="mb-6 border rounded p-4">
+        <ReprocessButton billId={id} />
+      </div>
       <form
         className="space-y-6"
         action={`${BASE_PATH}/api/${id}`}
