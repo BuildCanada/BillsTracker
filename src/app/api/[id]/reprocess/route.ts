@@ -5,17 +5,20 @@ import { Bill, type BillDocument } from "@/models/Bill";
 import { User } from "@/models/User";
 import { authOptions } from "@/lib/auth";
 import {
+  type ApiBillDetail,
   fetchBillMarkdown,
   getBillFromCivicsProjectApi,
   summarizeBillText,
 } from "@/services/billApi";
 
 /**
- * Admin-only endpoint to re-run the AI analysis for a bill.
+ * Admin-only endpoint to refetch a bill from the Civics Project API and re-run
+ * its AI analysis.
  *
- * Pulls the latest bill text (preferring the freshest source from the Civics
- * Project API, falling back to the source already stored on the bill), feeds it
- * through `summarizeBillText`, and overwrites the AI-generated fields in the DB.
+ * Fetches the latest bill record from the Civics Project API, refreshes the
+ * stored metadata (title, status, stages, sponsor, genres, source, …), then
+ * pulls the latest bill text, feeds it through `summarizeBillText`, and
+ * overwrites the AI-generated fields in the DB.
  */
 export async function POST(
   _request: Request,
@@ -45,21 +48,32 @@ export async function POST(
     return NextResponse.json({ error: "Bill not found" }, { status: 404 });
   }
 
-  // Prefer the freshest source from the Civics Project API; fall back to the
-  // source stored on the existing bill.
-  let source: string | undefined = existing.source;
+  // Refetch the latest bill record from the Civics Project API.
+  let apiBill: ApiBillDetail | null = null;
   try {
-    const apiBill = await getBillFromCivicsProjectApi(id);
-    const apiSource =
-      apiBill?.source ||
-      (apiBill?.billTexts?.[0] as { url?: string } | undefined)?.url;
-    if (apiSource) {
-      source = apiSource;
-    }
+    apiBill = await getBillFromCivicsProjectApi(id);
   } catch (error) {
-    console.error(`Reprocess ${id}: failed to fetch latest source`, error);
+    console.error(
+      `Reprocess ${id}: failed to fetch from Civics Project`,
+      error,
+    );
+    return NextResponse.json(
+      { error: "Failed to fetch latest bill data from Civics Project API" },
+      { status: 502 },
+    );
+  }
+  if (!apiBill) {
+    return NextResponse.json(
+      { error: "Bill not found in Civics Project API" },
+      { status: 404 },
+    );
   }
 
+  // Resolve the latest bill text source from the API, falling back to stored.
+  const source =
+    apiBill.source ||
+    (apiBill.billTexts?.[0] as { url?: string } | undefined)?.url ||
+    existing.source;
   if (!source) {
     return NextResponse.json(
       { error: "No bill text source available to reprocess" },
@@ -77,12 +91,35 @@ export async function POST(
 
   const analysis = await summarizeBillText(markdown);
 
+  const latestStageDate =
+    apiBill.stages && apiBill.stages.length > 0
+      ? apiBill.stages[apiBill.stages.length - 1].date
+      : (apiBill.updatedAt ?? apiBill.date);
+
   await Bill.updateOne(
     { billId: id },
     {
       $set: {
+        // Refreshed metadata from the Civics Project API
+        title: apiBill.title,
+        status: apiBill.status,
+        sponsorParty: apiBill.sponsorParty,
+        genres: apiBill.genres,
+        supportedRegion: apiBill.supportedRegion,
+        stages: apiBill.stages?.map((stage) => ({
+          stage: stage.stage,
+          state: stage.state,
+          house: stage.house,
+          date: new Date(stage.date),
+        })),
+        billTextsCount: Array.isArray(apiBill.billTexts)
+          ? apiBill.billTexts.length
+          : 0,
+        source,
+        // Regenerated AI analysis
         summary: analysis.summary,
-        short_title: analysis.short_title ?? existing.short_title,
+        short_title:
+          apiBill.shortTitle ?? analysis.short_title ?? existing.short_title,
         tenet_evaluations: analysis.tenet_evaluations,
         final_judgment: analysis.final_judgment,
         rationale: analysis.rationale,
@@ -90,8 +127,7 @@ export async function POST(
         missing_details: analysis.missing_details,
         steel_man: analysis.steel_man,
         question_period_questions: analysis.question_period_questions ?? [],
-        source,
-        lastUpdatedOn: new Date(),
+        lastUpdatedOn: new Date(latestStageDate),
       },
     },
     { upsert: false },
