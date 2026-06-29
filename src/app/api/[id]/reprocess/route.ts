@@ -4,6 +4,7 @@ import { connectToDatabase } from "@/lib/mongoose";
 import { Bill, type BillDocument } from "@/models/Bill";
 import { User } from "@/models/User";
 import { authOptions } from "@/lib/auth";
+import { DEV_OPEN_ACCESS } from "@/lib/auth-guards";
 import {
   type ApiBillDetail,
   fetchBillMarkdown,
@@ -24,20 +25,24 @@ export async function POST(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // DEV ONLY: open access — skip the session/allowlist checks entirely.
+  if (!DEV_OPEN_ACCESS) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Verify user is on the allowlist; do not create
+    await connectToDatabase();
+    const dbUser = await User.findOne({
+      emailLower: session.user.email.toLowerCase(),
+    });
+    if (!dbUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
   }
 
   await connectToDatabase();
-
-  // Verify user is on the allowlist; do not create
-  const dbUser = await User.findOne({
-    emailLower: session.user.email.toLowerCase(),
-  });
-  if (!dbUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
 
   const { id } = await params;
 

@@ -78,6 +78,7 @@ You are analyzing Canadian legislation. You must assess whether the bill aligns 
   - tenet_evaluations.alignment: aligns|conflicts|neutral
   - final_judgment: yes|no|abstain
   - is_social_issue: yes|no
+  - Never mention the tenents in the summary, questions, or rationale.
 
   Output format (return valid JSON only):
 

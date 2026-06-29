@@ -20,6 +20,7 @@ import { BillQuestions } from "@/components/BillDetail/BillQuestions";
 import { Separator } from "@/components/ui/separator";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { DEV_OPEN_ACCESS } from "@/lib/auth-guards";
 import { BillTenets } from "@/components/BillDetail/BillTenets";
 import { JudgementValue } from "@/components/Judgement/judgement.component";
 import { buildAbsoluteUrl, buildRelativePath } from "@/utils/basePath";
@@ -89,7 +90,7 @@ export default async function BillDetail({ params }: Params) {
         <Link href="/" className="text-sm underline  mb-6">
           ← Back to bills
         </Link>
-        {session?.user && (
+        {(session?.user || DEV_OPEN_ACCESS) && (
           <Link href={`/${id}/edit`} className="ml-4 text-sm underline">
             Edit
           </Link>

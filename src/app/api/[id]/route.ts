@@ -4,26 +4,32 @@ import { connectToDatabase } from "@/lib/mongoose";
 import { Bill } from "@/models/Bill";
 import { User } from "@/models/User";
 import { authOptions } from "@/lib/auth";
+import { DEV_OPEN_ACCESS } from "@/lib/auth-guards";
 import { BASE_PATH } from "@/utils/basePath";
 
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // DEV ONLY: open access — skip the session/allowlist checks entirely.
+  if (!DEV_OPEN_ACCESS) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    await connectToDatabase();
+
+    // Verify user exists in DB; do not create
+    const dbUser = await User.findOne({
+      emailLower: session.user.email.toLowerCase(),
+    });
+    if (!dbUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
   }
 
   await connectToDatabase();
-
-  // Verify user exists in DB; do not create
-  const dbUser = await User.findOne({
-    emailLower: session.user.email.toLowerCase(),
-  });
-  if (!dbUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
 
   const contentType = request.headers.get("content-type")?.toLowerCase() || "";
 
