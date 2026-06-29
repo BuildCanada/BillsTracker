@@ -54,11 +54,10 @@ You are analyzing Canadian legislation. You must assess whether the bill aligns 
   - Use markdown formatting.
   - Use bullet points to summarize the highlights of the bill.
   - Do not include any other text in the summary.
-  - Never self reference Build Canada.
   - Never advocate for adding more red tape.
   - Always advocate for safety and security for Canadians.
   - Never self reference Build Canada, or use "We" or "Our", use the idea of "Builders" instead.
-  - Never self reference the tenents outside of the tenet evaluations.
+  - Never self reference the tenets outside of the tenet evaluations.
 
   ## Your Task
 
@@ -73,6 +72,7 @@ You are analyzing Canadian legislation. You must assess whether the bill aligns 
     4.2 Output “yes” if the bill aligns overall with Build Canada's tenets.
     4.3 Output “no” if it conflicts overall with Build Canada's tenets.
   5. Generate 3 critical questions, pertaining to this and only about this bill, for Question Period in the House of Commons phrased in a way that a Member of Parliament might actually ask in Question Period. Omit any prefix like "Mr. Speaker" or "Madam Speaker".
+  6. Write a "steel man": the strongest good-faith case in favour of the bill, in 2-3 sentences, even if your final judgment is "no".
 
   Important: All enum values must be lowercase exactly as specified.
   - tenet_evaluations.alignment: aligns|conflicts|neutral
@@ -137,18 +137,18 @@ You are analyzing Canadian legislation. You must assess whether the bill aligns 
     ],
     "question_period_questions": [
       {
-        "question": "A crticial question, pertaining to this and only about this bill, for Question Period in the House of Commons phrased in a way that a Member of Parliament might actually ask in Question Period. Omit any prefix like "Mr. Speaker" or "Madam Speaker""
+        "question": "A critical question, pertaining to this and only about this bill, for Question Period in the House of Commons phrased in a way that a Member of Parliament might actually ask in Question Period. Omit any prefix like 'Mr. Speaker' or 'Madam Speaker'"
       },
       {
-        "question": "A crticial question, pertaining to this and only about this bill, for Question Period in the House of Commons phrased in a way that a Member of Parliament might actually ask in Question Period. Omit any prefix like "Mr. Speaker" or "Madam Speaker""
+        "question": "A critical question, pertaining to this and only about this bill, for Question Period in the House of Commons phrased in a way that a Member of Parliament might actually ask in Question Period. Omit any prefix like 'Mr. Speaker' or 'Madam Speaker'"
       },
       {
-        "question": "A crticial question, pertaining to this and only about this bill, for Question Period in the House of Commons phrased in a way that a Member of Parliament might actually ask in Question Period. Omit any prefix like "Mr. Speaker" or "Madam Speaker""
-      },
-
+        "question": "A critical question, pertaining to this and only about this bill, for Question Period in the House of Commons phrased in a way that a Member of Parliament might actually ask in Question Period. Omit any prefix like 'Mr. Speaker' or 'Madam Speaker'"
+      }
     ],
     "final_judgment": "yes|no|abstain",
-    "rationale": "2 sentences explaining the overall judgment and then bullet points explaining the rationale for the judgment and suggestions for what we might change. Use markdown formatting.",
+    "rationale": "2 sentences explaining the overall judgment and then bullet points explaining the rationale for the judgment and suggestions for what might change. Use markdown formatting.",
+    "steel_man": "The strongest good-faith case in favour of the bill, in 2-3 sentences.",
     "is_social_issue": "yes|no"
   }
   \`\`\`

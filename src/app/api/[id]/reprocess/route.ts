@@ -89,7 +89,17 @@ export async function POST(
     );
   }
 
-  const analysis = await summarizeBillText(markdown);
+  let analysis: Awaited<ReturnType<typeof summarizeBillText>>;
+  try {
+    analysis = await summarizeBillText(markdown);
+  } catch (error) {
+    // Never overwrite a good stored analysis with a failure stub.
+    console.error(`Reprocess ${id}: AI analysis failed`, error);
+    return NextResponse.json(
+      { error: "AI analysis failed; existing analysis left unchanged" },
+      { status: 502 },
+    );
+  }
 
   const latestStageDate =
     apiBill.stages && apiBill.stages.length > 0
@@ -123,10 +133,9 @@ export async function POST(
         tenet_evaluations: analysis.tenet_evaluations,
         final_judgment: analysis.final_judgment,
         rationale: analysis.rationale,
-        needs_more_info: analysis.needs_more_info,
-        missing_details: analysis.missing_details,
         steel_man: analysis.steel_man,
         question_period_questions: analysis.question_period_questions ?? [],
+        isSocialIssue: analysis.is_social_issue === "yes",
         lastUpdatedOn: new Date(latestStageDate),
       },
     },

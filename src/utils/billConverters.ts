@@ -6,7 +6,6 @@ import {
   onBillNotInDatabase,
   type BillAnalysis,
 } from "@/services/billApi";
-import { socialIssueGrader } from "@/services/social-issue-grader";
 
 // Unified bill data structure
 export interface UnifiedBill {
@@ -42,8 +41,6 @@ export interface UnifiedBill {
   }>;
   final_judgment: "yes" | "no" | "abstain";
   rationale?: string;
-  needs_more_info?: boolean;
-  missing_details?: string[];
   steel_man?: string;
 }
 
@@ -93,10 +90,6 @@ export function fromBuildCanadaDbBill(bill: BillDocument): UnifiedBill {
         ? (bill.final_judgment as "yes" | "no")
         : "abstain",
     rationale: bill.rationale,
-    needs_more_info: bill.needs_more_info,
-    missing_details: bill.missing_details
-      ? [...bill.missing_details]
-      : undefined,
     steel_man: bill.steel_man,
   };
 }
@@ -128,69 +121,13 @@ export async function fromCivicsProjectApiBill(
     billMarkdown = await fetchBillMarkdown(latestBillSource);
   }
 
-  // Check if we need to regenerate summary based on source changes from Civics Project API
-  let analysis: BillAnalysis = {
-    summary: bill.header || "",
-    tenet_evaluations: [
-      {
-        id: 1,
-        title: "Canada should aim to be the world's most prosperous country",
-        alignment: "neutral",
-        explanation: "Not analyzed",
-      },
-      {
-        id: 2,
-        title:
-          "Promote economic freedom, ambition, and breaking from bureaucratic inertia",
-        alignment: "neutral",
-        explanation: "Not analyzed",
-      },
-      {
-        id: 3,
-        title: "Drive national productivity and global competitiveness",
-        alignment: "neutral",
-        explanation: "Not analyzed",
-      },
-      {
-        id: 4,
-        title: "Grow exports of Canadian products and resources",
-        alignment: "neutral",
-        explanation: "Not analyzed",
-      },
-      {
-        id: 5,
-        title: "Encourage investment, innovation, and resource development",
-        alignment: "neutral",
-        explanation: "Not analyzed",
-      },
-      {
-        id: 6,
-        title:
-          "Deliver better public services at lower cost (government efficiency)",
-        alignment: "neutral",
-        explanation: "Not analyzed",
-      },
-      {
-        id: 7,
-        title: "Reform taxes to incentivize work, risk-taking, and innovation",
-        alignment: "neutral",
-        explanation: "Not analyzed",
-      },
-      {
-        id: 8,
-        title: "Focus on large-scale prosperity, not incrementalism",
-        alignment: "neutral",
-        explanation: "Not analyzed",
-      },
-    ],
-    final_judgment: "no",
-    rationale: undefined,
-    needs_more_info: false,
-    missing_details: [],
-    steel_man: "Not analyzed",
-  };
+  // The AI analysis. Stays null until we either reuse a stored analysis or
+  // successfully generate a new one. If generation fails we leave it null and
+  // skip persisting, so a transient AI outage never writes a fake verdict.
+  let analysis: BillAnalysis | null = null;
+  let isSocialIssue = false;
 
-  // Check existing bill in database to see if source changed
+  // Check existing bill in database; reuse its analysis when present.
   try {
     const { connectToDatabase } = await import("@/lib/mongoose");
     const { Bill } = await import("@/models/Bill");
@@ -201,72 +138,66 @@ export async function fromCivicsProjectApiBill(
         .lean()
         .exec()) as BillDocument | null;
 
-      if (existingBill && !analysis.rationale) {
-        // Source hasn't changed, use existing analysis
+      if (existingBill) {
+        const raw = String(existingBill.final_judgment || "")
+          .trim()
+          .toLowerCase();
+        const final_judgment: "yes" | "no" | "abstain" =
+          raw === "yes" || raw === "no" ? (raw as "yes" | "no") : "abstain";
+        isSocialIssue =
+          typeof existingBill.isSocialIssue === "boolean"
+            ? existingBill.isSocialIssue
+            : false;
         analysis = {
           summary: existingBill.summary,
-          tenet_evaluations:
-            existingBill.tenet_evaluations || analysis.tenet_evaluations,
-          final_judgment: (() => {
-            const raw = String(existingBill.final_judgment || "")
-              .trim()
-              .toLowerCase();
-            if (raw === "yes" || raw === "no") return raw as "yes" | "no";
-            // Treat legacy "neutral" and any unknown value as "abstain"
-            if (raw === "abstain" || raw === "neutral") return "abstain";
-            return analysis.final_judgment;
-          })(),
-          rationale: existingBill.rationale || analysis.rationale,
-          needs_more_info:
-            existingBill.needs_more_info || analysis.needs_more_info,
-          missing_details:
-            existingBill.missing_details || analysis.missing_details,
-          steel_man: existingBill.steel_man || analysis.steel_man,
+          short_title: existingBill.short_title || "",
+          tenet_evaluations: existingBill.tenet_evaluations || [],
+          question_period_questions:
+            existingBill.question_period_questions || [],
+          final_judgment,
+          rationale: existingBill.rationale || "",
+          steel_man: existingBill.steel_man || "",
+          is_social_issue: isSocialIssue ? "yes" : "no",
         };
-        console.log(
-          `Using existing analysis for ${bill.billID} (source unchanged)`,
-        );
+        console.log(`Using existing analysis for ${bill.billID}`);
       }
     }
   } catch (error) {
     console.error("Error checking existing bill:", error);
-    // Continue with regeneration if DB check fails
+    // Continue; we may still generate fresh analysis below.
   }
 
-  if (!analysis?.rationale && billMarkdown) {
-    console.log(`Regenerating analysis for ${bill.billID} (source changed)`);
-    analysis = await summarizeBillText(billMarkdown);
+  // Generate fresh analysis only when there's no stored analysis and we have
+  // bill text. Failures are swallowed here (logged) so the page still renders
+  // the raw bill — but nothing is persisted.
+  if (!analysis && billMarkdown) {
+    console.log(`Generating analysis for ${bill.billID}`);
+    try {
+      analysis = await summarizeBillText(billMarkdown);
+      isSocialIssue = analysis.is_social_issue === "yes";
+    } catch (error) {
+      console.error(`Failed to analyze ${bill.billID}; skipping save:`, error);
+    }
   }
 
-  // Only classify if missing (new bill or classification absent). Avoid calling otherwise.
-  let isSocialIssueFinal: boolean =
-    typeof existingBill?.isSocialIssue === "boolean"
-      ? ((existingBill as BillDocument).isSocialIssue as boolean)
-      : false;
-  if (
-    hasValidMongoUri &&
-    (existingBill === null || typeof existingBill.isSocialIssue !== "boolean")
-  ) {
-    isSocialIssueFinal = await socialIssueGrader(
-      billMarkdown || analysis.summary || bill.header || bill.title,
-    );
+  // Persist only when we have a real analysis.
+  if (analysis) {
+    await onBillNotInDatabase({
+      billId: bill.billID,
+      source: bill.source,
+      markdown: billMarkdown,
+      bill,
+      analysis,
+      billTextsCount: Array.isArray(bill.billTexts) ? bill.billTexts.length : 0,
+      isSocialIssue,
+    });
   }
-
-  await onBillNotInDatabase({
-    billId: bill.billID,
-    source: bill.source,
-    markdown: billMarkdown,
-    bill,
-    analysis,
-    billTextsCount: Array.isArray(bill.billTexts) ? bill.billTexts.length : 0,
-    isSocialIssue: isSocialIssueFinal,
-  });
 
   return {
     billId: bill.billID,
     title: bill.title,
     short_title: bill.shortTitle,
-    summary: analysis.summary,
+    summary: analysis?.summary ?? bill.header ?? "",
     status: bill.status,
     stages: bill.stages
       ? bill.stages.map((stage) => ({
@@ -285,13 +216,13 @@ export async function fromCivicsProjectApiBill(
     parliamentNumber: bill.parliamentNumber,
     sessionNumber: bill.sessionNumber,
     fullTextMarkdown: billMarkdown,
-    question_period_questions: analysis.question_period_questions,
-    // Include analysis data
-    tenet_evaluations: analysis.tenet_evaluations,
-    final_judgment: analysis.final_judgment,
-    rationale: analysis.rationale,
-    needs_more_info: analysis.needs_more_info,
-    missing_details: analysis.missing_details,
-    steel_man: analysis.steel_man,
+    isSocialIssue,
+    question_period_questions: analysis?.question_period_questions,
+    // Include analysis data when available.
+    tenet_evaluations: analysis?.tenet_evaluations,
+    // No real verdict yet → "abstain" so the UI hides the determination.
+    final_judgment: analysis?.final_judgment ?? "abstain",
+    rationale: analysis?.rationale,
+    steel_man: analysis?.steel_man,
   };
 }

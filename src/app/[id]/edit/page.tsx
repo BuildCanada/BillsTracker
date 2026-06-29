@@ -101,20 +101,6 @@ export default async function EditBillPage({ params }: Params) {
           />
         </div>
         <div className="space-y-2">
-          <label
-            className="block text-sm font-medium"
-            htmlFor="missing_details"
-          >
-            Missing Details (comma-separated)
-          </label>
-          <textarea
-            id="missing_details"
-            name="missing_details"
-            defaultValue={(bill.missing_details || []).join(", ")}
-            className="w-full min-h-20 border rounded p-2"
-          />
-        </div>
-        <div className="space-y-2">
           <label className="block text-sm font-medium" htmlFor="genres">
             Genres (comma-separated)
           </label>

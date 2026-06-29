@@ -33,10 +33,8 @@ export async function POST(
   let final_judgment: string | undefined;
   let rationale: string | undefined;
   let steel_man: string | undefined;
-  let missing_details_input: unknown;
   let genres_input: unknown;
   let question_period_questions_input: unknown;
-  let hasMissingDetails = false;
   let hasGenres = false;
   let hasQuestionPeriodQuestions = false;
   let tenet_ids: string[] = [];
@@ -53,10 +51,6 @@ export async function POST(
     final_judgment = params.get("final_judgment") || undefined;
     rationale = params.get("rationale") || undefined;
     steel_man = params.get("steel_man") || undefined;
-    if (params.has("missing_details")) {
-      hasMissingDetails = true;
-      missing_details_input = params.get("missing_details") || "";
-    }
     if (params.has("genres")) {
       hasGenres = true;
       genres_input = params.get("genres") || "";
@@ -80,10 +74,6 @@ export async function POST(
     final_judgment = asString(json.final_judgment);
     rationale = asString(json.rationale);
     steel_man = asString(json.steel_man);
-    if ("missing_details" in json) {
-      hasMissingDetails = true;
-      missing_details_input = (json as any).missing_details;
-    }
     if ("genres" in json) {
       hasGenres = true;
       genres_input = (json as any).genres;
@@ -115,11 +105,6 @@ export async function POST(
         (form.get("final_judgment") as string | null) || undefined;
       rationale = (form.get("rationale") as string | null) || undefined;
       steel_man = (form.get("steel_man") as string | null) || undefined;
-      if (typeof form.has === "function" && form.has("missing_details")) {
-        hasMissingDetails = true;
-        missing_details_input =
-          (form.get("missing_details") as string | null) || "";
-      }
       if (typeof form.has === "function" && form.has("genres")) {
         hasGenres = true;
         genres_input = (form.get("genres") as string | null) || "";
@@ -259,11 +244,6 @@ export async function POST(
     return questions.map((question) => ({ question }));
   };
 
-  let missing_details: string[] | undefined;
-  if (hasMissingDetails) {
-    missing_details = parseCommaSeparated(missing_details_input);
-  }
-
   let genres: string[] | undefined;
   if (hasGenres) {
     genres = parseCommaSeparated(genres_input);
@@ -285,9 +265,6 @@ export async function POST(
   if (final_judgment !== undefined) update.final_judgment = final_judgment;
   if (rationale !== undefined) update.rationale = rationale;
   if (steel_man !== undefined) update.steel_man = steel_man;
-  if (missing_details !== undefined) {
-    update.missing_details = missing_details;
-  }
   if (genres !== undefined) {
     update.genres = genres;
   }
