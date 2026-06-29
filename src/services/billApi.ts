@@ -61,6 +61,7 @@ export async function getBillFromCivicsProjectApi(
   billId: string,
 ): Promise<ApiBillDetail | null> {
   const URL = `${env.CIVICS_PROJECT_BASE_URL}/canada/bills/${CANADIAN_PARLIAMENT_NUMBER}/${billId}`;
+  console.log({ URL });
   const response = await fetch(URL, {
     // Cache individual bills.
     ...(process.env.NODE_ENV === "production"
@@ -72,7 +73,17 @@ export async function getBillFromCivicsProjectApi(
     },
   });
   if (!response.ok) {
-    throw new Error("Failed to fetch bill details");
+    const body = await response.text().catch(() => "<unable to read body>");
+    console.error("Failed to fetch bill details from Civics Project API", {
+      billId,
+      url: URL,
+      status: response.status,
+      statusText: response.statusText,
+      body: body.slice(0, 1000),
+    });
+    throw new Error(
+      `Failed to fetch bill details for "${billId}": ${response.status} ${response.statusText} (${URL})`,
+    );
   }
   const json = await response.json();
   const data = (json?.data?.bill ?? json?.data ?? json) as

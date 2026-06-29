@@ -40,10 +40,20 @@ export const authOptions: NextAuthOptions = {
         const now = new Date();
         const existing = await User.findOne({ emailLower: email });
         if (!existing) {
+          // DEV ONLY: auto-create + allow any signed-in account so every user
+          // has admin access locally. Never runs in production.
           if (env.NODE_ENV !== "production") {
             console.warn(
-              `[auth] User ${email} not found. No auto-creation. Denying sign-in.`,
+              `[auth] DEV: auto-creating + allowing ${email} (admin access on for all users).`,
             );
+            await User.create({
+              email: user?.email,
+              emailLower: email,
+              name: user?.name ?? null,
+              allowed: true,
+              lastLoginAt: now,
+            });
+            return true;
           }
           return false;
         }
@@ -51,6 +61,8 @@ export const authOptions: NextAuthOptions = {
         (existing as any).image = (user as any)?.image ?? existing.image;
         existing.lastLoginAt = now;
         await existing.save();
+        // DEV ONLY: allow regardless of the allowlist flag.
+        if (env.NODE_ENV !== "production") return true;
         return !!existing.allowed;
       } catch (err) {
         if (env.NODE_ENV !== "production") {

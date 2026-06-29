@@ -14,7 +14,7 @@ function optional(
   return value && value.trim() !== "" ? value : undefined;
 }
 
-const ENDPOINT = "https://civics-project-kiyv.vercel.app";
+const ENDPOINT = "https://api.civicsproject.org";
 
 export const env = {
   NODE_ENV: process.env.NODE_ENV || "development",
