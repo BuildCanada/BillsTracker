@@ -1,13 +1,6 @@
 import Link from "next/link";
-import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
-import { getBillFromCivicsProjectApi } from "@/services/billApi";
-import {
-  fromBuildCanadaDbBill,
-  fromCivicsProjectApiBill,
-  type UnifiedBill,
-} from "@/utils/billConverters";
+import { getUnifiedBillByIdWithApiFallback } from "@/server/get-unified-bill-by-id";
 import type { Metadata, ResolvingMetadata } from "next";
-import { headers } from "next/headers";
 import { env } from "@/env";
 import {
   BillHeader,
@@ -18,8 +11,7 @@ import {
 } from "@/components/BillDetail";
 import { BillQuestions } from "@/components/BillDetail/BillQuestions";
 import { Separator } from "@/components/ui/separator";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { EditBillLink } from "@/components/BillDetail/EditBillLink";
 import { BillTenets } from "@/components/BillDetail/BillTenets";
 import { JudgementValue } from "@/components/Judgement/judgement.component";
 import { buildAbsoluteUrl, buildRelativePath } from "@/utils/basePath";
@@ -40,29 +32,12 @@ interface Params {
 export default async function BillDetail({ params }: Params) {
   const { id } = await params;
 
-  const session = await getServerSession(authOptions);
-  const headerList = await headers();
-  const host =
-    headerList.get("x-forwarded-host") || headerList.get("host") || "";
-  const proto = (headerList.get("x-forwarded-proto") || "https").split(",")[0];
-  const requestOrigin = host ? `${proto}://${host}` : "";
-  const origin = env.NEXT_PUBLIC_APP_URL || requestOrigin;
   const shareOrigin =
     env.NODE_ENV === "production"
       ? BUILD_CANADA_URL
-      : origin || BUILD_CANADA_URL;
-  // Try database first, then fallback to API
-  const dbBill = await getBillByIdFromDB(id);
-  let unifiedBill: UnifiedBill | null = null;
-
-  if (dbBill) {
-    unifiedBill = fromBuildCanadaDbBill(dbBill);
-  } else {
-    const apiBill = await getBillFromCivicsProjectApi(id);
-    if (apiBill) {
-      unifiedBill = await fromCivicsProjectApiBill(apiBill);
-    }
-  }
+      : env.NEXT_PUBLIC_APP_URL || BUILD_CANADA_URL;
+  // Try database first, then fall back to the Civics Project API
+  const unifiedBill = await getUnifiedBillByIdWithApiFallback(id);
 
   if (!unifiedBill) {
     return (
@@ -89,11 +64,7 @@ export default async function BillDetail({ params }: Params) {
         <Link href="/" className="text-sm underline  mb-6">
           ← Back to bills
         </Link>
-        {session?.user && (
-          <Link href={`/${id}/edit`} className="ml-4 text-sm underline">
-            Edit
-          </Link>
-        )}
+        <EditBillLink id={id} />
       </div>
       <BillHeader bill={unifiedBill} />
 
@@ -154,13 +125,12 @@ export async function generateMetadata(
   const q = sp?.q;
   const title = id;
   const description = `Bill ${id} analysis and judgement`;
-  const h = headers();
-  const host = (await h).get("x-forwarded-host") || (await h).get("host") || "";
-  const proto = ((await h).get("x-forwarded-proto") || "https").split(",")[0];
   // Ensure we always have a base URL for absolute image URLs (required for Twitter Cards)
   const baseUrl =
     env.NEXT_PUBLIC_APP_URL ||
-    (host ? `${proto}://${host}` : "http://localhost:3000");
+    (env.NODE_ENV === "production"
+      ? BUILD_CANADA_URL
+      : "http://localhost:3000");
   const pagePath = buildRelativePath(id);
   const pageUrl = `${baseUrl}${pagePath}`;
   const pageUrlWithQuery = q

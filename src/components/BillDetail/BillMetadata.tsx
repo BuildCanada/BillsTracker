@@ -16,13 +16,20 @@ const DataPoint = ({ label, value }: { label: string; value: string }) => {
   );
 };
 
+const TopicTag = ({ topic }: { topic: string }) => {
+  return (
+    <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-md">
+      {topic}
+    </span>
+  );
+};
+
 export function BillMetadata({ bill }: BillMetadataProps) {
   const billDates = getBillStageDates(bill.stages);
   const lastUpdatedDate = billDates.lastUpdated
     ? dayjs(billDates.lastUpdated).format("MMM D, YYYY")
     : "N/A";
 
-  console.log({ bill });
   return (
     <Card>
       <CardHeader>
@@ -54,7 +61,11 @@ export function BillMetadata({ bill }: BillMetadataProps) {
           <DataPoint label="Last updated" value={lastUpdatedDate} />
         )}
         {bill.genres && bill.genres.length > 0 && (
-          <DataPoint label="Topics" value={bill.genres.join(", ")} />
+          <div className="flex flex-wrap gap-1">
+            {bill.genres.map((genre) => (
+              <TopicTag key={genre} topic={genre} />
+            ))}
+          </div>
         )}
         {bill.parliamentNumber && bill.sessionNumber && (
           <DataPoint label="Parliament" value={`${bill.parliamentNumber}`} />
