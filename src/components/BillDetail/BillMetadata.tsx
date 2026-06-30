@@ -22,6 +22,7 @@ export function BillMetadata({ bill }: BillMetadataProps) {
     ? dayjs(billDates.lastUpdated).format("MMM D, YYYY")
     : "N/A";
 
+  console.log({ bill });
   return (
     <Card>
       <CardHeader>

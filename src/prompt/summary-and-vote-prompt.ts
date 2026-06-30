@@ -51,6 +51,7 @@ You are analyzing Canadian legislation. You must assess whether the bill aligns 
   For general guidelines:
   - Be critical.
   - Bias to the overall wellbeing of Canadians.
+  - Base every claim only on the provided bill text. Do not invent or infer provisions that are not present. If the text is insufficient to judge the bill or a specific tenet, say so explicitly rather than guessing.
   - Use markdown formatting.
   - Use bullet points to summarize the highlights of the bill.
   - Do not include any other text in the summary.
@@ -63,16 +64,17 @@ You are analyzing Canadian legislation. You must assess whether the bill aligns 
 
   1. Read the bill.
   2. Provide a concise summary of what the bill does in plain language (3-5 sentences).
-  3. Evaluate the bill against the 8 tenets above:
+  3. Evaluate the bill against the 8 tenets above. Provide exactly one evaluation per tenet (ids 1 through 8), each with only its id, alignment, and a short explanation grounded in the bill text. Do NOT include the tenet title — it is added automatically.
     3.1 Does it clearly support one or more tenets?
     3.2 Does it conflict with one or more tenets?
     3.3 Is its impact neutral or unclear?
-  4. Give a final judgment (choose exactly one; output in lowercase):
-    4.1 Output "abstain" if the bill is primarily a social issue (per the social-issue criteria above).
-    4.2 Output “yes” if the bill aligns overall with Build Canada's tenets.
-    4.3 Output “no” if it conflicts overall with Build Canada's tenets.
+  4. Give a final judgment on the bill's ECONOMIC merit against the tenets (choose exactly one; output in lowercase). Judge the merit regardless of whether the bill is a social issue — the social-issue determination is a separate field (step 6), not a reason to abstain.
+    4.1 Output “yes” if the bill aligns overall with the tenets.
+    4.2 Output “no” if it conflicts overall with the tenets.
+    4.3 Output "abstain" only if the bill's economic impact is genuinely neutral or the text is too unclear to judge.
   5. Generate 3 critical questions, pertaining to this and only about this bill, for Question Period in the House of Commons phrased in a way that a Member of Parliament might actually ask in Question Period. Omit any prefix like "Mr. Speaker" or "Madam Speaker".
   6. Write a "steel man": the strongest good-faith case in favour of the bill, in 2-3 sentences, even if your final judgment is "no".
+  7. Separately classify whether the bill is primarily a social issue (per the Social Issue Grading criteria above). This is an independent routing flag and must not influence the final judgment in step 4.
 
   Important: All enum values must be lowercase exactly as specified.
   - tenet_evaluations.alignment: aligns|conflicts|neutral
@@ -88,52 +90,10 @@ You are analyzing Canadian legislation. You must assess whether the bill aligns 
     "tenet_evaluations": [
       {
         "id": 1,
-        "title": "${TENETS[1]}",
         "alignment": "aligns|conflicts|neutral",
-        "explanation": "Short explanation of how this bill relates to this tenet"
-      },
-      {
-        "id": 2,
-        "title": "${TENETS[2]}",
-        "alignment": "aligns|conflicts|neutral",
-        "explanation": "Short explanation of how this bill relates to this tenet"
-      },
-      {
-        "id": 3,
-        "title": "${TENETS[3]}",
-        "alignment": "aligns|conflicts|neutral",
-        "explanation": "Short explanation of how this bill relates to this tenet"
-      },
-      {
-        "id": 4,
-        "title": "${TENETS[4]}",
-        "alignment": "aligns|conflicts|neutral",
-        "explanation": "Short explanation of how this bill relates to this tenet"
-      },
-      {
-        "id": 5,
-        "title": "${TENETS[5]}",
-        "alignment": "aligns|conflicts|neutral",
-        "explanation": "Short explanation of how this bill relates to this tenet"
-      },
-      {
-        "id": 6,
-        "title": "${TENETS[6]}",
-        "alignment": "aligns|conflicts|neutral",
-        "explanation": "Short explanation of how this bill relates to this tenet"
-      },
-      {
-        "id": 7,
-        "title": "${TENETS[7]}",
-        "alignment": "aligns|conflicts|neutral",
-        "explanation": "Short explanation of how this bill relates to this tenet"
-      },
-      {
-        "id": 8,
-        "title": "${TENETS[8]}",
-        "alignment": "aligns|conflicts|neutral",
-        "explanation": "Short explanation of how this bill relates to this tenet"
+        "explanation": "Short explanation, grounded in the bill text, of how this bill relates to tenet 1"
       }
+      // ...one object for every tenet, ids 1 through 8 (do not include the tenet title)
     ],
     "question_period_questions": [
       {

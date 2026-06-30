@@ -1,8 +1,15 @@
 import { xmlToMarkdown } from "@/utils/xml-to-md/xml-to-md.util";
-import { SUMMARY_AND_VOTE_PROMPT } from "@/prompt/summary-and-vote-prompt";
+import {
+  SUMMARY_AND_VOTE_PROMPT,
+  TENETS,
+} from "@/prompt/summary-and-vote-prompt";
 import { zodTextFormat } from "openai/helpers/zod";
 import { getOpenAI, hasOpenAIKey } from "@/lib/openai";
-import { type BillAnalysis, BillAnalysisSchema } from "@/prompt/schema";
+import {
+  type BillAnalysis,
+  BillAnalysisSchema,
+  type ModelBillAnalysis,
+} from "@/prompt/schema";
 import {
   BILL_API_REVALIDATE_INTERVAL,
   BILL_ANALYSIS_EFFORT,
@@ -107,7 +114,7 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
   console.log("Analyzing bill text with AI");
   const prompt = `${SUMMARY_AND_VOTE_PROMPT}\n\nBill Text:\n${input}`;
 
-  let parsed: BillAnalysis | null;
+  let parsed: ModelBillAnalysis | null;
   try {
     const response = await getOpenAI().responses.parse({
       model: BILL_ANALYSIS_MODEL,
@@ -126,7 +133,16 @@ export async function summarizeBillText(input: string): Promise<BillAnalysis> {
     );
   }
 
-  return parsed;
+  // Join canonical tenet titles by id (the model is not asked to echo them).
+  return {
+    ...parsed,
+    tenet_evaluations: parsed.tenet_evaluations.map((te) => ({
+      id: te.id,
+      title: TENETS[te.id as keyof typeof TENETS] ?? "",
+      alignment: te.alignment,
+      explanation: te.explanation,
+    })),
+  };
 }
 
 export async function fetchBillMarkdown(

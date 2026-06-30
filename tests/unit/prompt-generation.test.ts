@@ -184,7 +184,9 @@ describe("Prompt Generation", () => {
       );
       expect(SUMMARY_AND_VOTE_PROMPT).toContain('"explanation":');
       expect(SUMMARY_AND_VOTE_PROMPT).toContain('"id": 1');
-      expect(SUMMARY_AND_VOTE_PROMPT).toContain('"id": 8');
+      // Titles are no longer echoed by the model; all 8 tenets are requested in prose.
+      expect(SUMMARY_AND_VOTE_PROMPT).toContain("ids 1 through 8");
+      expect(SUMMARY_AND_VOTE_PROMPT).not.toContain('"title":');
     });
   });
 
