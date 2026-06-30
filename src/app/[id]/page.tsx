@@ -1,11 +1,5 @@
 import Link from "next/link";
-import { getBillByIdFromDB } from "@/server/get-bill-by-id-from-db";
-import { getBillFromCivicsProjectApi } from "@/services/billApi";
-import {
-  fromBuildCanadaDbBill,
-  fromCivicsProjectApiBill,
-  type UnifiedBill,
-} from "@/utils/billConverters";
+import { getUnifiedBillById } from "@/server/get-unified-bill";
 import type { Metadata, ResolvingMetadata } from "next";
 import { headers } from "next/headers";
 import { env } from "@/env";
@@ -23,10 +17,12 @@ import { authOptions } from "@/lib/auth";
 import { BillTenets } from "@/components/BillDetail/BillTenets";
 import { JudgementValue } from "@/components/Judgement/judgement.component";
 import { buildAbsoluteUrl, buildRelativePath } from "@/utils/basePath";
+import { getCanonicalOrigin, stripMarkdown, truncate } from "@/utils/seo";
 import {
   BUILD_CANADA_TWITTER_HANDLE,
   BUILD_CANADA_URL,
 } from "@/consts/general";
+import { JsonLd } from "@/components/JsonLd";
 import { BillShare } from "@/components/BillDetail/BillShare";
 import { shouldShowDetermination } from "@/utils/should-show-determination/should-show-determination.util";
 
@@ -51,18 +47,8 @@ export default async function BillDetail({ params }: Params) {
     env.NODE_ENV === "production"
       ? BUILD_CANADA_URL
       : origin || BUILD_CANADA_URL;
-  // Try database first, then fallback to API
-  const dbBill = await getBillByIdFromDB(id);
-  let unifiedBill: UnifiedBill | null = null;
-
-  if (dbBill) {
-    unifiedBill = fromBuildCanadaDbBill(dbBill);
-  } else {
-    const apiBill = await getBillFromCivicsProjectApi(id);
-    if (apiBill) {
-      unifiedBill = await fromCivicsProjectApiBill(apiBill);
-    }
-  }
+  // Try database first, then fallback to API (memoized; shared with generateMetadata)
+  const unifiedBill = await getUnifiedBillById(id);
 
   if (!unifiedBill) {
     return (
@@ -83,8 +69,55 @@ export default async function BillDetail({ params }: Params) {
   );
   const judgementValue: JudgementValue = unifiedBill.final_judgment;
 
+  const canonicalOrigin = getCanonicalOrigin();
+  const canonicalUrl = buildAbsoluteUrl(canonicalOrigin, id);
+  const homeUrl = `${canonicalOrigin}${buildRelativePath()}`;
+  const billName = unifiedBill.short_title || unifiedBill.title;
+  const legislationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Legislation",
+    name: billName,
+    legislationIdentifier: unifiedBill.billId,
+    legislationType: "Bill",
+    legislationJurisdiction: "Canada",
+    description: unifiedBill.summary
+      ? truncate(stripMarkdown(unifiedBill.summary), 300)
+      : `Bill ${id} analysis and judgement`,
+    url: canonicalUrl,
+    ...(unifiedBill.introducedOn
+      ? {
+          legislationDate: new Date(unifiedBill.introducedOn)
+            .toISOString()
+            .slice(0, 10),
+        }
+      : {}),
+    ...(unifiedBill.sponsorParty
+      ? {
+          sponsor: {
+            "@type": "Organization",
+            name: unifiedBill.sponsorParty,
+          },
+        }
+      : {}),
+  };
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Bills", item: homeUrl },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: unifiedBill.billId,
+        item: canonicalUrl,
+      },
+    ],
+  };
+
   return (
     <div className="mx-auto max-w-[1100px] px-6 py-8">
+      <JsonLd data={legislationJsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
       <div className="mb-6">
         <Link href="/" className="text-sm underline  mb-6">
           ← Back to bills
@@ -152,15 +185,28 @@ export async function generateMetadata(
   const { id } = await params;
   const sp = await searchParams;
   const q = sp?.q;
-  const title = id;
-  const description = `Bill ${id} analysis and judgement`;
-  const h = headers();
-  const host = (await h).get("x-forwarded-host") || (await h).get("host") || "";
-  const proto = ((await h).get("x-forwarded-proto") || "https").split(",")[0];
-  // Ensure we always have a base URL for absolute image URLs (required for Twitter Cards)
-  const baseUrl =
-    env.NEXT_PUBLIC_APP_URL ||
-    (host ? `${proto}://${host}` : "http://localhost:3000");
+
+  // Memoized — shares the fetch with the page component for this request.
+  const bill = await getUnifiedBillById(id);
+
+  // Don't index "bill not found" pages.
+  if (!bill) {
+    return {
+      title: id,
+      description: `Bill ${id} analysis and judgement`,
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const billName = bill.short_title || bill.title;
+  const title = billName ? truncate(`${id}: ${billName}`, 70) : id;
+  const description = bill.summary
+    ? truncate(stripMarkdown(bill.summary), 155)
+    : `Bill ${id} analysis and judgement`;
+  const keywords =
+    bill.genres && bill.genres.length > 0 ? bill.genres : undefined;
+
+  const baseUrl = getCanonicalOrigin();
   const pagePath = buildRelativePath(id);
   const pageUrl = `${baseUrl}${pagePath}`;
   const pageUrlWithQuery = q
@@ -184,6 +230,7 @@ export async function generateMetadata(
   return {
     title,
     description,
+    keywords,
     alternates: { canonical: pageUrl },
     openGraph: {
       title,
@@ -199,16 +246,6 @@ export async function generateMetadata(
       creator: BUILD_CANADA_TWITTER_HANDLE,
       site: BUILD_CANADA_TWITTER_HANDLE,
       images: [ogImageUrl],
-    },
-    other: {
-      "twitter:card": "summary_large_image",
-      "twitter:title": title,
-      "twitter:description": description,
-      "twitter:image": ogImageUrl,
-      "twitter:image:alt": `Analysis card for Bill ${title}`,
-      "twitter:creator": BUILD_CANADA_TWITTER_HANDLE,
-      "twitter:site": BUILD_CANADA_TWITTER_HANDLE,
-      "twitter:url": pageUrlWithQuery,
     },
   };
 }

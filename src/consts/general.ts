@@ -1,5 +1,9 @@
 export const BUILD_CANADA_URL = "https://www.buildcanada.com";
 
+// Canonical origin for the bills app (the `/bills` basePath is appended via buildRelativePath).
+// Used by sitemap, robots, and canonical/OG URLs when NEXT_PUBLIC_APP_URL is not set.
+export const BUILD_CANADA_BILLS_ORIGIN = "https://www.buildcanada.com";
+
 export const PROJECT_NAME = "Builder MP";
 
 export const GOOGLE_ANALYTICS_ID = "G-VFXPGBE1PR";
