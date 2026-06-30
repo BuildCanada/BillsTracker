@@ -31,8 +31,6 @@ export interface BillSummary {
   summary?: string;
   final_judgment?: "yes" | "no" | "abstain";
   rationale?: string;
-  needs_more_info?: boolean;
-  missing_details?: string[];
   genres?: string[];
   tenet_evaluations?: Array<{
     id?: number;

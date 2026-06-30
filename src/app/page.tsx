@@ -2,8 +2,6 @@ import { BillSummary } from "./types";
 import BillExplorer from "./BillExplorer";
 import { getAllBillsFromDB } from "@/server/get-all-bills-from-db";
 import { fromBuildCanadaDbBill } from "@/utils/billConverters";
-import { getParliament45Header } from "@/components/BillDetail/BillHeader";
-import Markdown from "react-markdown";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { env } from "@/env";
@@ -137,8 +135,6 @@ async function getMergedBills(): Promise<BillSummary[]> {
         isSocialIssue: dbBill.isSocialIssue,
         final_judgment: dbBill.final_judgment as BillSummary["final_judgment"],
         rationale: dbBill.rationale,
-        needs_more_info: dbBill.needs_more_info,
-        missing_details: dbBill.missing_details,
         genres: dbBill.genres,
         parliamentNumber: dbBill.parliamentNumber,
         sessionNumber: dbBill.sessionNumber,
@@ -173,8 +169,6 @@ async function getMergedBills(): Promise<BillSummary[]> {
         isSocialIssue: dbBill.isSocialIssue,
         final_judgment: dbBill.final_judgment as BillSummary["final_judgment"],
         rationale: dbBill.rationale,
-        needs_more_info: dbBill.needs_more_info,
-        missing_details: dbBill.missing_details,
         genres: dbBill.genres,
         parliamentNumber: dbBill.parliamentNumber,
         sessionNumber: dbBill.sessionNumber,
@@ -224,8 +218,6 @@ export default async function Home({
             </h1>
             <FAQModalTrigger />
           </header>
-
-          <Markdown>{getParliament45Header()}</Markdown>
 
           <section className="mt-6">
             <BillExplorer bills={bills} />

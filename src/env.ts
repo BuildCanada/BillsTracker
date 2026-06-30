@@ -32,6 +32,7 @@ export const env = {
     process.env.CIVICS_PROJECT_API_KEY,
   ),
   CIVICS_PROJECT_BASE_URL: optional("CIVICS_PROJECT_BASE_URL", ENDPOINT),
+  OPENAI_API_KEY: optional("OPENAI_API_KEY", process.env.OPENAI_API_KEY),
   MONGO_URI: optional(
     "MONGO_URI",
     (process.env.MONGO_URI || process.env.MONGODB_URI)?.trim(),
