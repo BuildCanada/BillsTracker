@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Footer } from "@/components/Footer/footer.component";
 import { SessionProvider } from "@/components/SessionProvider";
-import { env } from "@/env";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import {
   BUILD_CANADA_TWITTER_HANDLE,
@@ -13,6 +12,7 @@ import {
 import { Nav } from "@/components/Nav/nav.component";
 import { SimpleAnalytics } from "@/components/SimpleAnalytics";
 import { Toaster } from "@/components/ui/sonner";
+import { getCanonicalOrigin } from "@/utils/seo";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,9 +30,7 @@ export const metadata: Metadata = {
     template: `%s · ${PROJECT_NAME}`,
   },
   description: "Understand Canadian Federal Bills",
-  metadataBase: env.NEXT_PUBLIC_APP_URL
-    ? new URL(env.NEXT_PUBLIC_APP_URL)
-    : undefined,
+  metadataBase: new URL(getCanonicalOrigin()),
   openGraph: {
     type: "website",
     siteName: PROJECT_NAME,
@@ -55,11 +53,6 @@ export const metadata: Metadata = {
     title: PROJECT_NAME,
     description: "Understand Canadian Federal Bills",
     images: ["https://buildcanada.com/bills/builder-mp-seo-image.png"],
-  },
-  other: {
-    "twitter:card": "summary_large_image",
-    "twitter:site": BUILD_CANADA_TWITTER_HANDLE,
-    "twitter:creator": BUILD_CANADA_TWITTER_HANDLE,
   },
 };
 
