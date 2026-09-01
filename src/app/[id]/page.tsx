@@ -15,6 +15,7 @@ import {
   BillMetadata,
   BillAnalysis,
   BillContact,
+  BillRelevance,
 } from "@/components/BillDetail";
 import { BillQuestions } from "@/components/BillDetail/BillQuestions";
 import { Separator } from "@/components/ui/separator";
@@ -54,13 +55,17 @@ export default async function BillDetail({ params }: Params) {
   // Try database first, then fallback to API
   const dbBill = await getBillByIdFromDB(id);
   let unifiedBill: UnifiedBill | null = null;
+  const needsRelevanceAnalysis =
+    dbBill && typeof dbBill.relevance_score !== "number";
 
-  if (dbBill) {
+  if (dbBill && !needsRelevanceAnalysis) {
     unifiedBill = fromBuildCanadaDbBill(dbBill);
   } else {
     const apiBill = await getBillFromCivicsProjectApi(id);
     if (apiBill) {
       unifiedBill = await fromCivicsProjectApiBill(apiBill);
+    } else if (dbBill) {
+      unifiedBill = fromBuildCanadaDbBill(dbBill);
     }
   }
 
@@ -126,6 +131,7 @@ export default async function BillDetail({ params }: Params) {
             )}
 
           <BillTenets bill={unifiedBill} />
+          <BillRelevance bill={unifiedBill} />
           <BillContact className="md:hidden" />
         </div>
         <div className="space-y-6">

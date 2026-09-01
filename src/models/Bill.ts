@@ -59,6 +59,16 @@ export interface BillDocument extends mongoose.Document {
   billTextsCount?: number; // track number of bill texts to detect changes
   isSocialIssue?: boolean;
   question_period_questions?: Array<{ question: string }>;
+  // Relevance analysis fields
+  relevance_score?: number;
+  relevance_level?: "low" | "medium" | "high";
+  gdp_impact_percent?: number;
+  gdp_impact_confidence?: string;
+  gdp_impact_justification?: string;
+  relevance_justification?: string;
+  primary_mechanism?: string;
+  implementation_timeline?: string;
+  relevance_analysis_timestamp?: Date;
 }
 
 // Schema for the Tenet Evaluation sub-document
@@ -134,6 +144,22 @@ const BillSchema = new Schema<BillDocument>(
       type: [{ question: { type: String, required: true } }],
       default: [],
     },
+    // Relevance analysis fields
+    relevance_score: { type: Number, min: 0, max: 10 },
+    relevance_level: {
+      type: String,
+      enum: ["low", "medium", "high"],
+    },
+    gdp_impact_percent: { type: Number },
+    gdp_impact_confidence: {
+      type: String,
+      enum: ["low", "medium", "high", "unknown"],
+    },
+    gdp_impact_justification: { type: String },
+    relevance_justification: { type: String },
+    primary_mechanism: { type: String },
+    implementation_timeline: { type: String },
+    relevance_analysis_timestamp: { type: Date },
   },
   { timestamps: true },
 );
